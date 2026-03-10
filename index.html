@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmpuLife</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+<body>
+    <div id="main-menu" class="container">
+        <form action="javascript:menu1()">
+            <div class="judul">AmpuLife</div>
+            <div class="input-box tombol">
+                <input type="submit" value="Mainkan!">
+            </div>
+            <div class="twitter">
+                <a href="#"><i class="fab fa-info"></i> Info</a>
+            </div>
+        </form>
+    </div>
+    <div id="menu-lahir" class="container">
+        <form action="javascript:birth()">
+            <div class="judul">AmpuLife</div>
+            <div class="input-box underline">
+                <input type="text" id="nama" placeholder="Nama Lengkap" autofocus>
+                <div class="underline"></div>
+            </div>
+            <select id="jk" class="input-box">
+                <option selected>Pilih jenis kelamin</option>
+                <option value="l">Laki-laki</option>
+                <option value="p">Perempuan</option>
+            </select>
+            <select id="kota" class="input-box">
+                <option selected>Pilih kota</option>
+                <option value="Bandung">Bandung</option>
+                <option value="Bekasi">Bekasi</option>
+                <option value="Bogor">Bogor</option>
+                <option value="Cirebon">Cirebon</option>
+                <option value="Jakarta">Jakarta</option>
+                <option value="Purwokerto">Purwokerto</option>
+                <option value="Semarang">Semarang</option>
+                <option value="Solo">Solo</option>
+                <option value="Surabaya">Surabaya</option>
+                <option value="Tasikmalaya">Tasikmalaya</option>
+                <option value="Yogyakarta">Yogyakarta</option>
+            </select>
+            <label for="day">Tanggal Lahir:</label><br>
+            <div class="input-box">
+                <input type="number" id="day" style="width:20%;margin-right:0" placeholder="1-31" oninput="cv()" onchange="cv()">
+                <div class="underline"></div>
+            </div>
+            <div class="input-box">
+                <input type="number" id="month" style="width:20%;margin-left:0;margin-right:0" placeholder="1-12" oninput="cv()" onchange="cv()">
+                <div class="underline"></div>
+            </div>
+            <div class="input-box">
+                <input type="number" id="year" style="width:40%;margin-left:0" placeholder="1990-2026" oninput="cv()" onchange="cv()">
+                <div class="underline"></div>
+            </div>
+            <div class="input-box tombol">
+                <input type="submit" value="Lahirkan!">
+            </div>
+            <!-- <button type="submit" onclick="birth()" class="input-box tombol">Lahir</button> -->
+        </form>
+        <!-- <div class="teks">Atau Menggunakan Sosial Media</div>
+        <div class="twitter">
+            <a href="#"><i class="fab fa-twitter"></i> Lanjutkan Dengan Twitter</a>
+        </div>
+        <div class="facebook">
+            <a href="#"><i class="fab fa-facebook"></i> Lanjutkan Dengan Facebook</a>
+        </div> -->
+    </div>
+<!-- <div id="menu-lahir" class="menua">
+<h1>Ampulife</h1>
+<label for="nama">Nama:</label>
+<input type="text" id="nama" class="input-text" placeholder="Masukkan nama" autofocus><br>
+<label for="jk">Jenis Kelamin:</label>
+<select id="jk" class="input-text">
+<option selected>Pilih jenis kelamin</option>
+<option value="l">Laki-laki</option>
+<option value="p">Perempuan</option>
+</select>
+<label for="kota">Kota:</label>
+<select id="kota" class="input-text">
+<option selected>Pilih kota</option>
+<option value="Bandung">Bandung</option>
+<option value="Bekasi">Bekasi</option>
+<option value="Bogor">Bogor</option>
+<option value="Cirebon">Cirebon</option>
+<option value="Jakarta">Jakarta</option>
+<option value="Purwokerto">Purwokerto</option>
+<option value="Semarang">Semarang</option>
+<option value="Solo">Solo</option>
+<option value="Surabaya">Surabaya</option>
+<option value="Tasikmalaya">Tasikmalaya</option>
+<option value="Yogyakarta">Yogyakarta</option>
+</select>
+<label for="day">Tanggal Lahir:</label><br>
+<input type="number" id="day" class="input-text" style="width:20%;margin-right:0" placeholder="1-31" oninput="cv()" onchange="cv()">
+<input type="number" id="month" class="input-text" style="width:20%;margin-left:0;margin-right:0" placeholder="1-12" oninput="cv()" onchange="cv()">
+<input type="number" id="year" class="input-text" style="width:40%;margin-left:0" placeholder="2000-2040" oninput="cv()" onchange="cv()">
+<button type="submit" onclick="birth()" class="tmbl-aktif">Lahir</button>
+</div> -->
+<div id="game" style="display:none">
+<div id="menu" class="menu">
+    <button onclick="tambahUmur()" class="tmbl-aktif">+ Umur</button>
+    <button id="pekerjaana" onclick="pekerjaan()">💼 Pekerjaan</button>
+    <button id="minda" onclick="mind()">Mind & Body</button>
+    <button id="asseta" onclick="asset()">Asset</button>
+    <button onclick="hubungan()" class="tmbl-aktif">♥️ Hubungan</button>
+    <button onclick="dokter()" class="tmbl-aktif">👨‍⚕️ Dokter</button>
+    <button id="krima" onclick="krima()">👺 Kriminal</button>
+    <button onclick="if(confirm('Bunuh diri?')) { meninggal(); }" class="tmbl-aktif">Bunuh Diri</button>
+    </div>
+    <div id="pekerjaan" class="menu">
+    <button onclick="back()" class="tmbl-aktif">Kembali</button>
+    <button id="kerja" onclick="kerja()">💼 Kerja</button>
+    <button id="ged" onclick="ged()">🍎 GED (Rp15Jt)</button>
+    <button id="univ" onclick="univ()">🎓 Universitas</button>
+    </div>
+    <div id="mind" class="menu">
+    <button onclick="back()" class="tmbl-aktif">Kembali</button>
+    <button onclick="gym()" class="tmbl-aktif">🏋️ Ngegym</button>
+    <button onclick="perpus()" class="tmbl-aktif">📚 Perpustakaan</button>
+    </div>
+    <div id="asset" class="menu">
+    <button onclick="back()" class="tmbl-aktif">Kembali</button>
+    <button id="simb" onclick="sima()">SIM</button>
+    <button id="mobil" onclick="mobil()">Mobil</button>
+    <button id="rumah" onclick="rumah()">Rumah</button>
+    <button onclick="sosmed()"  class="tmbl-aktif">Sosial Media</button>
+    </div>
+    <div id="krime" class="menu">
+    <button onclick="back()" class="tmbl-aktif">Kembali</button>
+    <button id="kr0" onclick="kriminal(0)">Maling</button>
+    <button id="kr1" onclick="kriminal(1)">🗡️ Pembunuhan</button>
+    <button id="kr2" onclick="kriminal(2)">Curi Mobil</button>
+    <button onclick="kriminal(3)" class="tmbl-aktif">Copet</button>
+    </div>
+    <div id="pj" class="menu">
+    <button onclick="tambahUmur()" class="tmbl-aktif">+ Umur</button>
+    <button onclick="kabur()" class="tmbl-aktif">Kabur</button>
+    <button onclick="rusuh()" class="tmbl-aktif">Kerusuhan</button>
+    <button onclick="if(confirm('Bunuh diri?')) { meninggal(); }" class="tmbl-aktif">Bunuh Diri</button>
+    </div>
+    <p id="birth"></p>
+    <p id="umur"></p>
+    <p id="uang"></p>
+    <p id="status"></p>
+    <label for="happy">Kebahagiaan:</label><br>
+    <div class="statsa">
+    <div id="happy" class="stats"></div>
+    </div>
+    <label for="health">Health:</label><br>
+    <div class="statsa">
+        <div id="health" class="stats"></div>
+    </div>
+    <label for="smarts">Smarts:</label><br>
+    <div class="statsa">
+        <div id="smarts" class="stats"></div>
+    </div>
+    <label for="looks">Looks:</label><br>
+    <div class="statsa">
+        <div id="looks" class="stats"></div>
+    </div>
+    <p id="statusa"></p>
+    </div>
+    <div id="univer" class="menua">
+    <h1>Pilih jurusan:</h1>
+    <button onclick="univer(0)" class="tmbl-aktif">Biologi</button>
+    <button onclick="univer(1)" class="tmbl-aktif">Inggris</button>
+    <button onclick="univer(2)" class="tmbl-aktif">Keuangan</button>
+    <button onclick="univer(3)" class="tmbl-aktif">Kimia</button>
+    <button onclick="univer(4)" class="tmbl-aktif">Matematika</button>
+    <button onclick="univer(5)" class="tmbl-aktif">Psikologi</button>
+    <button onclick="univer(6)" class="tmbl-aktif">Sains Komputer</button>
+    <button onclick="univer(7)" class="tmbl-aktif">Sains Politik</button>
+    <button onclick="univer(8)" class="tmbl-aktif">Sejarah</button>
+    <button onclick="univer(9)" class="tmbl-aktif">Sistem Informasi</button>
+    </div>
+    <div id="univers" class="menua">
+    <h1>Universitas</h1>
+    <p id="un"></p>
+    <p>Biaya: Rp450000000</p>
+    <p>Waktu: 4 tahun</p>
+    <button onclick="univers(0)" class="tmbl-aktif">Beasiswa</button>
+    <button onclick="univers(1)" class="tmbl-aktif">Student Loan</button>
+    <button onclick="univers(2)" class="tmbl-aktif">Pilih jurusan lain</button>
+    <button onclick="univers(3)" class="tmbl-aktif">Tidak</button>
+    </div>
+    <div id="kerjaan" class="menub">
+    <button onclick="pekerjaan()" class="tmbl-aktif">Kembali</button>
+    </div>
+    <div id="mobilp" class="menub">
+    <h1>Mobil</h1>
+    <button onclick="asset()" class="tmbl-aktif">Kembali</button>
+    <button onclick="beliMobil()" class="tmbl-aktif">Beli Mobil</button>
+    </div>
+    <div id="mobila" class="menub">
+    <h1>Beli Mobil</h1>
+    <p id="uangm"></p>
+    <button onclick="asset()" class="tmbl-aktif">Kembali</button>
+    </div>
+    <div id="rumahp" class="menub">
+    <h1>Rumah</h1>
+    <button onclick="asset()" class="tmbl-aktif">Kembali</button>
+    <button onclick="beliRumah()" class="tmbl-aktif">Beli Rumah</button>
+    </div>
+    <div id="rumaha" class="menub">
+    <h1>Beli Rumah</h1>
+    <p id="uangr"></p>
+    <button onclick="asset()" class="tmbl-aktif">Kembali</button>
+    </div>
+    <div id="hubungan" class="menub">
+    <h1>Hubungan</h1>
+    <button onclick="back()" class="tmbl-aktif">Kembali</button>
+    <div class="menuc">
+    <p><b id="hubn0"></b></p>
+    <p id="hub0"></p>
+    <p id="hubm0"></p>
+    <div id="huba0">
+    <button onclick="hubungana(0,0)" class="tmbl-hub">Antem</button>
+    <button onclick="hubungana(0,1)" class="tmbl-hub">Hina</button>
+    <button onclick="hubungana(0,2)" class="tmbl-hub">Memberi Uang</button>
+    <button onclick="hubungana(0,3)" class="tmbl-hub">Memuji</button>
+    <button onclick="hubungana(0,4)" class="tmbl-hub">Menghabiskan Waktu</button>
+    <button onclick="hubungana(0,5)" class="tmbl-hub">Minta Uang</button>
+    </div>
+    </div>
+    <div class="menuc">
+    <p><b id="hubn1"></b></p>
+    <p id="hub1"></p>
+    <p id="hubm1"></p>
+    <div id="huba1">
+    <button onclick="hubungana(1,0)" class="tmbl-hub">Antem</button>
+    <button onclick="hubungana(1,1)" class="tmbl-hub">Hina</button>
+    <button onclick="hubungana(1,2)" class="tmbl-hub">Memberi Uang</button>
+    <button onclick="hubungana(1,3)" class="tmbl-hub">Memuji</button>
+    <button onclick="hubungana(1,4)" class="tmbl-hub">Menghabiskan Waktu</button>
+    <button onclick="hubungana(1,5)" class="tmbl-hub">Minta Uang</button>
+    </div>
+    </div>
+    </div>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+    var gender, gd, nama;
+    var mon, day, daya=[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31], month=["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"], year, yeara;
+    var umur=0, status="Infant", happy, health, smarts, looks;
+    var uang=0, gaji=new Array(8), gmin=[12000000,15000000,12000000,12000000,7000000,4000000,12000000,//6
+    8000000,4000000,24000000,42000000,27000000,45000000,//12
+    24000000,42000000,12000000,24000000,12000000,24000000], gajia, gajib=0;
+    var kra, kraa=new Array(3), krab=new Array(3), krac=new Array(3), krb, penjara=false, pjt=0, pjk=false, rkr=false;
+    var smp, gyma, per, sman, sma, smka=0;
+    var peny=["Batuk rejan","Campak","DBD","Kanker",//3
+    "Coronavirus","Alzheimer","Epilepsi","Flu",//7
+    "Diare","Diabetes","Tubercolosis","Penyakit jantung"], isp=new Array(peny.length), penh=new Array(peny.length);
+    var u, ua=0, uc=["Biologi","Inggris","Keuangan","Kimia","Matematika","Psikologi","Sains Komputer","Sains Politik","Sejarah","Sistem Informasi"], ud, ue, ul;
+    var bekerja=false, kerjab, kerjac=false, kerjad=["Jr. App Developer","Jr. Banker","Jr. Computer Programmer","Pemadam Kebakaran","Petani","Petugas Kebersihan","Polisi",//6
+    "Satpam","Tukang Sampah","App Developer","Sr. App Developer","Banker",//11
+    "Sr. Banker","Computer Programmer","Sr. Computer Programmer","Kameramen Magang","Kameramen","Fotografer Magang","Fotografer"], kerjar=new Array(8), kerjam, kerjan=false, kerjat=0, pk=new Array(5), karird=[9,11,13,3,4,5,6,//6
+    7,8,9,9,11,11,13,13,//14
+    16,16,18,18];
+    var sosjoin=false, follower=0, followa, sosmeda=0, sosa, sosp=false, spost=0;
+    var sim=false, simb=false, simu, r, i, j, drugt=false, kec=new Array(6), died=false;
+    var mobilp=[], mj=0, mobila=[], mobilt=false, mobilh=[], mobilhh=new Array(8), mobilu=[], mobiluu=new Array(8), mobilk, mobilkk=new Array(8), mobilm, mobilmm=false, mobild, mobill=0;
+    var rumahp=false, rj=0, rumaha, rumaht=false, rumahh, rumahhh=new Array(8), rumahu, rumahuu=new Array(8), rumahk, rumahkk=new Array(8), rbr=new Array(8), br, rba=new Array(8), ba, rumahm, rumahmm=false, rumahd, rumahl=0, renov, renovh=new Array(5);
+    var fnamal=["Aadiktri","Aavya","Amara","Anik","Anil","Arpit","Ayaan","Banil","Buyisiwe","Cleveland","Dinesh","Donya","Dhule","Dube","Dungi","Dunyi","Gordon","Kabir","Kabul","Kadir","Leuwinanggung","Lucuss","Maxim","Megah","Om","Omnia","Opiyo","Panutan","Pramana","Rajiv","Rohit","Roman","Sama","Samar","Sebastian","Tej","Zhiqiang"], fnamap=["Aasmi","Celine","Eka","Ekenedilichukwu","Maria","Navya","Omnia","Selena","Serena","Suyin","Tasty","Zhiqiuno"], lnama=["Achaval","Apolles","Bhate","Bhatta","Bhave","Chakarbarti","Charlier","Dikshit","Ethulo","Gayakvade","Gerung","Gerungan","Goossens","Gordon","Gulati","Ho","Hu","Ijendu","Jamus","Kamal","Ketanggungan","Khan","Khatri","Kohli","Krueger","Kumar","Modi","Misra","Nasution","Nunes","Pagar","Perry","Pertanggungan","Sakuda","Salib","Sellers","Spinx","Shah","Stepanovna","Tambunan","Thakore","Thakre","Verheyen","Wang","Wong"];
+    var hub=[true,true], hubn=[fnamal[rand(fnamal.length)]+" "+lnama[rand(lnama.length)],fnamap[rand(fnamap.length)]+" "+lnama[rand(lnama.length)]], hubu=[rand(33)+18,rand(33)+18],hubr=[rand(21)+80,rand(21)+80], hina=["anjing","asw","bangsat","babi","bau","bodoh","goblok","jelek","k*ntl","tai"], hubma=[false,false],hubme, hubim=[false,false],hubiw=[false,false], hubk=[kerjad[karird[rand(kerjad.length)]],kerjad[karird[rand(kerjad.length)]]], hubm=[rand(101),rand(101)],hubmi=[false,false],humb;
+        for(i=0;i<peny.length;i++) {
+            isp[i]=false;
+            penh[i]=0;
+        }
+    happy=rand(51)+50;
+    health=rand(21)+80;
+    smarts=rand(101);
+    looks=rand(101);
+    update();
+    </script>
+</body>
+</html>
