@@ -88,91 +88,68 @@ $(function(){
     //     $("#year").val()=year;
     // }
 
-    function validMonth(a,d,y) {
-        switch(a) {
-            case "Januari":
-                $("#29").css("display","block !important");
-                $("#30").css("display","block !important");
-                $("#31").css("display","block !important");
-                return 1;
-                break;
-            case "Februari":
-                if(y%4==0) {
-                    $("#29").css("display","block !important");
-                } else {
-                    $("#29").css("display","none !important");
-                }
-                $("#30").css("display","none !important");
-                $("#31").css("display","none !important");
-                return 2;
-                break;
-            case "Maret":
-                $("#29").css("display","block !important");
-                $("#30").css("display","block !important");
-                $("#31").css("display","block !important");
-                return 3;
-                break;
-            case "April":
-                $("#29").css("display","block !important");
-                $("#30").css("display","block !important");
-                $("#31").css("display","none !important");
-                return 4;
-                break;
-            case "Mei":
-                $("#29").css("display","block !important");
-                $("#30").css("display","block !important");
-                $("#31").css("display","block !important");
-                return 5;
-                break;
-            case "Juni":
-                $("#29").css("display","block !important");
-                $("#30").css("display","block !important");
-                $("#31").css("display","none !important");
-                return 6;
-                break;
-            case "Juli":
-                $("#29").css("display","block !important");
-                $("#30").css("display","block !important");
-                $("#31").css("display","block !important");
-                return 7;
-                break;
-            case "Agustus":
-                $("#29").css("display","block !important");
-                $("#30").css("display","block !important");
-                $("#31").css("display","block !important");
-                return 8;
-                break;
-            case "September":
-                $("#29").css("display","block !important");
-                $("#30").css("display","block !important");
-                $("#31").css("display","none !important");
-                return 9;
-                break;
-            case "Oktober":
-                $("#29").css("display","block !important");
-                $("#30").css("display","block !important");
-                $("#31").css("display","block !important");
-                return 10;
-                break;
-            case "November":
-                $("#29").css("display","block !important");
-                $("#30").css("display","block !important");
-                $("#31").css("display","none !important");
-                return 11;
-                break;
-            case "Desember":
-                $("#29").css("display","block !important");
-                $("#30").css("display","block !important");
-                $("#31").css("display","block !important");
-                return 12;
-        }
+    function isLeapYear(year) {
+        return year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0);
     }
 
-    $("#month").change(function() {
-        day=parseInt($("#day").val(),10);
+    function getMaxDay(monthName, year) {
+        if(monthName === "Februari") {
+            if(!isNaN(year) && isLeapYear(year)) {
+                return 29;
+            }
+            return 28;
+        }
+
+        if(monthName === "April" || monthName === "Juni" || monthName === "September" || monthName === "November") {
+            return 30;
+        }
+
+        return 31;
+    }
+
+    function updateDayOptions(maxDay) {
+        const $day = $("#day");
+        const selectedDay = parseInt($day.val(),10);
+        const nextDay = !isNaN(selectedDay) ? Math.min(selectedDay, maxDay) : "";
+
+        $day.empty();
+        $day.append('<option value=""></option>');
+
+        for(let i=1;i<=maxDay;i++) {
+            $day.append('<option value="'+i+'">'+i+'</option>');
+        }
+
+        $day.val(nextDay === "" ? "" : String(nextDay));
+
+        $day.trigger("change.select2");
+    }
+
+    function validMonth(monthName, year) {
+        const monthMap = {
+            "Januari": 1,
+            "Februari": 2,
+            "Maret": 3,
+            "April": 4,
+            "Mei": 5,
+            "Juni": 6,
+            "Juli": 7,
+            "Agustus": 8,
+            "September": 9,
+            "Oktober": 10,
+            "November": 11,
+            "Desember": 12
+        };
+
+        const mon = monthMap[monthName];
+        if(mon) {
+            updateDayOptions(getMaxDay(monthName, year));
+        }
+        return mon;
+    }
+
+    $("#month, #year").change(function() {
         year=parseInt($("#year").val(),10);
-        mon=validMonth($("#month").val(),day,year);
-        // validMonth($("#month").val(),day,year);
+        mon=validMonth($("#month").val(),year);
     });
 
     $("#form-lahir").submit(function() {
