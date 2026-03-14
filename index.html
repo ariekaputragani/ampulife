@@ -4,69 +4,191 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AmpuLife</title>
+    <title>AmpuLife - Life Simulator</title>
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/select2.min.css">
+    <link rel="stylesheet" href="css/sweetalert2.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
 <body>
     <div id="main-menu" class="container">
-        <form action="javascript:menu1()">
-            <div class="judul">AmpuLife</div>
-            <div class="input-box tombol">
-                <input type="submit" value="Mainkan!">
-            </div>
-            <div class="twitter">
-                <a href="#"><i class="fab fa-info"></i> Info</a>
-            </div>
-        </form>
+        <!-- <form action="javascript:menu1()"> -->
+        <div class="judul">AmpuLife</div>
+        <div class="teks">
+            <img src="images/logo.png" alt="Logo">
+        </div>
+        <div class="teks">Mengandung 17 SDGs</div>
+        <div class="input-box tombol">
+            <button id="menu-1">Mainkan!</button>
+        </div>
+        <div class="tombol-1">
+            <button id="menu-2"><i class="fa fa-info"></i> Informasi Pengembang</button>
+        </div>
+        <!-- <div class="tombol-2">
+            <button onclick="menu3()"><i class="fab fa-info"></i> Detail</button>
+        </div> -->
+        <!-- </form> -->
     </div>
     <div id="menu-lahir" class="container">
-        <form action="javascript:birth()">
+        <form id="form-lahir" action="#">
             <div class="judul">AmpuLife</div>
             <div class="input-box underline">
-                <input type="text" id="nama" placeholder="Nama Lengkap" autofocus>
-                <div class="underline"></div>
-            </div>
-            <select id="jk" class="input-box">
-                <option selected>Pilih jenis kelamin</option>
-                <option value="l">Laki-laki</option>
-                <option value="p">Perempuan</option>
-            </select>
-            <select id="kota" class="input-box">
-                <option selected>Pilih kota</option>
-                <option value="Bandung">Bandung</option>
-                <option value="Bekasi">Bekasi</option>
-                <option value="Bogor">Bogor</option>
-                <option value="Cirebon">Cirebon</option>
-                <option value="Jakarta">Jakarta</option>
-                <option value="Purwokerto">Purwokerto</option>
-                <option value="Semarang">Semarang</option>
-                <option value="Solo">Solo</option>
-                <option value="Surabaya">Surabaya</option>
-                <option value="Tasikmalaya">Tasikmalaya</option>
-                <option value="Yogyakarta">Yogyakarta</option>
-            </select>
-            <label for="day">Tanggal Lahir:</label><br>
-            <div class="input-box">
-                <input type="number" id="day" style="width:20%;margin-right:0" placeholder="1-31" oninput="cv()" onchange="cv()">
+                <input type="text" id="nama" placeholder="Nama Lengkap">
                 <div class="underline"></div>
             </div>
             <div class="input-box">
-                <input type="number" id="month" style="width:20%;margin-left:0;margin-right:0" placeholder="1-12" oninput="cv()" onchange="cv()">
-                <div class="underline"></div>
+                <select id="jk">
+                    <option></option>
+                    <option value="l">Laki-laki</option>
+                    <option value="p">Perempuan</option>
+                </select>
             </div>
             <div class="input-box">
-                <input type="number" id="year" style="width:40%;margin-left:0" placeholder="1990-2026" oninput="cv()" onchange="cv()">
-                <div class="underline"></div>
+                <select id="kota">
+                    <option></option>
+                    <optgroup label="DKI Jakarta">
+                        <option value="Jakarta">Jakarta</option>
+                    </optgroup>
+                    <optgroup label="Banten">
+                        <option value="Serang">Serang</option>
+                        <option value="Tangerang">Tangerang</option>
+                    </optgroup>
+                    <optgroup label="Jawa Barat">
+                        <option value="Bandung">Bandung</option>
+                        <option value="Bekasi">Bekasi</option>
+                        <option value="Bogor">Bogor</option>
+                        <option value="Cirebon">Cirebon</option>
+                        <option value="Sukabumi">Sukabumi</option>
+                        <option value="Tasikmalaya">Tasikmalaya</option>
+                    </optgroup>
+                    <optgroup label="Jawa Tengah">
+                        <option value="Kudus">Kudus</option>
+                        <option value="Pekalongan">Pekalongan</option>
+                        <option value="Purwokerto">Purwokerto</option>
+                        <option value="Semarang">Semarang</option>
+                        <option value="Solo">Solo</option>
+                        <option value="Tegal">Tegal</option>
+                    </optgroup>
+                    <optgroup label="Daerah Istimewa Yogyakarta">
+                        <option value="Yogyakarta">Yogyakarta</option>
+                    </optgroup>
+                    <optgroup label="Jawa Timur">
+                        <option value="Malang">Malang</option>
+                        <option value="Surabaya">Surabaya</option>
+                    </optgroup>
+                    <optgroup label="Bali">
+                        <option value="Denpasar">Denpasar</option>
+                    </optgroup>
+                    <optgroup label="Lampung">
+                        <option value="Bandar Lampung">Bandar Lampung</option>
+                    </optgroup>
+                    <optgroup label="Sumatera Selatan">
+                        <option value="Palembang">Palembang</option>
+                    </optgroup>
+                    <optgroup label="Sumatera Utara">
+                        <option value="Medan">Medan</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="teks">Tanggal Lahir:</div>
+            <div class="input-box">
+                <select id="day">
+                    <option></option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                    <option value="17">17</option>
+                    <option value="18">18</option>
+                    <option value="19">19</option>
+                    <option value="20">20</option>
+                    <option value="21">21</option>
+                    <option value="22">22</option>
+                    <option value="23">23</option>
+                    <option value="24">24</option>
+                    <option value="25">25</option>
+                    <option value="26">26</option>
+                    <option value="27">27</option>
+                    <option value="28">28</option>
+                    <option id="29" value="29">29</option>
+                    <option id="30" value="30">30</option>
+                    <option id="31" value="31">31</option>
+                </select>
+                <select id="month">
+                    <option></option>
+                    <option value="Januari">Januari</option>
+                    <option value="Februari">Februari</option>
+                    <option value="Maret">Maret</option>
+                    <option value="April">April</option>
+                    <option value="Mei">Mei</option>
+                    <option value="Juni">Juni</option>
+                    <option value="Juli">Juli</option>
+                    <option value="Agustus">Agustus</option>
+                    <option value="September">September</option>
+                    <option value="Oktober">Oktober</option>
+                    <option value="November">November</option>
+                    <option value="Desember">Desember</option>
+                </select>
+                <select id="year">
+                    <option></option>
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                    <option value="2019">2019</option>
+                    <option value="2018">2018</option>
+                    <option value="2017">2017</option>
+                    <option value="2016">2016</option>
+                    <option value="2015">2015</option>
+                    <option value="2014">2014</option>
+                    <option value="2013">2013</option>
+                    <option value="2012">2012</option>
+                    <option value="2011">2011</option>
+                    <option value="2010">2010</option>
+                    <option value="2009">2009</option>
+                    <option value="2008">2008</option>
+                    <option value="2007">2007</option>
+                    <option value="2006">2006</option>
+                    <option value="2005">2005</option>
+                    <option value="2004">2004</option>
+                    <option value="2003">2003</option>
+                    <option value="2002">2002</option>
+                    <option value="2001">2001</option>
+                    <option value="2000">2000</option>
+                    <option value="1999">1999</option>
+                    <option value="1998">1998</option>
+                    <option value="1997">1997</option>
+                    <option value="1996">1996</option>
+                    <option value="1995">1995</option>
+                    <option value="1994">1994</option>
+                    <option value="1993">1993</option>
+                    <option value="1992">1992</option>
+                    <option value="1991">1991</option>
+                    <option value="1990">1990</option>
+                </select>
             </div>
             <div class="input-box tombol">
                 <input type="submit" value="Lahirkan!">
             </div>
-            <!-- <button type="submit" onclick="birth()" class="input-box tombol">Lahir</button> -->
         </form>
         <!-- <div class="teks">Atau Menggunakan Sosial Media</div>
-        <div class="twitter">
-            <a href="#"><i class="fab fa-twitter"></i> Lanjutkan Dengan Twitter</a>
+        <div class="tombol-1">
+            <a href="#"><i class="fab fa-tombol-1"></i> Lanjutkan Dengan tombol-1</a>
         </div>
         <div class="facebook">
             <a href="#"><i class="fab fa-facebook"></i> Lanjutkan Dengan Facebook</a>
@@ -244,40 +366,8 @@
     </div>
     </div>
     <script src="js/jquery.min.js"></script>
+    <script src="js/select2.min.js"></script>
+    <script src="js/sweetalert2.all.min.js"></script>
     <script src="js/script.js"></script>
-    <script>
-    var gender, gd, nama;
-    var mon, day, daya=[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31], month=["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"], year, yeara;
-    var umur=0, status="Infant", happy, health, smarts, looks;
-    var uang=0, gaji=new Array(8), gmin=[12000000,15000000,12000000,12000000,7000000,4000000,12000000,//6
-    8000000,4000000,24000000,42000000,27000000,45000000,//12
-    24000000,42000000,12000000,24000000,12000000,24000000], gajia, gajib=0;
-    var kra, kraa=new Array(3), krab=new Array(3), krac=new Array(3), krb, penjara=false, pjt=0, pjk=false, rkr=false;
-    var smp, gyma, per, sman, sma, smka=0;
-    var peny=["Batuk rejan","Campak","DBD","Kanker",//3
-    "Coronavirus","Alzheimer","Epilepsi","Flu",//7
-    "Diare","Diabetes","Tubercolosis","Penyakit jantung"], isp=new Array(peny.length), penh=new Array(peny.length);
-    var u, ua=0, uc=["Biologi","Inggris","Keuangan","Kimia","Matematika","Psikologi","Sains Komputer","Sains Politik","Sejarah","Sistem Informasi"], ud, ue, ul;
-    var bekerja=false, kerjab, kerjac=false, kerjad=["Jr. App Developer","Jr. Banker","Jr. Computer Programmer","Pemadam Kebakaran","Petani","Petugas Kebersihan","Polisi",//6
-    "Satpam","Tukang Sampah","App Developer","Sr. App Developer","Banker",//11
-    "Sr. Banker","Computer Programmer","Sr. Computer Programmer","Kameramen Magang","Kameramen","Fotografer Magang","Fotografer"], kerjar=new Array(8), kerjam, kerjan=false, kerjat=0, pk=new Array(5), karird=[9,11,13,3,4,5,6,//6
-    7,8,9,9,11,11,13,13,//14
-    16,16,18,18];
-    var sosjoin=false, follower=0, followa, sosmeda=0, sosa, sosp=false, spost=0;
-    var sim=false, simb=false, simu, r, i, j, drugt=false, kec=new Array(6), died=false;
-    var mobilp=[], mj=0, mobila=[], mobilt=false, mobilh=[], mobilhh=new Array(8), mobilu=[], mobiluu=new Array(8), mobilk, mobilkk=new Array(8), mobilm, mobilmm=false, mobild, mobill=0;
-    var rumahp=false, rj=0, rumaha, rumaht=false, rumahh, rumahhh=new Array(8), rumahu, rumahuu=new Array(8), rumahk, rumahkk=new Array(8), rbr=new Array(8), br, rba=new Array(8), ba, rumahm, rumahmm=false, rumahd, rumahl=0, renov, renovh=new Array(5);
-    var fnamal=["Aadiktri","Aavya","Amara","Anik","Anil","Arpit","Ayaan","Banil","Buyisiwe","Cleveland","Dinesh","Donya","Dhule","Dube","Dungi","Dunyi","Gordon","Kabir","Kabul","Kadir","Leuwinanggung","Lucuss","Maxim","Megah","Om","Omnia","Opiyo","Panutan","Pramana","Rajiv","Rohit","Roman","Sama","Samar","Sebastian","Tej","Zhiqiang"], fnamap=["Aasmi","Celine","Eka","Ekenedilichukwu","Maria","Navya","Omnia","Selena","Serena","Suyin","Tasty","Zhiqiuno"], lnama=["Achaval","Apolles","Bhate","Bhatta","Bhave","Chakarbarti","Charlier","Dikshit","Ethulo","Gayakvade","Gerung","Gerungan","Goossens","Gordon","Gulati","Ho","Hu","Ijendu","Jamus","Kamal","Ketanggungan","Khan","Khatri","Kohli","Krueger","Kumar","Modi","Misra","Nasution","Nunes","Pagar","Perry","Pertanggungan","Sakuda","Salib","Sellers","Spinx","Shah","Stepanovna","Tambunan","Thakore","Thakre","Verheyen","Wang","Wong"];
-    var hub=[true,true], hubn=[fnamal[rand(fnamal.length)]+" "+lnama[rand(lnama.length)],fnamap[rand(fnamap.length)]+" "+lnama[rand(lnama.length)]], hubu=[rand(33)+18,rand(33)+18],hubr=[rand(21)+80,rand(21)+80], hina=["anjing","asw","bangsat","babi","bau","bodoh","goblok","jelek","k*ntl","tai"], hubma=[false,false],hubme, hubim=[false,false],hubiw=[false,false], hubk=[kerjad[karird[rand(kerjad.length)]],kerjad[karird[rand(kerjad.length)]]], hubm=[rand(101),rand(101)],hubmi=[false,false],humb;
-        for(i=0;i<peny.length;i++) {
-            isp[i]=false;
-            penh[i]=0;
-        }
-    happy=rand(51)+50;
-    health=rand(21)+80;
-    smarts=rand(101);
-    looks=rand(101);
-    update();
-    </script>
 </body>
 </html>
