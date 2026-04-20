@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AmpuLife - Life Simulator</title>
-    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <title>AmpuLife - Indie Life Simulator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <!-- <link rel="stylesheet" href="css/font-awesome.min.css"> -->
     <link rel="stylesheet" href="css/select2.min.css">
     <link rel="stylesheet" href="css/sweetalert2.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    <div id="main-menu" class="container">
+    <div id="main-menu" class="container ct-form">
         <!-- <form action="javascript:menu1()"> -->
         <div class="judul">AmpuLife</div>
         <div class="teks">
@@ -29,7 +32,7 @@
         </div> -->
         <!-- </form> -->
     </div>
-    <div id="menu-lahir" class="container">
+    <div id="menu-lahir" class="container ct-form">
         <form id="form-lahir" action="#">
             <div class="judul">AmpuLife</div>
             <div class="input-box underline">
@@ -92,6 +95,23 @@
             </div>
             <div class="teks">Tanggal Lahir:</div>
             <div class="input-box">
+                <select id="day">
+                </select>
+                <select id="month">
+                    <option></option>
+                    <option value="Januari">Januari</option>
+                    <option value="Februari">Februari</option>
+                    <option value="Maret">Maret</option>
+                    <option value="April">April</option>
+                    <option value="Mei">Mei</option>
+                    <option value="Juni">Juni</option>
+                    <option value="Juli">Juli</option>
+                    <option value="Agustus">Agustus</option>
+                    <option value="September">September</option>
+                    <option value="Oktober">Oktober</option>
+                    <option value="November">November</option>
+                    <option value="Desember">Desember</option>
+                </select>
                 <select id="year">
                     <option></option>
                     <option value="2026">2026</option>
@@ -132,55 +152,6 @@
                     <option value="1991">1991</option>
                     <option value="1990">1990</option>
                 </select>
-                <select id="month">
-                    <option></option>
-                    <option value="Januari">Januari</option>
-                    <option value="Februari">Februari</option>
-                    <option value="Maret">Maret</option>
-                    <option value="April">April</option>
-                    <option value="Mei">Mei</option>
-                    <option value="Juni">Juni</option>
-                    <option value="Juli">Juli</option>
-                    <option value="Agustus">Agustus</option>
-                    <option value="September">September</option>
-                    <option value="Oktober">Oktober</option>
-                    <option value="November">November</option>
-                    <option value="Desember">Desember</option>
-                </select>
-                <select id="day">
-                    <option></option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                    <option value="13">13</option>
-                    <option value="14">14</option>
-                    <option value="15">15</option>
-                    <option value="16">16</option>
-                    <option value="17">17</option>
-                    <option value="18">18</option>
-                    <option value="19">19</option>
-                    <option value="20">20</option>
-                    <option value="21">21</option>
-                    <option value="22">22</option>
-                    <option value="23">23</option>
-                    <option value="24">24</option>
-                    <option value="25">25</option>
-                    <option value="26">26</option>
-                    <option value="27">27</option>
-                    <option value="28">28</option>
-                    <option id="29" value="29">29</option>
-                    <option id="30" value="30">30</option>
-                    <option id="31" value="31">31</option>
-                </select>
             </div>
             <div class="input-box tombol">
                 <input type="submit" value="Lahirkan!">
@@ -194,180 +165,226 @@
             <a href="#"><i class="fab fa-facebook"></i> Lanjutkan Dengan Facebook</a>
         </div> -->
     </div>
-<!-- <div id="menu-lahir" class="menua">
-<h1>Ampulife</h1>
-<label for="nama">Nama:</label>
-<input type="text" id="nama" class="input-text" placeholder="Masukkan nama" autofocus><br>
-<label for="jk">Jenis Kelamin:</label>
-<select id="jk" class="input-text">
-<option selected>Pilih jenis kelamin</option>
-<option value="l">Laki-laki</option>
-<option value="p">Perempuan</option>
-</select>
-<label for="kota">Kota:</label>
-<select id="kota" class="input-text">
-<option selected>Pilih kota</option>
-<option value="Bandung">Bandung</option>
-<option value="Bekasi">Bekasi</option>
-<option value="Bogor">Bogor</option>
-<option value="Cirebon">Cirebon</option>
-<option value="Jakarta">Jakarta</option>
-<option value="Purwokerto">Purwokerto</option>
-<option value="Semarang">Semarang</option>
-<option value="Solo">Solo</option>
-<option value="Surabaya">Surabaya</option>
-<option value="Tasikmalaya">Tasikmalaya</option>
-<option value="Yogyakarta">Yogyakarta</option>
-</select>
-<label for="day">Tanggal Lahir:</label><br>
-<input type="number" id="day" class="input-text" style="width:20%;margin-right:0" placeholder="1-31" oninput="cv()" onchange="cv()">
-<input type="number" id="month" class="input-text" style="width:20%;margin-left:0;margin-right:0" placeholder="1-12" oninput="cv()" onchange="cv()">
-<input type="number" id="year" class="input-text" style="width:40%;margin-left:0" placeholder="2000-2040" oninput="cv()" onchange="cv()">
-<button type="submit" onclick="birth()" class="tmbl-aktif">Lahir</button>
-</div> -->
-<div id="game" style="display:none">
-<div id="menu" class="menu">
-    <button onclick="tambahUmur()" class="tmbl-aktif">+ Umur</button>
-    <button id="pekerjaana" onclick="pekerjaan()">💼 Pekerjaan</button>
-    <button id="minda" onclick="mind()">Mind & Body</button>
-    <button id="asseta" onclick="asset()">Asset</button>
-    <button onclick="hubungan()" class="tmbl-aktif">♥️ Hubungan</button>
-    <button onclick="dokter()" class="tmbl-aktif">👨‍⚕️ Dokter</button>
-    <button id="krima" onclick="krima()">👺 Kriminal</button>
-    <button onclick="if(confirm('Bunuh diri?')) { meninggal(); }" class="tmbl-aktif">Bunuh Diri</button>
+    <div id="game" class="game">
+        <div id="messages" class="messages"></div>
+        <div id="assets" class="messages">
+            <br><span class="blue">Sosial Media</span><br><br>
+            <hr>
+            <br><span class="blue">Rumah</span><br><br>
+            <hr>
+            <br><span class="blue">Mobil</span><br><br>
+        </div>
+        <div id="activities" class="messages">
+            <div id="mind">
+                <br><span class="blue">Mind & Body</span><br><br>
+                <button id="gym">Gym</button><br>
+                <button id="lib">Perpustakaan</button><br>
+                <button id="med">Meditasi</button><br><br>
+            </div>
+            <hr>
+            <br><span class="blue">Kriminal</span><br><br>
+        </div>
+        <div id="jobs" class="messages"></div>
+        <div id="result" class="messages"></div>
+        <div id="topPart">AmpuLife | Rp0</div>
+        <div id="bar">
+            <h4>Kebahagiaan: <i id="happy-i"></i> <progress id="happy" max="100"></progress></h4>
+            <h4>Kesehatan: <i id="health-i"></i> <progress id="health" max="100"></progress></h4>
+            <h4>Kecerdasan: <i id="smarts-i"></i> <progress id="smarts" max="100"></progress></h4>
+            <h4>Penampilan: <i id="looks-i"></i> <progress id="looks" max="100"></progress></h4>
+            <!-- <h4>
+                <div class="d-flex-bar">
+                    <div>Kebahagiaan: <i id="happy-i" class="fa fa-face-smile"></i></div>
+                    <div><progress id="happy" max="100"></progress></div> 
+                </div>
+            </h4>
+            <h4>
+                <div class="d-flex-bar">
+                    <div>Kesehatan: <i id="health-i" class="fa fa-heart"></i></div>
+                    <div><progress id="health" max="100"></progress></div> 
+                </div>
+            </h4>
+            <h4>
+                <div class="d-flex-bar">
+                    <div>Kecerdasan: <i id="smarts-i" class="fa fa-brain"></i></div>
+                    <div><progress id="smarts" max="100"></progress></div> 
+                </div>
+            </h4>
+            <h4>
+                <div class="d-flex-bar">
+                    <div>Penampilan: <i id="looks-i" class="fa fa-user"></i></div>
+                    <div><progress id="looks" max="100"></progress></div> 
+                </div>
+            </h4> -->
+        </div>
+        <div class="ageUp">
+            <button id="ageUp"><i class="fa fa-plus"></i> Umur</button>
+        </div>
+        <div id="groups" class="row">
+            <div class="col-3 tombol-2">
+                <button id="tombol-1"><i class="fa fa-baby"></i> Infant</button>
+            </div>
+            <div class="col-3 tombol-1">
+                <button id="tombol-2"><i class="fa fa-house-chimney-user"></i> Aset</button>
+            </div>
+            <div class="col-3 tombol-1">
+                <button id="tombol-3"><i class="fa fa-user-group"></i> Hubungan</button>
+            </div>
+            <div class="col-3 tombol-1">
+                <button id="tombol-4"><i class="fa fa-book-open"></i> Aktivitas</button>
+            </div>
+        </div>
+        <div id="btn-back">
+            <button id="back">Kembali</button>
+        </div>
+        <div id="journal">
+            <button id="jurnal">Jurnal</button>
+        </div>
     </div>
-    <div id="pekerjaan" class="menu">
-    <button onclick="back()" class="tmbl-aktif">Kembali</button>
-    <button id="kerja" onclick="kerja()">💼 Kerja</button>
-    <button id="ged" onclick="ged()">🍎 GED (Rp15Jt)</button>
-    <button id="univ" onclick="univ()">🎓 Universitas</button>
-    </div>
-    <div id="mind" class="menu">
-    <button onclick="back()" class="tmbl-aktif">Kembali</button>
-    <button onclick="gym()" class="tmbl-aktif">🏋️ Ngegym</button>
-    <button onclick="perpus()" class="tmbl-aktif">📚 Perpustakaan</button>
-    </div>
-    <div id="asset" class="menu">
-    <button onclick="back()" class="tmbl-aktif">Kembali</button>
-    <button id="simb" onclick="sima()">SIM</button>
-    <button id="mobil" onclick="mobil()">Mobil</button>
-    <button id="rumah" onclick="rumah()">Rumah</button>
-    <button onclick="sosmed()"  class="tmbl-aktif">Sosial Media</button>
-    </div>
-    <div id="krime" class="menu">
-    <button onclick="back()" class="tmbl-aktif">Kembali</button>
-    <button id="kr0" onclick="kriminal(0)">Maling</button>
-    <button id="kr1" onclick="kriminal(1)">🗡️ Pembunuhan</button>
-    <button id="kr2" onclick="kriminal(2)">Curi Mobil</button>
-    <button onclick="kriminal(3)" class="tmbl-aktif">Copet</button>
-    </div>
-    <div id="pj" class="menu">
-    <button onclick="tambahUmur()" class="tmbl-aktif">+ Umur</button>
-    <button onclick="kabur()" class="tmbl-aktif">Kabur</button>
-    <button onclick="rusuh()" class="tmbl-aktif">Kerusuhan</button>
-    <button onclick="if(confirm('Bunuh diri?')) { meninggal(); }" class="tmbl-aktif">Bunuh Diri</button>
-    </div>
-    <p id="birth"></p>
-    <p id="umur"></p>
-    <p id="uang"></p>
-    <p id="status"></p>
-    <label for="happy">Kebahagiaan:</label><br>
-    <div class="statsa">
-    <div id="happy" class="stats"></div>
-    </div>
-    <label for="health">Health:</label><br>
-    <div class="statsa">
-        <div id="health" class="stats"></div>
-    </div>
-    <label for="smarts">Smarts:</label><br>
-    <div class="statsa">
-        <div id="smarts" class="stats"></div>
-    </div>
-    <label for="looks">Looks:</label><br>
-    <div class="statsa">
-        <div id="looks" class="stats"></div>
-    </div>
-    <p id="statusa"></p>
+    <!-- <div id="game" style="display:none">
+        <div id="menu" class="menu">
+            <button onclick="tambahUmur()" class="tmbl-aktif">+ Umur</button>
+            <button id="pekerjaana" onclick="pekerjaan()">💼 Pekerjaan</button>
+            <button id="minda" onclick="mind()">Mind & Body</button>
+            <button id="asseta" onclick="asset()">Asset</button>
+            <button onclick="hubungan()" class="tmbl-aktif">♥️ Hubungan</button>
+            <button onclick="dokter()" class="tmbl-aktif">👨‍⚕️ Dokter</button>
+            <button id="krima" onclick="krima()">👺 Kriminal</button>
+            <button onclick="if(confirm('Bunuh diri?')) { meninggal(); }" class="tmbl-aktif">Bunuh Diri</button>
+        </div>
+        <div id="pekerjaan" class="menu">
+            <button onclick="back()" class="tmbl-aktif">Kembali</button>
+            <button id="kerja" onclick="kerja()">💼 Kerja</button>
+            <button id="ged" onclick="ged()">🍎 GED (Rp15Jt)</button>
+            <button id="univ" onclick="univ()">🎓 Universitas</button>
+        </div>
+        <div id="mind" class="menu">
+            <button onclick="back()" class="tmbl-aktif">Kembali</button>
+            <button onclick="gym()" class="tmbl-aktif">🏋️ Ngegym</button>
+            <button onclick="perpus()" class="tmbl-aktif">📚 Perpustakaan</button>
+        </div>
+        <div id="asset" class="menu">
+            <button onclick="back()" class="tmbl-aktif">Kembali</button>
+            <button id="simb" onclick="sima()">SIM</button>
+            <button id="mobil" onclick="mobil()">Mobil</button>
+            <button id="rumah" onclick="rumah()">Rumah</button>
+            <button onclick="sosmed()"  class="tmbl-aktif">Sosial Media</button>
+        </div>
+        <div id="krime" class="menu">
+            <button onclick="back()" class="tmbl-aktif">Kembali</button>
+            <button id="kr0" onclick="kriminal(0)">Maling</button>
+            <button id="kr1" onclick="kriminal(1)">🗡️ Pembunuhan</button>
+            <button id="kr2" onclick="kriminal(2)">Curi Mobil</button>
+            <button onclick="kriminal(3)" class="tmbl-aktif">Copet</button>
+        </div>
+        <div id="pj" class="menu">
+            <button onclick="tambahUmur()" class="tmbl-aktif">+ Umur</button>
+            <button onclick="kabur()" class="tmbl-aktif">Kabur</button>
+            <button onclick="rusuh()" class="tmbl-aktif">Kerusuhan</button>
+            <button onclick="if(confirm('Bunuh diri?')) { meninggal(); }" class="tmbl-aktif">Bunuh Diri</button>
+        </div>
+        <p id="birth"></p>
+        <p id="umur"></p>
+        <p id="uang"></p>
+        <p id="status"></p>
+        <label for="happy">Kebahagiaan:</label><br>
+        <div class="statsa">
+            <div id="happy" class="stats"></div>
+        </div>
+        <label for="health">Health:</label><br>
+        <div class="statsa">
+            <div id="health" class="stats"></div>
+        </div>
+        <label for="smarts">Smarts:</label><br>
+        <div class="statsa">
+            <div id="smarts" class="stats"></div>
+        </div>
+        <label for="looks">Looks:</label><br>
+        <div class="statsa">
+            <div id="looks" class="stats"></div>
+        </div>
+        <p id="statusa"></p>
     </div>
     <div id="univer" class="menua">
-    <h1>Pilih jurusan:</h1>
-    <button onclick="univer(0)" class="tmbl-aktif">Biologi</button>
-    <button onclick="univer(1)" class="tmbl-aktif">Inggris</button>
-    <button onclick="univer(2)" class="tmbl-aktif">Keuangan</button>
-    <button onclick="univer(3)" class="tmbl-aktif">Kimia</button>
-    <button onclick="univer(4)" class="tmbl-aktif">Matematika</button>
-    <button onclick="univer(5)" class="tmbl-aktif">Psikologi</button>
-    <button onclick="univer(6)" class="tmbl-aktif">Sains Komputer</button>
-    <button onclick="univer(7)" class="tmbl-aktif">Sains Politik</button>
-    <button onclick="univer(8)" class="tmbl-aktif">Sejarah</button>
-    <button onclick="univer(9)" class="tmbl-aktif">Sistem Informasi</button>
+        <h1>Pilih jurusan:</h1>
+        <button onclick="univer(0)" class="tmbl-aktif">Biologi</button>
+        <button onclick="univer(1)" class="tmbl-aktif">Inggris</button>
+        <button onclick="univer(2)" class="tmbl-aktif">Keuangan</button>
+        <button onclick="univer(3)" class="tmbl-aktif">Kimia</button>
+        <button onclick="univer(4)" class="tmbl-aktif">Matematika</button>
+        <button onclick="univer(5)" class="tmbl-aktif">Psikologi</button>
+        <button onclick="univer(6)" class="tmbl-aktif">Sains Komputer</button>
+        <button onclick="univer(7)" class="tmbl-aktif">Sains Politik</button>
+        <button onclick="univer(8)" class="tmbl-aktif">Sejarah</button>
+        <button onclick="univer(9)" class="tmbl-aktif">Sistem Informasi</button>
     </div>
     <div id="univers" class="menua">
-    <h1>Universitas</h1>
-    <p id="un"></p>
-    <p>Biaya: Rp450000000</p>
-    <p>Waktu: 4 tahun</p>
-    <button onclick="univers(0)" class="tmbl-aktif">Beasiswa</button>
-    <button onclick="univers(1)" class="tmbl-aktif">Student Loan</button>
-    <button onclick="univers(2)" class="tmbl-aktif">Pilih jurusan lain</button>
-    <button onclick="univers(3)" class="tmbl-aktif">Tidak</button>
+        <h1>Universitas</h1>
+        <p id="un"></p>
+        <p>Biaya: Rp450000000</p>
+        <p>Waktu: 4 tahun</p>
+        <button onclick="univers(0)" class="tmbl-aktif">Beasiswa</button>
+        <button onclick="univers(1)" class="tmbl-aktif">Student Loan</button>
+        <button onclick="univers(2)" class="tmbl-aktif">Pilih jurusan lain</button>
+        <button onclick="univers(3)" class="tmbl-aktif">Tidak</button>
     </div>
     <div id="kerjaan" class="menub">
-    <button onclick="pekerjaan()" class="tmbl-aktif">Kembali</button>
+        <button onclick="pekerjaan()" class="tmbl-aktif">Kembali</button>
     </div>
     <div id="mobilp" class="menub">
-    <h1>Mobil</h1>
-    <button onclick="asset()" class="tmbl-aktif">Kembali</button>
-    <button onclick="beliMobil()" class="tmbl-aktif">Beli Mobil</button>
+        <h1>Mobil</h1>
+        <button onclick="asset()" class="tmbl-aktif">Kembali</button>
+        <button onclick="beliMobil()" class="tmbl-aktif">Beli Mobil</button>
     </div>
     <div id="mobila" class="menub">
-    <h1>Beli Mobil</h1>
-    <p id="uangm"></p>
-    <button onclick="asset()" class="tmbl-aktif">Kembali</button>
+        <h1>Beli Mobil</h1>
+        <p id="uangm"></p>
+        <button onclick="asset()" class="tmbl-aktif">Kembali</button>
     </div>
     <div id="rumahp" class="menub">
-    <h1>Rumah</h1>
-    <button onclick="asset()" class="tmbl-aktif">Kembali</button>
-    <button onclick="beliRumah()" class="tmbl-aktif">Beli Rumah</button>
+        <h1>Rumah</h1>
+        <button onclick="asset()" class="tmbl-aktif">Kembali</button>
+        <button onclick="beliRumah()" class="tmbl-aktif">Beli Rumah</button>
     </div>
     <div id="rumaha" class="menub">
-    <h1>Beli Rumah</h1>
-    <p id="uangr"></p>
-    <button onclick="asset()" class="tmbl-aktif">Kembali</button>
+        <h1>Beli Rumah</h1>
+        <p id="uangr"></p>
+        <button onclick="asset()" class="tmbl-aktif">Kembali</button>
     </div>
     <div id="hubungan" class="menub">
-    <h1>Hubungan</h1>
-    <button onclick="back()" class="tmbl-aktif">Kembali</button>
-    <div class="menuc">
-    <p><b id="hubn0"></b></p>
-    <p id="hub0"></p>
-    <p id="hubm0"></p>
-    <div id="huba0">
-    <button onclick="hubungana(0,0)" class="tmbl-hub">Antem</button>
-    <button onclick="hubungana(0,1)" class="tmbl-hub">Hina</button>
-    <button onclick="hubungana(0,2)" class="tmbl-hub">Memberi Uang</button>
-    <button onclick="hubungana(0,3)" class="tmbl-hub">Memuji</button>
-    <button onclick="hubungana(0,4)" class="tmbl-hub">Menghabiskan Waktu</button>
-    <button onclick="hubungana(0,5)" class="tmbl-hub">Minta Uang</button>
-    </div>
-    </div>
-    <div class="menuc">
-    <p><b id="hubn1"></b></p>
-    <p id="hub1"></p>
-    <p id="hubm1"></p>
-    <div id="huba1">
-    <button onclick="hubungana(1,0)" class="tmbl-hub">Antem</button>
-    <button onclick="hubungana(1,1)" class="tmbl-hub">Hina</button>
-    <button onclick="hubungana(1,2)" class="tmbl-hub">Memberi Uang</button>
-    <button onclick="hubungana(1,3)" class="tmbl-hub">Memuji</button>
-    <button onclick="hubungana(1,4)" class="tmbl-hub">Menghabiskan Waktu</button>
-    <button onclick="hubungana(1,5)" class="tmbl-hub">Minta Uang</button>
-    </div>
-    </div>
-    </div>
+        <h1>Hubungan</h1>
+        <button onclick="back()" class="tmbl-aktif">Kembali</button>
+        <div class="menuc">
+            <p><b id="hubn0"></b></p>
+            <p id="hub0"></p>
+            <p id="hubm0"></p>
+            <div id="huba0">
+                <button onclick="hubungana(0,0)" class="tmbl-hub">Antem</button>
+                <button onclick="hubungana(0,1)" class="tmbl-hub">Hina</button>
+                <button onclick="hubungana(0,2)" class="tmbl-hub">Memberi Uang</button>
+                <button onclick="hubungana(0,3)" class="tmbl-hub">Memuji</button>
+                <button onclick="hubungana(0,4)" class="tmbl-hub">Menghabiskan Waktu</button>
+                <button onclick="hubungana(0,5)" class="tmbl-hub">Minta Uang</button>
+            </div>
+        </div>
+        <div class="menuc">
+            <p><b id="hubn1"></b></p>
+            <p id="hub1"></p>
+            <p id="hubm1"></p>
+            <div id="huba1">
+                <button onclick="hubungana(1,0)" class="tmbl-hub">Antem</button>
+                <button onclick="hubungana(1,1)" class="tmbl-hub">Hina</button>
+                <button onclick="hubungana(1,2)" class="tmbl-hub">Memberi Uang</button>
+                <button onclick="hubungana(1,3)" class="tmbl-hub">Memuji</button>
+                <button onclick="hubungana(1,4)" class="tmbl-hub">Menghabiskan Waktu</button>
+                <button onclick="hubungana(1,5)" class="tmbl-hub">Minta Uang</button>
+            </div>
+        </div>
+    </div> -->
     <script src="js/jquery.min.js"></script>
     <script src="js/select2.min.js"></script>
     <script src="js/sweetalert2.all.min.js"></script>
     <script src="js/script.js"></script>
 </body>
+
 </html>

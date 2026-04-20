@@ -14,11 +14,25 @@ html, body{
     background: linear-gradient(to right, rgb(68, 68, 255) 0%, rgb(255, 77, 77) 100%);
 }
 
-.container{
-    background: #fff;
+.container,
+.game{
     max-width: 350px;
     width: 100%;
+    /* padding: 25px 30px; */
+}
+
+.container {
     padding: 25px 30px;
+}
+
+.game {
+    padding: 0px 30px;
+    /* position: relative; */
+    height: 100vh;
+}
+
+.ct-form{
+    background: #fff;
     border-radius: 5px;
     box-shadow: 0 10px 10px rgba(0,0,0,0.15);
 }
@@ -41,14 +55,88 @@ html, body{
     background: linear-gradient(to right, rgb(255, 77, 77) 0%, rgb(68, 68, 255) 100%);
 }
 
+.game .ageUp,
 .container .input-box{
     width: 100%;
     height: 45px;
-    margin-top: 25px;
+    /* margin-top: 25px; */
     position: relative;
 }
 
+.container .input-box {
+    /* height: 45px; */
+    margin-top: 25px;
+    /* position: relative; */
+}
+
+.game .ageUp {
+    /* top: 0; */
+    /* height: 100vh; */
+    margin-top: 0;
+    /* position: absolute; */
+    top: 62%;
+}
+
+/* .container .input-box { */
+    /* height: 45px; */
+    /* margin-top: 25px;
+    position: relative; */
+/* } */
+
+/* #ageUp { */
+    /* position: fixed; */
+    /* top: 66%; */
+    /* background:#ffff80;
+    width: 50px;
+    height: 50px; */
+    /* text-align: center;
+    font-size: 25px; */
+    /* right: 46%; */
+    /* border-radius: 50%; */
+/* } */
+
+/* .game .ageUp { */
+    /* height: 100vh; */
+    /* top: 0; */
+    /* position: absolute; */
+    /* top: 66%;  */
+    /* top: 432px; */
+    /* margin-top: 56px; */
+/* } */
+
+/* #ageUp {
+    position: absolute; */
+    /* top: 66%;  */
+    /* top: 432px; */
+    /* top: 0; */
+    /* margin-top: 56px;
+} */
+
+.game .ageUp button,
 .container .input-box input, 
+.container .input-box button{
+    width: 100%;
+    height: 100%;
+    outline: none;
+    border: none;
+}
+
+.container .input-box input{
+    font-size: 16px;
+}
+
+/* .container .input-box input,
+.container .input-box button{
+    height: 100%;
+} */
+
+/* .game .ageUp button { */
+    /* position: absolute; */
+    /* height: 45px; */
+    /* top: 66%; */
+/* } */
+
+/* .container .input-box input, 
 .container .input-box button,
 .container .input-box select{
     width: 100%;
@@ -60,7 +148,7 @@ html, body{
 .container .input-box button{
     outline: none;
     border: none;
-}
+} */
 
 /* .select2-container .select2-selection--single{
     height: 100%;
@@ -100,6 +188,7 @@ html, body{
     margin: 40px 0 20px 0;
 }
 
+.game .ageUp button,
 .container .input-box button,
 .container .input-box input[type="submit"]{
     background: linear-gradient(to right, rgb(255, 77, 77) 0%, rgb(88, 88, 241) 100%);
@@ -110,6 +199,7 @@ html, body{
     transition: all 0.3s ease;
 }
 
+.game .ageUp button:hover,
 .container .input-box button:hover,
 .container .input-box input[type="submit"]:hover{
     letter-spacing: 1px;
@@ -121,8 +211,8 @@ html, body{
     text-align: center;
 }
 
-.container .tombol-2 button,
-.container .tombol-1 button{
+.tombol-2 button,
+.tombol-1 button{
     display: block;
     height: 45px;
     width: 100%;
@@ -139,28 +229,28 @@ html, body{
     transition: all 0.3s ease;
 }
 
-.container .tombol-2 i,
-.container .tombol-1 i{
+.tombol-2 i,
+.tombol-1 i{
     padding-right: 12px;
     font-size: 20px;
 }
 
-.container .tombol-1 button{
+.tombol-1 button{
     background: #00acee;
     margin: 20px 0 12px 0;
 }
 
-.container .tombol-2 button{
+.tombol-2 button{
     background: #3b5998;
     margin: 20px 0 12px 0;
 }
 
-.container .tombol-1 button:hover{
+.tombol-1 button:hover{
     background: linear-gradient(to right, #00acee 0%, #3cc8ff 100%);
     margin: 20px 0 20 0;
 }
 
-.container .tombol-2 button:hover{
+.tombol-2 button:hover{
     background: linear-gradient(to right, #3b5998 0%, #476bb8 100%);
     margin: 20px 0 20 0;
 }
@@ -170,7 +260,7 @@ html, body{
     line-height: 1.5em;
  } */
 
-.input-text {
+/* .input-text {
     background: #ffffff;
     border: 5px solid #009900;
     width: 90%;
@@ -193,7 +283,7 @@ html, body{
     border-radius: 20px;
     overflow: hidden;
     float: right;
-}
+} */
 
 /* button {
     background: #e0e0e0;
@@ -210,7 +300,7 @@ html, body{
     margin-right: 15px;
 } */
 
-.tmbl-aktif {
+/* .tmbl-aktif {
     background: #333300;
     color: #ffffff;
     border: 5px solid #009900;
@@ -255,7 +345,7 @@ html, body{
     border: 1px solid #000000;
     height: 18px;
     text-align: center;
-}
+} */
 
 /* h1 {
     margin-top: 20px;
@@ -264,7 +354,7 @@ html, body{
     font-weight: bold;
 } */
 
-.menua {
+/* .menua {
     display: none;
     max-width: 100%;
     height: auto;
@@ -291,4 +381,132 @@ html, body{
     background: #333333;
     border-bottom: 1px solid #ffffff;
     padding: 10px 10px 10px 10px;
-} 
+}  */
+
+/* .game {
+    background: #e0e0e0;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+} */
+
+.messages {
+    position: fixed;
+    background: #ffffff;
+    width: 100%;
+    height: 400px;
+    text-align: center;
+    color: #808080;
+    left: 0;
+    top: 32px;
+    word-wrap: break-word;
+    overflow-y: scroll;
+    font-family: sans-serif;
+}
+
+#result, #assets, #activities, #jobs {
+    display: none;
+}
+
+#topPart {
+    background: #e04848;
+    width: 100%;
+    height: 30px;
+    text-align: center;
+    position: fixed;
+    font-family: sans-serif;
+    left: 0;
+    top: 0;
+    font-weight: 800;
+    font-size: 17px;
+    text-transform: uppercase;
+}
+
+/* #ageUp { */
+    /* position: fixed; */
+    /* top: 66%; */
+    /* background:#ffff80;
+    width: 50px;
+    height: 50px; */
+    /* text-align: center;
+    font-size: 25px; */
+    /* right: 46%; */
+    /* border-radius: 50%; */
+/* } */
+
+.blue {
+    color: #2060a0;
+    font-weight: 600;
+}
+
+#bar {
+    position: fixed;
+    left: 0;
+    top: 70%;
+    background: #ffffff;
+    width: 100%;
+    box-shadow: 0px 0px 5px 0px #000000;
+    /* flex-direction: column; */
+}
+
+/* .d-flex-bar {
+    display: flex;
+    justify-content: space-between; */
+    /* flex-direction: row;
+    flex-wrap: nowrap; */
+/* } */
+
+
+h4 {
+    /* text-align: right; */
+    margin-left: 20px;
+}
+
+h4 i {
+    margin-left: 12px;
+}
+
+progress {
+    width: 300px;
+    float: right;
+    margin-right: 5px;
+}
+
+#groups, #btn-back, #journal {
+    left: 0;
+    top: 432px;
+    position: fixed;
+    width: 100%;
+}
+
+#btn-back, #journal, #mind {
+    display: none;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 0;
+  /* margin-right: -0.75rem; */
+  /* margin-left: -0.75rem; */
+}
+
+.row > * {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 100%;
+  padding-right: 0.75rem;
+  padding-left: 0.75rem;
+  margin-top: 0;
+}
+
+.col-3 {
+  flex: 0 0 auto;
+  width: 25%;
+}
+
