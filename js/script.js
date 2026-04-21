@@ -32,12 +32,12 @@ $(function () {
         7, 8, 9, 9, 11, 11, 13, 13,//14
         16, 16, 18, 18];
     var sosjoin = false, follower = 0, followa, sosmeda = 0, sosa, sosp = false, spost = 0;
-    var sim = false, simb = false, simu, r, i, drugt = false, kec = new Array(6), died = false, dieCauses = [" meninggal karena sebab alamiah", " meninggal karena usia tua",//1
+    var sim = false, simb = false, simu, r, i, kec = new Array(6), died = false, dieCauses = [" meninggal karena sebab alamiah", " meninggal karena usia tua",//1
         " meninggal dunia saat tidur dengan tenang", " meninggal karena pembunuhan", " meninggal setelah tersambar petir", " meninggal setelah overdosis obat"]; //5
     var mobilp = [], mj = 0, mobila = [], mobilt = false, mobilh = [], mobilhh = new Array(8), mobilu = [], mobiluu = new Array(8), mobilk, mobilkk = new Array(8), mobilm, mobilmm = false, mobild, mobill = 0;
     var rumahp = false, rj = 0, rumaha, rumaht = false, rumahh, rumahhh = new Array(8), rumahu, rumahuu = new Array(8), rumahk, rumahkk = new Array(8), rbr = new Array(8), br, rba = new Array(8), ba, rumahm, rumahmm = false, rumahd, rumahl = 0, renov, renovh = new Array(5);
     var fnamal = ["Aadiktri", "Aavya", "Amara", "Anik", "Anil", "Arpit", "Ayaan", "Banil", "Buyisiwe", "Cleveland", "Dinesh", "Donya", "Dhule", "Dube", "Dungi", "Dunyi", "Gordon", "Kabir", "Kabul", "Kadir", "Leuwinanggung", "Lucuss", "Maxim", "Megah", "Om", "Omnia", "Opiyo", "Panutan", "Pramana", "Rajiv", "Rohit", "Roman", "Sama", "Samar", "Sebastian", "Tej", "Zhiqiang"], fnamap = ["Aasmi", "Celine", "Eka", "Ekenedilichukwu", "Maria", "Navya", "Omnia", "Selena", "Serena", "Suyin", "Tasty", "Zhiqiuno"], lnama = ["Achaval", "Apolles", "Bhate", "Bhatta", "Bhave", "Chakarbarti", "Charlier", "Dikshit", "Ethulo", "Gayakvade", "Gerung", "Gerungan", "Goossens", "Gordon", "Gulati", "Ho", "Hu", "Ijendu", "Jamus", "Kamal", "Ketanggungan", "Khan", "Khatri", "Kohli", "Krueger", "Kumar", "Modi", "Misra", "Nasution", "Nunes", "Pagar", "Perry", "Pertanggungan", "Sakuda", "Salib", "Sellers", "Spinx", "Shah", "Stepanovna", "Tambunan", "Thakore", "Thakre", "Verheyen", "Wang", "Wong"];
-    var hub = [true, true], hubn = [fnamal[rand(0, fnamal.length)] + " " + lnama[rand(0, lnama.length)], fnamap[rand(0, fnamap.length)] + " " + lnama[rand(0, lnama.length)]];
+    var hub = [true, true], hubn = [getMaleFN() + " " + getLN(), getFemaleFN() + " " + getLN()];
     var huba = ["bapak", "ibu"], hubak = ["Bapak", "Ibu"];
     var hubu = [rand(18, 33), rand(18, 33)], hubr = [rand(80, 21), rand(80, 21)], hina = ["anjing", "asw", "bangsat", "babi", "bau", "bodoh", "goblok", "jelek", "k*ntl", "tai"];
     var hubma = [false, false]; // u/ memberi uang/tahun dngn pengaruh positif
@@ -60,10 +60,10 @@ $(function () {
         return a;
     }
 
-    // function getLN() {
-    //     let a=lname[rand(0,lname.length)];
-    //     return a;
-    // }
+    function getLN() {
+        let a = lnama[rand(0, lnama.length)];
+        return a;
+    }
 
     var happy = rand(50, 51), health = rand(80, 21), smarts = rand(0, 101), looks = rand(0, 101);
 
@@ -71,17 +71,21 @@ $(function () {
     var ageForMessage;
     // var gender = ["male","female"];
     // var gende = rand(0,gender.length);
-    var gende = rand(0, 2);
+    // var gende = rand(0, 2);
     // var genders = gender[gende];
-    if (gende == 0) {
-        fname = getMaleFN();
-    } else {
-        fname = getFemaleFN();
-    }
+    // if (gende == 0) {
+    //     fname = getMaleFN();
+    // } else {
+    //     fname = getFemaleFN();
+    // }
     var otherEvents = false;
     // var rl=[true,true], rlname=[getFemaleFN()+" "+names,getMaleFN()+" "+names], rlage=[rand(18,33),rand(18,33)];
     // var o=0, sd, smp, sma, sman=0, learn=0, um, un=0, major=["Arts","Biology","Chemistry","Computer Science","Finance"];
     var drugt = false, drugs = ["Heroin", "Ganja", "Opium", "LSD", "MDMA", "Morfina", "Kokaina"];
+    var hewan = ["anjing", "babi hutan", "badak", "buaya", "domba", "gajah", //5
+        "gorila", "harimau", "kalajengking", "kambing", "kodok batu", //10
+        "kucing", "kuda nil", "nyamuk", "tawon", "tokek", "unta", "ular"]; //17
+
 
     // $(window).load(function(){
     for (i = 0; i < peny.length; i++) {
@@ -209,7 +213,7 @@ $(function () {
         mon = validMonth($("#month").val(), year);
     });
 
-    $("#form-lahir").submit(function () {
+    $("#lahirkan").click(function () {
         nama = $("#nama").val();
         gender = $("#jk").val();
         if (gender == "l")
@@ -427,20 +431,23 @@ $(function () {
                     blfn = getFemaleFN();
                 }
                 blln = getLN();
-                swal.fire("Sekolah", "Kamu dibuli oleh " + blfn + " " + blln, {
-                    buttons: {
-                        cancel: "Do nothing",
-                        assault: "Assault",
-                        report: "Report to the headmaster"
-                    }
-                }).then((value) => {
-                    newLine("I got bullied by " + blfn + " " + blln + ".");
-                    switch (value) {
-                        case "assault":
-                            newLine("I assaulted " + blfn + " " + blln + "!");
-                            break;
-                        case "report":
-                            newLine("I reported " + blfn + " " + blln + " to the headmaster.");
+                swal.fire({
+                    title: "Sekolah",
+                    text: "Kamu dibuli oleh " + blfn + " " + blln,
+                    icon: "warning",
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    cancelButtonText: "Tidak melakukan apa-apa",
+                    denyButtonText: "Antem",
+                    confirmButtonText: "Laporkan ke kepala sekolah"
+                }).then((result) => {
+                    newLine("Saya dibuli oleh " + blfn + ".");
+                    if (result.isConfirmed) {
+                        newLine("Saya melaporkan " + blfn + " ke kepala sekolah.");
+                    } else if (result.isDenied) {
+                        newLine("Saya mengantemi " + blfn + "!");
+                    } else {
+                        newLine("Saya tidak melakukan apa-apa.");
                     }
                 });
             }
@@ -555,7 +562,10 @@ $(function () {
                 swal.fire({
                     title: "Obat",
                     text: "Kamu ditawar " + drugs[drugo],
-                    icon: "warning",
+                    imageUrl: "images/drug.png",
+                    imageWidth: 64,
+                    imageHeight: 64,
+                    imageAlt: "Obat",
                     showCancelButton: true,
                     confirmButtonColor: "#dc3741",
                     cancelButtonColor: "#7066e0",
@@ -571,7 +581,6 @@ $(function () {
                             case 4:
                             case 5:
                             case 6:
-                                drugt = true;
                                 updatea(0, -50, 0, 0);
                                 // if (health < 0) {
                                 //     die(5);
@@ -582,6 +591,10 @@ $(function () {
                                 break;
                             case 3:
                                 updatea(10, -16, 0, 0);
+                        }
+                        r = Math.random();
+                        if (r < 0.2) {
+                            kecanduan(drugo);
                         }
                         newLine("Saya mulai mencoba " + drugs[drugo] + ".");
                     } else {
@@ -602,11 +615,11 @@ $(function () {
                         denyButtonText: "Peliharalah"
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            newLine("I encountered a . I retreated slowly.");
+                            newLine("Saya bertemu dengan seekor " + hewan[b] + ". Saya mundur perlahan.");
                         } else if (result.isDenied) {
-                            newLine("I encountered a . I pet it.");
+                            newLine("Saya bertemu dengan seekor " + hewan[b] + ". Saya memeliharanya.");
                         } else {
-                            newLine("I encountered a . I evaded it.");
+                            newLine("Saya bertemu dengan seekor " + hewan[b] + ". Saya menghindarinya.");
                         }
                     });
                 }
@@ -1325,7 +1338,14 @@ $(function () {
 
         $("#hubungana" + i + "-1").click(function () {
             let b = rand(0, hina.length);
-            swal.fire(hubak[i], "Aku panggil dia " + hina[b] + ".", "warning");
+            Swal.fire({
+                icon: "warning",
+                title: hubak[i],
+                text: "Aku panggil dia " + hina[b] + ".",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            // swal.fire(hubak[i], "Aku panggil dia " + hina[b] + ".", "warning");
             hubr[i] -= 10;
             newLine("Saya memanggil " + huba[i] + " " + hina[b] + ".");
             back();
@@ -1404,7 +1424,14 @@ $(function () {
 
         $("#hubungana" + i + "-3").click(function () {
             b = rand(0, muji.length);
-            swal.fire(hubak[i], "Saya panggil dia " + muji[b] + ".", "info");
+            Swal.fire({
+                icon: "info",
+                title: hubak[i],
+                text: "Saya panggil dia " + muji[b] + ".",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            // swal.fire(hubak[i], "Saya panggil dia " + muji[b] + ".", "info");
             if (hubim[i] == false) {
                 hubim[i] = true;
                 hubr[i] += 10;
@@ -1416,7 +1443,14 @@ $(function () {
         $("#hubungana" + i + "-4").click(function () {
             if (hubr[i] >= 10) {
                 b = rand(0, hbswk.length);
-                swal.fire(hubak[i], "Saya mengajak " + huba[i] + " saya, " + fnamal[i] + " " + hbswk[b] + ".", "info");
+                Swal.fire({
+                    icon: "info",
+                    title: hubak[i],
+                    text: "Saya mengajak " + huba[i] + " saya, " + fnamal[i] + " " + hbswk[b] + ".",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                // swal.fire(hubak[i], "Saya mengajak " + huba[i] + " saya, " + fnamal[i] + " " + hbswk[b] + ".", "info");
                 if (hubiw[i] == false) {
                     hubiw[i] = true;
                     if (hubr[i] >= 10) {
@@ -1426,7 +1460,14 @@ $(function () {
                 }
                 newLine("Saya mengajak " + huba[i] + " saya, " + fnamal[i] + " " + hbswk[b] + ".");
             } else {
-                swal.fire(hubak[i], "Dia tidak mau menghabiskan waktu bersamamu.", "error");
+                Swal.fire({
+                    icon: "error",
+                    title: hubak[i],
+                    text: "Dia tidak mau menghabiskan waktu bersamamu.",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                // swal.fire(hubak[i], "Dia tidak mau menghabiskan waktu bersamamu.", "error");
                 updatea(-10, 0, 0, 0);
                 let pesan = [hubak[i] + " saya, " + fnamal[i] + ", tidak mau bertemu saya.",
                 hubak[i] + " saya, " + fnamal[i] + ", enggan menemui saya.",
@@ -1444,11 +1485,25 @@ $(function () {
                     humb = humb * 10;
                 }
                 uang += humb;
-                swal.fire(hubak[i], "Dia memberimu uang sebesar Rp" + humb, "info");
+                Swal.fire({
+                    icon: "info",
+                    title: hubak[i],
+                    text: "Dia memberimu uang sebesar Rp" + humb,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                // swal.fire(hubak[i], "Dia memberimu uang sebesar Rp" + humb, "info");
                 hubr[i] -= 5;
                 newLine("Saya meminta uang ke " + huba[i] + " sebesar Rp" + humb);
             } else {
-                swal.fire(hubak[i], "Dia tidak mau memberimu uang.", "error");
+                Swal.fire({
+                    icon: "error",
+                    title: hubak[i],
+                    text: "Dia tidak mau memberimu uang.",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                // swal.fire(hubak[i], "Dia tidak mau memberimu uang.", "error");
                 hubr[i] -= 10;
                 update();
             }
@@ -1530,35 +1585,81 @@ $(function () {
         if (hub[a] == true) {
             otherEvents = true;
             hub[a] = false;
+            let pesan;
             updatea(-50, 0, 0, 0);
+            newLine(hubak[a] + " saya meninggal.");
             if (hubr[a] > 30 && hubm[a] >= 10) {
                 humb = rand(10000000, 100000000) * hubm[a];
                 uang += humb;
-                swal.fire(hubk[a], hubk[a] + "mu sudah meninggal! Kamu diwariskan Rp" + humb + ".", "warning");
+                pesan = hubak[a] + "mu, " + hubn[a] + " sudah meninggal! Kamu diwariskan Rp" + humb + ".";
                 updatea(10, 0, 0, 0);
-                newLine(hubk[a] + " saya meninggal.");
             } else {
-                swal.fire(hubk[a], hubk[a] + "mu sudah meninggal!", "warning");
+                pesan = hubak[a] + "mu, " + hubn[a] + " sudah meninggal!";
             }
+            swal.fire({
+                title: "Kematian",
+                text: pesan,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#dc3741",
+                cancelButtonColor: "#7066e0",
+                confirmButtonText: "Abaikan pemakaman",
+                cancelButtonText: "Hadiri pemakaman",
+                focusCancel: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    newLine("Saya tidak bisa menghadiri pemakamannya.");
+                } else {
+                    newLine("Saya menghadiri pemakaman tersebut.");
+                }
+            });
         }
     }
 
     function serangan() {
         r = Math.random();
         if (r < 0.4) {
-            swal.fire("Konflik", "Awwww");
+            Swal.fire({
+                icon: "warning",
+                title: "Konflik",
+                text: "Awwww",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            // swal.fire("Konflik", "Awwww", "warning");
             window.navigator.vibrate(500);
             updatea(-10, -4, 0, 0);
         } else if (r < 0.7) {
-            swal.fire("Konflik", "Awwww");
+            Swal.fire({
+                icon: "warning",
+                title: "Konflik",
+                text: "Awwww",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            // swal.fire("Konflik", "Awwww", "warning");
             window.navigator.vibrate(500);
             updatea(-10, -8, 0, 0);
         } else if (r < 0.9) {
-            swal.fire("Konflik", "Awwww");
+            Swal.fire({
+                icon: "warning",
+                title: "Konflik",
+                text: "Awwww",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            // swal.fire("Konflik", "Awwww", "warning");
             window.navigator.vibrate(1000);
             updatea(-10, -15, 0, 0);
         } else if (r < 0.99) {
-            swal.fire("Konflik", "Awwww");
+            Swal.fire({
+                icon: "warning",
+                title: "Konflik",
+                text: "Awwww",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            // swal.fire("Konflik", "Awwww", "warning");
             window.navigator.vibrate(1500);
             updatea(-10, -30, 0, 0);
         } else {
@@ -1566,11 +1667,25 @@ $(function () {
             if (r < 0.5) {
                 swal.fire("Konflik", "Kamu berhasil menghindar.", "success");
             } else if (r < 0.8) {
-                swal.fire("Konflik", "Awwww");
+                Swal.fire({
+                    icon: "warning",
+                    title: "Konflik",
+                    text: "Awwww",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                // swal.fire("Konflik", "Awwww", "warning");
                 window.navigator.vibrate(2000);
                 updatea(-50, -50, 0, 0);
             } else {
-                swal.fire("Konflik", "Awwww");
+                Swal.fire({
+                    icon: "warning",
+                    title: "Konflik",
+                    text: "Awwww",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                // swal.fire("Konflik", "Awwww", "warning");
                 window.navigator.vibrate(2000);
                 updatea(-50, -100, 0, 0);
             }
