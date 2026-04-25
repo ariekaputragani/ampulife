@@ -1,0 +1,51 @@
+export const assetsCatalog = [
+  {
+    id: "sim",
+    name: "SIM (Surat Izin Mengemudi)",
+    price: 1_200_000,
+    minAge: 17,
+    delta: { happy: 5, health: 0, smarts: 2, looks: 0 },
+  },
+  {
+    id: "laptop",
+    name: "Laptop Standard",
+    price: 7_500_000,
+    minAge: 12,
+    delta: { happy: 4, health: 0, smarts: 5, looks: 0 },
+  },
+  {
+    id: "motorbike",
+    name: "Motor",
+    price: 18_000_000,
+    minAge: 17,
+    delta: { happy: 2, health: 0, smarts: 0, looks: 1 },
+  },
+  {
+    id: "city_car",
+    name: "Mobil Kota",
+    price: 130_000_000,
+    minAge: 18,
+    delta: { happy: 4, health: 0, smarts: 0, looks: 2 },
+  },
+  {
+    id: "sports_car",
+    name: "Mobil Sport",
+    price: 1_200_000_000,
+    minAge: 20,
+    delta: { happy: 15, health: 0, smarts: 0, looks: 20 },
+  },
+  {
+    id: "small_house",
+    name: "Rumah Sederhana",
+    price: 380_000_000,
+    minAge: 21,
+    delta: { happy: 8, health: 2, smarts: 0, looks: 2 },
+  },
+  {
+    id: "luxury_house",
+    name: "Apartemen Mewah",
+    price: 2_500_000_000,
+    minAge: 25,
+    delta: { happy: 20, health: 5, smarts: 0, looks: 15 },
+  },
+];
