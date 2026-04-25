@@ -21,6 +21,31 @@ export function ageUpYear(state, rng = Math.random) {
   }
 
   next.age += 1;
+  next.healthStatus.treatedThisYear = false;
+
+  let grossIncome = 0;
+
+  // Uang Jajan (Allowance) System
+  if (next.age >= 6 && next.age <= 18) {
+    let allowance = 0;
+    if (next.familyWealth === "poor") {
+      const base = Math.floor(rng() * 500000); // 0 - 500k
+      allowance = Math.round(base / 10000) * 10000; // Pembulatan 10rb
+    } else if (next.familyWealth === "middle") {
+      const base = Math.floor(rng() * 3000000) + 2000000; // 2M - 5M
+      allowance = Math.round(base / 50000) * 50000; // Pembulatan 50rb
+    } else if (next.familyWealth === "rich") {
+      const base = Math.floor(rng() * 35000000) + 15000000; // 15M - 50M
+      allowance = Math.round(base / 100000) * 100000; // Pembulatan 100rb
+    }
+    
+    if (allowance > 0) {
+      grossIncome += allowance;
+      pushLog(next, `Kamu mendapat jatah uang jajan sebesar Rp${allowance.toLocaleString("id-ID")} tahun ini.`);
+    } else if (next.familyWealth === "poor") {
+      pushLog(next, `Tahun ini keluargamu sedang kesulitan, kamu tidak mendapat uang jajan.`);
+    }
+  }
   
   // Social Media Growth
   if (next.socialMedia.isJoined) {
@@ -56,11 +81,11 @@ export function ageUpYear(state, rng = Math.random) {
     const job = jobsCatalog.find((item) => item.id === next.career.jobId);
     if (job) {
       const salaryWithBoost = computeYearlySalary(next, job);
-      next.money += salaryWithBoost;
+      grossIncome += salaryWithBoost;
       next.career.yearsWorked += 1;
       next.career.yearsInRole += 1;
       next.stats = applyStatDelta(next.stats, job.delta);
-      pushLog(next, `Pendapatan tahunan dari ${job.name}: Rp${salaryWithBoost.toLocaleString("id-ID")}.`);
+      pushLog(next, `Pendapatan kotor tahunan dari ${job.name}: Rp${salaryWithBoost.toLocaleString("id-ID")}.`);
 
       const promotionTarget = getPromotionTarget(next);
       if (promotionTarget) {
@@ -72,12 +97,74 @@ export function ageUpYear(state, rng = Math.random) {
     }
   }
 
-  if (!next.legal.inJail && next.education.level) {
-    const education = educationCatalog.find((item) => item.id === next.education.level);
-    if (education && next.education.yearsStudied < education.yearsToComplete) {
-      next.stats.smarts = clamp(next.stats.smarts + 1);
-      next.stats.happy = clamp(next.stats.happy + 1);
-      pushLog(next, `Kamu melanjutkan studi ${education.name}.`);
+  // Lifestyle & Budgeting Logic
+  const lifestyle = next.financial?.lifestyle || "normal";
+  const lifestyleNames = { hemat: "Hemat", normal: "Normal", mewah: "Mewah" };
+
+  if (grossIncome > 0) {
+    let expensesRatio = 0.5; // normal
+
+    if (lifestyle === "hemat") {
+      expensesRatio = 0.2;
+      next.stats = applyStatDelta(next.stats, { happy: -2 });
+    } else if (lifestyle === "mewah") {
+      expensesRatio = 0.9;
+      next.stats = applyStatDelta(next.stats, { happy: 3 });
+    }
+
+    const expenses = Math.floor(grossIncome * expensesRatio);
+    const netIncome = grossIncome - expenses;
+    next.money += netIncome;
+
+    pushLog(next, `Dengan gaya hidup [${lifestyleNames[lifestyle]}], biaya hidupmu Rp${expenses.toLocaleString("id-ID")}. Sisa uang bersih yang ditabung: Rp${netIncome.toLocaleString("id-ID")}.`);
+  } else if (next.age > 18 && next.money > 0 && !next.legal.inJail) {
+    let expenses = 2000000;
+    if (lifestyle === "mewah") expenses = 10000000;
+    if (lifestyle === "hemat") expenses = 500000;
+    
+    expenses = Math.min(expenses, next.money);
+    next.money -= expenses;
+    next.stats = applyStatDelta(next.stats, { happy: -2 }); // Stres karena menguras tabungan
+    pushLog(next, `Kamu tidak memiliki pendapatan tahun ini. Tabunganmu terkuras Rp${expenses.toLocaleString("id-ID")} untuk menyambung biaya hidup.`);
+  }
+
+  // Education System Logic
+  if (!next.legal.inJail) {
+    // 1. Automatic Enrollment
+    if (next.age === 6 && next.education.level === "none") {
+      next.education.level = "elementary";
+      next.education.yearsStudied = 0;
+      pushLog(next, "Hari pertama sekolah! Kamu resmi menjadi siswa SD.");
+    } else if (next.age === 12 && next.education.completed.includes("elementary") && next.education.level === "none") {
+      next.education.level = "junior_high";
+      next.education.yearsStudied = 0;
+      pushLog(next, "Kamu melanjutkan pendidikan ke jenjang SMP.");
+    } else if (next.age === 15 && next.education.completed.includes("junior_high") && next.education.level === "none") {
+      next.education.level = "high_school";
+      next.education.yearsStudied = 0;
+      pushLog(next, "Selamat! Kamu sekarang berseragam putih abu-abu (SMA).");
+    }
+
+    // 2. Progression
+    if (next.education.level !== "none") {
+      const edu = educationCatalog.find(e => e.id === next.education.level);
+      if (edu) {
+        next.education.yearsStudied += 1;
+        next.stats = applyStatDelta(next.stats, {
+          smarts: edu.smartsPerYear || 2,
+          happy: 1
+        });
+
+        if (next.education.yearsStudied >= edu.yearsToComplete) {
+          next.education.completed.push(next.education.level);
+          const graduatedName = edu.name;
+          next.education.level = "none";
+          next.education.yearsStudied = 0;
+          pushLog(next, `LULUS! Kamu telah menyelesaikan pendidikan ${graduatedName}.`);
+        } else {
+          pushLog(next, `Kamu melanjutkan studi ${edu.name} (Tahun ke-${next.education.yearsStudied}).`);
+        }
+      }
     }
   }
 

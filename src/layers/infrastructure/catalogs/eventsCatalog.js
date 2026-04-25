@@ -20,9 +20,10 @@ export const eventsCatalog = [
     maxAge: 90,
     weight: (state) => {
       if (state.healthStatus.condition !== "healthy") {
-        return 0.2;
+        return 0.1;
       }
-      return state.stats.health < 45 ? 1.4 : 0.7;
+      if (state.stats.health > 80) return 0.1; // Sehat banget, jarang sakit
+      return state.stats.health < 45 ? 1.5 : 0.6;
     },
     apply: (state) => {
       const illness = pickIllnessByAge(state.age);
@@ -34,6 +35,44 @@ export const eventsCatalog = [
       state.healthStatus.untreatedYears = 0;
       return { summary: `Kamu terkena ${illness?.name ?? "penyakit musiman"}.` };
     },
+  },
+  {
+    id: "drop_out_school",
+    label: "Ancaman Putus Sekolah",
+    minAge: 12,
+    maxAge: 17,
+    weight: (state) => {
+      // Hanya muncul jika miskin dan masih sekolah (belum drop out)
+      if (state.familyWealth !== "poor") return 0;
+      if (state.education.level === "none") return 0;
+      return 0.8;
+    },
+    isInteractive: true,
+    apply: (state) => ({
+      summary: "Orang tuamu menangis dan berkata mereka tidak mampu lagi membiayai kebutuhan sekolahmu.",
+      options: [
+        {
+          id: "dropout",
+          label: "Putus Sekolah & Bekerja",
+          resolve: (s) => {
+            s.education.level = "none";
+            s.education.yearsStudied = 0;
+            s.stats.happy = Math.max(0, s.stats.happy - 15);
+            return "Kamu memilih berhenti sekolah untuk membantu keluarga.";
+          },
+        },
+        {
+          id: "beg",
+          label: "Memohon Cari Pinjaman",
+          resolve: (s) => {
+            s.stats.happy = Math.max(0, s.stats.happy - 5);
+            s.stats.smarts = Math.max(0, s.stats.smarts - 5);
+            s.money = Math.max(0, s.money - 500000); // Nguras tabungan anak
+            return "Kamu memohon untuk tetap sekolah dengan menghabiskan sisa tabungan.";
+          },
+        },
+      ],
+    }),
   },
   {
     id: "bully",

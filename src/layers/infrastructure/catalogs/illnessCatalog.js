@@ -7,6 +7,7 @@ export const illnessCatalog = [
     baseSeverity: "mild",
     yearlyPenalty: { health: 3, happy: 1 },
     mortalityRisk: 0,
+    chanceWeight: 100,
   },
   {
     id: "pertussis",
@@ -16,6 +17,7 @@ export const illnessCatalog = [
     baseSeverity: "mild",
     yearlyPenalty: { health: 4, happy: 2 },
     mortalityRisk: 0.01,
+    chanceWeight: 40,
   },
   {
     id: "measles",
@@ -25,6 +27,7 @@ export const illnessCatalog = [
     baseSeverity: "mild",
     yearlyPenalty: { health: 5, happy: 2 },
     mortalityRisk: 0.02,
+    chanceWeight: 40,
   },
   {
     id: "dengue",
@@ -34,6 +37,7 @@ export const illnessCatalog = [
     baseSeverity: "moderate",
     yearlyPenalty: { health: 8, happy: 4 },
     mortalityRisk: 0.05,
+    chanceWeight: 30,
   },
   {
     id: "cancer",
@@ -43,6 +47,7 @@ export const illnessCatalog = [
     baseSeverity: "severe",
     yearlyPenalty: { health: 15, happy: 10 },
     mortalityRisk: 0.15,
+    chanceWeight: 1, // Sangat jarang
   },
   {
     id: "coronavirus",
@@ -52,6 +57,7 @@ export const illnessCatalog = [
     baseSeverity: "severe",
     yearlyPenalty: { health: 12, happy: 8 },
     mortalityRisk: 0.1,
+    chanceWeight: 20,
   },
   {
     id: "alzheimer",
@@ -61,6 +67,7 @@ export const illnessCatalog = [
     baseSeverity: "moderate",
     yearlyPenalty: { health: 5, happy: 5, smarts: 10 },
     mortalityRisk: 0.05,
+    chanceWeight: 10,
   },
   {
     id: "epilepsy",
@@ -70,6 +77,7 @@ export const illnessCatalog = [
     baseSeverity: "moderate",
     yearlyPenalty: { health: 4, happy: 3 },
     mortalityRisk: 0.02,
+    chanceWeight: 3,
   },
   {
     id: "diarrhea",
@@ -79,6 +87,7 @@ export const illnessCatalog = [
     baseSeverity: "mild",
     yearlyPenalty: { health: 4, happy: 2 },
     mortalityRisk: 0.01,
+    chanceWeight: 100,
   },
   {
     id: "diabetes",
@@ -88,6 +97,7 @@ export const illnessCatalog = [
     baseSeverity: "moderate",
     yearlyPenalty: { health: 6, happy: 3 },
     mortalityRisk: 0.04,
+    chanceWeight: 15,
   },
   {
     id: "tuberculosis",
@@ -97,6 +107,7 @@ export const illnessCatalog = [
     baseSeverity: "moderate",
     yearlyPenalty: { health: 10, happy: 5 },
     mortalityRisk: 0.07,
+    chanceWeight: 10,
   },
   {
     id: "heart_disease",
@@ -106,6 +117,7 @@ export const illnessCatalog = [
     baseSeverity: "severe",
     yearlyPenalty: { health: 12, happy: 5 },
     mortalityRisk: 0.12,
+    chanceWeight: 8,
   },
 ];
 
@@ -119,6 +131,16 @@ export function pickIllnessByAge(age, rng = Math.random) {
     return null;
   }
 
-  const index = Math.floor(rng() * filtered.length);
-  return filtered[index] ?? null;
+  const totalWeight = filtered.reduce((sum, item) => sum + (item.chanceWeight || 10), 0);
+  let randomVal = rng() * totalWeight;
+
+  for (const item of filtered) {
+    const weight = item.chanceWeight || 10;
+    if (randomVal < weight) {
+      return item;
+    }
+    randomVal -= weight;
+  }
+
+  return filtered[0] ?? null;
 }

@@ -4,6 +4,7 @@ import { useLayeredGame } from "./useLayeredGame";
 import styles from "./layeredGame.module.css";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { educationCatalog } from "@/layers/infrastructure/catalogs/educationCatalog";
 
 export default function LayeredGameView() {
   const { state, options, actions, ready } = useLayeredGame();
@@ -63,20 +64,30 @@ export default function LayeredGameView() {
         {activeTab === "activities" && <ActivitiesTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
         {activeTab === "jobs" && <JobsTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
         {activeTab === "health" && <HealthTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
+        {activeTab === "finance" && <FinanceTab state={state} actions={actions} onBack={() => setActiveTab("journal")} />}
 
         {/* Status Bars */}
         <section className={styles.statusBars}>
-          <h4>Kebahagiaan: <span>{state.stats.happy}%</span></h4>
-          <progress value={state.stats.happy} max="100" />
-          
-          <h4>Kesehatan: <span>{state.stats.health}%</span></h4>
-          <progress value={state.stats.health} max="100" />
-          
-          <h4>Kecerdasan: <span>{state.stats.smarts}%</span></h4>
-          <progress value={state.stats.smarts} max="100" />
-          
-          <h4>Penampilan: <span>{state.stats.looks}%</span></h4>
-          <progress value={state.stats.looks} max="100" />
+          <div className={styles.statusRow}>
+            <span className={styles.statusLabel}>Kebahagiaan:</span>
+            <span className={styles.statusPercent}>{state.stats.happy}%</span>
+            <progress value={state.stats.happy} max="100" />
+          </div>
+          <div className={styles.statusRow}>
+            <span className={styles.statusLabel}>Kesehatan:</span>
+            <span className={styles.statusPercent}>{state.stats.health}%</span>
+            <progress value={state.stats.health} max="100" />
+          </div>
+          <div className={styles.statusRow}>
+            <span className={styles.statusLabel}>Kecerdasan:</span>
+            <span className={styles.statusPercent}>{state.stats.smarts}%</span>
+            <progress value={state.stats.smarts} max="100" />
+          </div>
+          <div className={styles.statusRow}>
+            <span className={styles.statusLabel}>Penampilan:</span>
+            <span className={styles.statusPercent}>{state.stats.looks}%</span>
+            <progress value={state.stats.looks} max="100" />
+          </div>
         </section>
 
         {/* Age Up Button */}
@@ -87,11 +98,12 @@ export default function LayeredGameView() {
         {/* Navigation Grid (Buttons) */}
         {activeTab === "journal" && (
           <div className={styles.navGrid}>
-            <button style={{ width: "33.33%" }} onClick={() => setActiveTab("jobs")}>Pekerjaan</button>
+            <button style={{ width: "33.33%" }} onClick={() => setActiveTab("jobs")}>Karir</button>
             <button style={{ width: "33.33%" }} onClick={() => setActiveTab("assets")}>Aset</button>
             <button style={{ width: "33.33%" }} onClick={() => setActiveTab("relations")}>Hubungan</button>
-            <button style={{ width: "50%" }} onClick={() => setActiveTab("activities")}>Aktivitas Umum</button>
-            <button style={{ width: "50%" }} onClick={() => setActiveTab("health")}>Medis & Kesehatan</button>
+            <button style={{ width: "33.33%" }} onClick={() => setActiveTab("activities")}>Aktivitas</button>
+            <button style={{ width: "33.33%" }} onClick={() => setActiveTab("health")}>Medis</button>
+            <button style={{ width: "33.33%" }} onClick={() => setActiveTab("finance")}>Keuangan</button>
           </div>
         )}
       </main>
@@ -195,8 +207,11 @@ function HealthTab({ state, options, actions, onBack }) {
           Kondisi saat ini: <strong>{state.healthStatus.condition === "healthy" ? "Sehat" : "Sakit"}</strong>
         </div>
         {options.treatments.map((tr) => (
-          <button key={tr.id} onClick={() => actions.treatment(tr.id)} disabled={state.money < tr.cost}>
-            👨‍⚕️ {tr.name} (Rp{tr.cost.toLocaleString("id-ID")})
+          <button key={tr.id} onClick={() => actions.treatment(tr.id)} disabled={tr.disabled}>
+            👨‍⚕️ {tr.name} 
+            {tr.isFreeWithBPJS ? " (Gratis BPJS)" : 
+             tr.isCoveredByParents ? " (Ditanggung Ortu)" : 
+             ` (Rp${tr.cost.toLocaleString("id-ID")})`}
           </button>
         ))}
       </div>
@@ -207,9 +222,32 @@ function HealthTab({ state, options, actions, onBack }) {
 
 function JobsTab({ state, options, actions, onBack }) {
   const currentJob = options.jobs.find(j => j.id === state.career.jobId);
+  const currentEdu = educationCatalog.find(e => e.id === state.education.level);
+  
   return (
     <div className={styles.tabPane}>
-      <h3>Karir</h3>
+      <h3>Karir & Pendidikan</h3>
+      
+      {/* Education Section */}
+      <div className={styles.itemCard} style={{ borderLeft: "4px solid #4dabf7", marginBottom: "15px" }}>
+        <h4>Pendidikan Saat Ini</h4>
+        {state.education.level !== "none" ? (
+          <p>Sedang menempuh: <strong>{currentEdu?.name}</strong> (Tahun {state.education.yearsStudied}/{currentEdu?.yearsToComplete})</p>
+        ) : (
+          <p>Tidak sedang menempuh pendidikan.</p>
+        )}
+        
+        {state.education.completed.length > 0 && (
+          <p style={{ fontSize: "12px", color: "#666" }}>
+            Gelar/Lulus: {state.education.completed.map(id => educationCatalog.find(e => e.id === id)?.name).join(", ")}
+          </p>
+        )}
+      </div>
+
+      <div className={styles.divider} />
+
+      {/* Career Section */}
+      <h4>Pekerjaan</h4>
       {state.career.jobId ? (
         <div className={styles.currentJobCard}>
           <p>Bekerja sebagai: <strong>{currentJob?.name || state.career.jobId}</strong></p>
@@ -224,16 +262,57 @@ function JobsTab({ state, options, actions, onBack }) {
           ))}
         </div>
       )}
+
       <div className={styles.divider} />
-      <h4>Pendidikan</h4>
+      
+      <h4>Daftar Universitas / Kursus</h4>
       <div className={styles.optionsList}>
-        {options.education.map((edu) => (
+        {options.education.filter(e => e.minAge >= 18 || e.id === "ged").map((edu) => (
           <button key={edu.id} onClick={() => actions.study(edu.id)} disabled={state.money < edu.costPerYear}>
-            {edu.name}
+            Daftar: {edu.name} (Rp{edu.costPerYear.toLocaleString("id-ID")}/thn)
           </button>
         ))}
       </div>
       <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "10px" }}>Kembali</button>
+    </div>
+  );
+}
+
+function FinanceTab({ state, actions, onBack }) {
+  const lifestyle = state.financial?.lifestyle || "normal";
+  
+  return (
+    <div className={styles.tabPane}>
+      <h3>Keuangan & Gaya Hidup</h3>
+      <div className={styles.itemCard} style={{ background: "#f8f9fa", padding: "10px", borderRadius: "5px", marginBottom: "10px", color: "#333" }}>
+        <p>Gaya Hidup Saat Ini: <strong>{lifestyle.toUpperCase()}</strong></p>
+        <p style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>
+          {lifestyle === "hemat" && "Hemat: Tabung 80%, Hidup pas-pasan (Kebahagiaan -2/thn)."}
+          {lifestyle === "normal" && "Normal: Tabung 50%, Hidup cukup (Kebahagiaan stabil)."}
+          {lifestyle === "mewah" && "Mewah: Tabung 10%, Hidup foya-foya (Kebahagiaan +3/thn)."}
+        </p>
+      </div>
+      <div className={styles.optionsList}>
+        <button 
+          onClick={() => actions.changeLifestyle("hemat")} 
+          style={{ background: lifestyle === "hemat" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "hemat" ? "bold" : "normal" }}
+        >
+          {lifestyle === "hemat" ? "✓ " : ""}Set Gaya Hidup: HEMAT
+        </button>
+        <button 
+          onClick={() => actions.changeLifestyle("normal")} 
+          style={{ background: lifestyle === "normal" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "normal" ? "bold" : "normal" }}
+        >
+          {lifestyle === "normal" ? "✓ " : ""}Set Gaya Hidup: NORMAL
+        </button>
+        <button 
+          onClick={() => actions.changeLifestyle("mewah")} 
+          style={{ background: lifestyle === "mewah" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "mewah" ? "bold" : "normal" }}
+        >
+          {lifestyle === "mewah" ? "✓ " : ""}Set Gaya Hidup: MEWAH
+        </button>
+      </div>
+      <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "15px" }}>Kembali</button>
     </div>
   );
 }

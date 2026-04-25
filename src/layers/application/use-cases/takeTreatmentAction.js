@@ -24,12 +24,48 @@ export function takeTreatmentAction(state, treatmentId) {
     return next;
   }
 
-  if (next.money < treatment.cost) {
-    pushLog(next, `Uang tidak cukup untuk ${treatment.name}.`);
+  if (next.healthStatus.treatedThisYear) {
+    pushLog(next, "Kamu sudah berobat tahun ini. Istirahatlah dan tunggu tahun depan.");
     return next;
   }
 
-  next.money -= treatment.cost;
+  let finalCost = treatment.cost;
+  let isCoveredByBPJS = false;
+
+  if (treatment.bpjsCovered && next.hasBPJS) {
+    finalCost = 0;
+    isCoveredByBPJS = true;
+  }
+
+  if (next.age <= 18) {
+    if (finalCost > 0) {
+      if (next.familyWealth === "poor") {
+        if (Math.random() > 0.3) {
+          pushLog(next, `Orang tuamu menangis karena tidak punya uang Rp${finalCost.toLocaleString("id-ID")} untuk pengobatanmu.`);
+          return next;
+        } else {
+          pushLog(next, `Orang tuamu berutang ke tetangga untuk membayar biayamu berobat (Rp${finalCost.toLocaleString("id-ID")}).`);
+        }
+      } else {
+        pushLog(next, `Orang tuamu membiayai pengobatanmu sebesar Rp${finalCost.toLocaleString("id-ID")}.`);
+      }
+    } else if (isCoveredByBPJS) {
+      pushLog(next, `Orang tuamu membawamu ke Puskesmas. Biaya digratiskan oleh BPJS PBI.`);
+    }
+  } else {
+    if (finalCost > 0) {
+      if (next.money < finalCost) {
+        pushLog(next, `Uangmu tidak cukup untuk membayar biaya Rp${finalCost.toLocaleString("id-ID")}.`);
+        return next;
+      }
+      next.money -= finalCost;
+      pushLog(next, `Kamu membayar biaya pengobatan sebesar Rp${finalCost.toLocaleString("id-ID")}.`);
+    } else if (isCoveredByBPJS) {
+      pushLog(next, `Kamu berobat ke Puskesmas secara gratis menggunakan BPJS.`);
+    }
+  }
+
+  next.healthStatus.treatedThisYear = true;
   next.stats.health = clamp(next.stats.health + treatment.effect.health);
   next.stats.happy = clamp(next.stats.happy + treatment.effect.happy);
 

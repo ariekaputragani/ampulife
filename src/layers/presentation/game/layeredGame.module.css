@@ -149,17 +149,27 @@
   margin-bottom: 10px;
 }
 
-.statusBars h4 {
-  margin: 4px 0 4px 20px;
-  font-size: 0.8rem;
+.statusRow {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
-.statusBars progress {
-  width: 60%;
-  float: right;
-  margin-right: 5px;
+.statusLabel {
+  width: 100px;
+}
+
+.statusPercent {
+  width: 40px;
+  text-align: right;
+  margin-right: 10px;
+}
+
+.statusRow progress {
+  flex: 1;
+  height: 12px;
 }
 
 .ageUpSection {

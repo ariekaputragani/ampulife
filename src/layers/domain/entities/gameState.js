@@ -39,6 +39,9 @@ export function createInitialGameState() {
     ],
     age: 0,
     money: 0,
+    financial: {
+      lifestyle: "normal", // hemat, normal, mewah
+    },
     stats: {
       happy: 62,
       health: 76,
@@ -55,6 +58,7 @@ export function createInitialGameState() {
       level: "none",
       major: null,
       yearsStudied: 0,
+      completed: [],
     },
     socialMedia: {
       isJoined: false,

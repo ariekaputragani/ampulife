@@ -27,7 +27,13 @@ export function triggerRandomEvent(state, rng = Math.random) {
     return state;
   }
 
-  const chance = 0.55;
+  const totalWeight = candidates.reduce((sum, c) => sum + c.weight, 0);
+
+  let chance = 0.55;
+  if (totalWeight < 2.0) {
+    chance = totalWeight * 0.25; // Scale down chance if not many events are valid
+  }
+
   if (rng() > chance) {
     return state;
   }

@@ -73,5 +73,33 @@ export function getAvailableTreatments(state) {
     return [];
   }
 
-  return treatmentCatalog.filter((item) => state.age >= item.minAge);
+  return treatmentCatalog
+    .filter((item) => state.age >= item.minAge)
+    .map((item) => {
+      let effectiveCost = item.cost;
+      let isFreeWithBPJS = false;
+      let isCoveredByParents = false;
+
+      if (item.bpjsCovered && state.hasBPJS) {
+        effectiveCost = 0;
+        isFreeWithBPJS = true;
+      } else if (state.age <= 18) {
+        // Not using player's money if underage, covered by parents
+        isCoveredByParents = true;
+      }
+
+      // Determine if disabled
+      let disabled = false;
+      if (!isCoveredByParents && !isFreeWithBPJS && state.money < effectiveCost) {
+        disabled = true;
+      }
+
+      return {
+        ...item,
+        effectiveCost,
+        isFreeWithBPJS,
+        isCoveredByParents,
+        disabled,
+      };
+    });
 }

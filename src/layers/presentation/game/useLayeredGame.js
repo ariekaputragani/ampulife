@@ -13,6 +13,7 @@ import { takePromotionAction } from "@/layers/application/use-cases/takePromotio
 import { setupCharacter } from "@/layers/application/use-cases/setupCharacter";
 import { handleEventChoice } from "@/layers/application/use-cases/handleEventChoice";
 import { takeActivityAction } from "@/layers/application/use-cases/takeActivityAction";
+import { changeLifestyleAction } from "@/layers/application/use-cases/changeLifestyleAction";
 import {
   clearGameState,
   loadGameState,
@@ -74,6 +75,7 @@ export function useLayeredGame() {
       setState((current) => takeTreatmentAction(current, treatmentId)),
     promote: () => setState((current) => takePromotionAction(current)),
     takeActivity: (activityId) => setState((current) => takeActivityAction(current, activityId)),
+    changeLifestyle: (lifestyleId) => setState((current) => changeLifestyleAction(current, lifestyleId)),
     startNewGame: () => setState((current) => ({ ...createInitialGameState(), mode: "create" })),
     reset: () => {
       clearGameState();

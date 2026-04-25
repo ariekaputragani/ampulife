@@ -1,5 +1,23 @@
 export const educationCatalog = [
   {
+    id: "elementary",
+    name: "SD",
+    minAge: 6,
+    costPerYear: 0,
+    yearsToComplete: 6,
+    smartsPerYear: 3,
+    jobBoost: 0,
+  },
+  {
+    id: "junior_high",
+    name: "SMP",
+    minAge: 12,
+    costPerYear: 0,
+    yearsToComplete: 3,
+    smartsPerYear: 4,
+    jobBoost: 2,
+  },
+  {
     id: "high_school",
     name: "SMA",
     minAge: 15,
