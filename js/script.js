@@ -260,7 +260,7 @@ $(function () {
     }
 
     function update() {
-        for (i = 0; i < peny.length; i++) {
+        for (let i = 0; i < peny.length; i++) {
             if (penh[i] < 0 && died == false) {
                 otherEvents = true;
                 penh[i] = 0;
@@ -270,7 +270,7 @@ $(function () {
                 newLine("Saya sembuh dari " + peny[i] + ".");
             }
         }
-        for (i = 0; i < hub.length; i++) {
+        for (let i = 0; i < hub.length; i++) {
             if (hubr[i] < 0) {
                 hubr[i] = 0;
             } else if (hubr[i] > 100) {
@@ -407,12 +407,6 @@ $(function () {
 
     function randomEvents() {
         r = Math.random();
-        // if (kota == "Medan") {
-        //     if (r < 0.001) {
-        //         die(3);
-        //     }
-        // }
-        // if (died == false) {
         if (r < 0.001) {
             if (kota == "Medan") {
                 die(3);
@@ -468,8 +462,6 @@ $(function () {
 
         if (r >= 0.35 && umur >= 18) {
             if (r < 0.3501) {
-                // r = Math.random();
-                // if (r < 0.0001) {
                 if (o != 6) {
                     r = Math.random();
                     swal.fire("Korban", "Kamu tersambar gledek!", "warning");
@@ -641,144 +633,6 @@ $(function () {
             }
         }
     }
-    // } else {
-    //     if (umur < 6) {
-    //         if (r < 0.35) {
-    //             r = Math.random();
-    //             if (r < 0.2) {
-    //                 penyakit(0);
-    //             } else if (r < 0.4) {
-    //                 penyakit(1);
-    //             } else if (r < 0.6) {
-    //                 penyakit(2);
-    //             } else if (r < 0.8) {
-    //                 penyakit(3);
-    //             } else {
-    //                 penyakit(6);
-    //             }
-    //         }
-    //     } else if (umur >= 18) {
-    //         r = Math.random();
-    //         if (r < 0.0001) {
-    //             if (o != 6) {
-    //                 r = Math.random();
-    //                 swal.fire("Korban", "Kamu tersambar gledek!", "warning");
-    //                 if (r < 0.5) {
-    //                     updatea(-100, -100, -100, -100);
-    //                 } else {
-    //                     updatea(100, 100, 100, 100);
-    //                 }
-    //                 newLine("Aku tersambar gledek!");
-    //             }
-
-    //         } else if (r < 0.005) {
-    //             penyakit(10);
-    //         } else if (r < 0.05) {
-    //             let drugo = rand(0, drugs.length);
-    //             swal.fire({
-    //                 title: "Obat",
-    //                 text: "Kamu ditawar " + drugs[drugo],
-    //                 icon: "warning",
-    //                 showCancelButton: true,
-    //                 confirmButtonColor: "#dc3741",
-    //                 cancelButtonColor: "#7066e0",
-    //                 confirmButtonText: "Ya",
-    //                 cancelButtonText: "Tidak",
-    //                 focusCancel: true
-    //             }).then((result) => {
-    //                 if (result.isConfirmed) {
-    //                     switch (drugo) {
-    //                         case 0:
-    //                         case 1:
-    //                         case 3:
-    //                         case 4:
-    //                         case 5:
-    //                             drugt = true;
-    //                             health -= 50;
-    //                             if (health < 0) {
-    //                                 die(5);
-    //                             }
-    //                             break;
-    //                         case 2:
-    //                             drugt = true;
-    //                             happiness += 16;
-    //                             health -= 16;
-    //                     }
-    //                     newLine("Saya mulai mencoba " + drugs[drugo] + ".");
-    //                 } else {
-    //                     newLine("Saya menolak " + drugs[drugo] + ".");
-    //                 }
-    //             });
-    //         } else if (r < 0.1) {
-    //             let b = rand(0, hewan.length);
-    //             if (o != 6) {
-    //                 swal.fire({
-    //                     title: "Ketemuan",
-    //                     text: "Kamu menemui " + hewan[b] + ".",
-    //                     icon: "warning",
-    //                     showCancelButton: true,
-    //                     showDenyButton: true,
-    //                     cancelButtonText: "Lari menyelamatkan diri!",
-    //                     denyButtonText: "Mundur perlahan",
-    //                     confirmButtonText: "Peliharalah"
-    //                 }).then((result) => {
-    //                     if (result.isConfirmed) {
-    //                         newLine("I encountered a . I retreated slowly.");
-    //                     } else if (result.isDenied) {
-    //                         newLine("I encountered a . I pet it.");
-    //                     } else {
-    //                         newLine("I encountered a . I evaded it.");
-    //                     }
-    //                 });
-    //             }
-    //         } else if (r < 0.11) {
-    //             if (umur >= 40) {
-    //                 penyakit(9);
-    //             }
-    //         } else if (r < 0.2) {
-    //             if (umur >= 60) {
-    //                 r = Math.random();
-    //                 if (r < 0.1) {
-    //                     penyakit(3);
-    //                 } else if (r < 0.5) {
-    //                     penyakit(5);
-    //                 } else {
-    //                     penyakit(11);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-    // }
-
-    // function kenaBully() {
-    //     if (o == 1 || o == 2 || o == 3 | o == 7) {
-    //         r = Math.random();
-    //         let blfn, blln;
-    //         if (r < 0.5) {
-    //             blfn = getMaleFN();
-    //         } else {
-    //             blfn = getFemaleFN();
-    //         }
-    //         blln = getLN();
-    //         swal.fire("Sekolah", "Kamu dibuli oleh " + blfn + " " + blln, {
-    //             buttons: {
-    //                 cancel: "Do nothing",
-    //                 assault: "Assault",
-    //                 report: "Report to the headmaster"
-    //             }
-    //         }).then((value) => {
-    //             newLine("I got bullied by " + blfn + " " + blln + ".");
-    //             switch (value) {
-    //                 case "assault":
-    //                     newLine("I assaulted " + blfn + " " + blln + "!");
-    //                     break;
-    //                 case "report":
-    //                     newLine("I reported " + blfn + " " + blln + " to the headmaster.");
-    //             }
-    //         });
-    //     }
-    // }
 
     $("#ageUp").click(function () {
         umur++;
@@ -802,7 +656,6 @@ $(function () {
         if (sosjoin == true) {
             sosmeda++;
             if (follower < 10) {
-                // follower+=Math.floor(Math.random()*51)+75;
                 follower += rand(75, 51);
             } else {
                 if (follower < 500) {
@@ -1362,17 +1215,40 @@ $(function () {
             //         step: "1000"
             //     }
             // });
+            let minR, maxR;
+            if (uang < 200000) {
+                minR = 500;
+            } else if (uang < 800000) {
+                minR = 1000;
+            } else if (uang < 5000000) {
+                minR = 5000;
+            } else if (uang < 10000000) {
+                minR = 10000;
+            } else if (uang < 100000000) {
+                minR = 50000;
+            } else if (uang < 750000000) {
+                minR = 100000;
+            } else {
+                minR = 500000;
+            }
+            if (uang < 100000) {
+                maxR = 100000;
+            } else if (uang < 1000000000) {
+                maxR = uang - (uang % minR);
+            } else {
+                maxR = 1000000000;
+            }
             Swal.fire({
                 title: hubak[i],
                 icon: 'question',
                 input: 'range',
                 inputLabel: 'Memberi uang',
                 inputAttributes: {
-                    min: 500,
-                    max: 1000000000,
-                    step: 500
+                    min: minR,
+                    max: maxR,
+                    step: minR
                 },
-                inputValue: 1000000
+                inputValue: 0.2 * maxR
             }).then((result) => {
                 if (result.isConfirmed) {
                     hubme = result.value;
@@ -1769,21 +1645,21 @@ $(function () {
                             if (r > kraa[parseInt(kra, 10) - 1] / 100) {
                                 krb = (rand(900000) + 100000) * krab[parseInt(kra, 10) - 1];
                                 uang += krb;
-                                alert("Kamu berhasil, kamu membawa pulang uang sebesar Rp" + krb + ".");
+                                swal.fire("Kamu berhasil, kamu membawa pulang uang sebesar Rp" + krb + ".");
                             } else {
                                 r = Math.random();
                                 if (r < 0.3) {
                                     if (smarts >= 50) {
-                                        alert("Kamu gagal, kamu sudah melarikan diri sebelum ada polisi.");
+                                        swal.fire("Kamu gagal, kamu sudah melarikan diri sebelum ada polisi.");
                                     } else {
-                                        alert("Kamu gagal. Pemilik rumah memanggil polisi.");
+                                        swal.fire("Kamu gagal. Pemilik rumah memanggil polisi.");
                                         masukp(rand(11) + 5);
                                     }
                                 } else if (r < 0.5 && rkr == false) {
-                                    alert("Kamu gagal. Pemilik rumah menyerangmu.");
+                                    swal.fire("Kamu gagal. Pemilik rumah menyerangmu.");
                                     serangan();
                                 } else {
-                                    alert("Kamu gagal. Pemilik rumah memanggil polisi.");
+                                    swal.fire("Kamu gagal. Pemilik rumah memanggil polisi.");
                                     masukp(rand(11) + 5);
                                 }
                             }
@@ -1827,19 +1703,19 @@ $(function () {
                             krb = kraa[parseInt(kra, 10) - 1];
                             uang += krb;
                             if (krb > 0) {
-                                alert("Kamu berhasil mencopet Rp" + krb + ".");
+                                swal.fire("Kamu berhasil mencopet Rp" + krb + ".");
                             } else {
-                                alert("Kamu berhasil tapi isi dompet kosong.");
+                                swal.fire("Kamu berhasil tapi isi dompet kosong.");
                             }
                         } else {
                             r = Math.random();
                             if (r < 0.5 && rkr == false) {
-                                alert("Kamu gagal. Si korban sudah lari duluan.");
+                                swal.fire("Kamu gagal. Si korban sudah lari duluan.");
                             } else if (r < 0.7 && rkr == false) {
-                                alert("Kamu gagal. Si korban menyerangmu.");
+                                swal.fire("Kamu gagal. Si korban menyerangmu.");
                                 serangan();
                             } else {
-                                alert("Kamu gagal. Si korban memanggil polisi.");
+                                swal.fire("Kamu gagal. Si korban memanggil polisi.");
                                 masukp(rand(4) + 1);
                             }
                         }
@@ -1852,7 +1728,7 @@ $(function () {
         penjara = true;
         rkr = true;
         pjt += a;
-        alert("Kamu dipenjara selama " + pjt + " tahun.");
+        swal.fire("Kamu dipenjara selama " + pjt + " tahun.");
         if (bekerja == true) {
             pecat("Rekor kriminal");
         }
@@ -1880,13 +1756,13 @@ $(function () {
                     bebasp();
                 } else {
                     pjt += rand(4) + 2;
-                    alert("Kamu ketangkap dan hukuman ditambah menjadi " + pjt + " tahun.");
+                    swal.fire("Kamu ketangkap dan hukuman ditambah menjadi " + pjt + " tahun.");
                     pjk = true;
                     updatea(-10, 0, 0, 0);
                 }
             }
         } else {
-            alert("Kamu tidak bisa mencari cara untuk kabur.");
+            swal.fire("Kamu tidak bisa mencari cara untuk kabur.");
         }
         update();
     }
@@ -1895,20 +1771,20 @@ $(function () {
         if (confirm("Memulai kerusuhan?")) {
             r = Math.random();
             if (r < 0.25) {
-                alert("Kamu memulai kerusuhan\n" + (rand(41) + 10) + " orang terluka");
+                swal.fire("Kamu memulai kerusuhan\n" + (rand(41) + 10) + " orang terluka");
             } else if (r < 0.5) {
-                alert("Kamu memulai kerusuhan\n" + (rand(41) + 10) + " orang terluka\n" + (rand(5) + 1) + " orang meninggal dunia");
+                swal.fire("Kamu memulai kerusuhan\n" + (rand(41) + 10) + " orang terluka\n" + (rand(5) + 1) + " orang meninggal dunia");
             } else if (r < 0.75) {
-                alert("Kamu memulai kerusuhan\n" + (rand(41) + 10) + " orang terluka\nKamu diserang.");
+                swal.fire("Kamu memulai kerusuhan\n" + (rand(41) + 10) + " orang terluka\nKamu diserang.");
                 serangan();
             } else {
-                alert("Kamu memulai kerusuhan\n" + (rand(41) + 10) + " orang terluka\n" + (rand(5) + 1) + " orang meninggal dunia\nKamu diserang.");
+                swal.fire("Kamu memulai kerusuhan\n" + (rand(41) + 10) + " orang terluka\n" + (rand(5) + 1) + " orang meninggal dunia\nKamu diserang.");
                 serangan();
             }
             r = Math.random();
             if (r < 0.3) {
                 pjt += rand(2) + 1;
-                alert("Hukuman ditambah menjadi " + pjt + " tahun.");
+                swal.fire("Hukuman ditambah menjadi " + pjt + " tahun.");
                 updatea(-10, 0, 0, 0);
             }
             update();
@@ -1929,7 +1805,7 @@ $(function () {
         if (umur >= 15 && smka < 3) {
             if (status == "Tidak bekerja" || status == "Bekerja" || status == "Pensiun") {
                 if (uang >= 15000000) {
-                    alert("Kamu lulus tes GED!");
+                    swal.fire("Kamu lulus tes GED!");
                     smka = 3;
                     $("#ged").attr("class", "");
                 }
@@ -2029,16 +1905,16 @@ $(function () {
     function kerja() {
         if (umur < 15) {
             if (umur >= 6) {
-                alert("Orang tuamu tidak memperbolehkan kamu berhenti sekolah.");
+                swal.fire("Orang tuamu tidak memperbolehkan kamu berhenti sekolah.");
             }
         } else if (status == "SMA") {
             smka = 0;
-            alert("Kamu berhenti sekolah.");
+            swal.fire("Kamu berhenti sekolah.");
             $("#ged").attr("class", "tmbl-aktif");
             status = "Tidak bekerja";
         } else if (status == "Universitas") {
             ua = 0;
-            alert("Kamu berhenti sekolah.");
+            swal.fire("Kamu berhenti sekolah.");
             status = "Tidak bekerja";
         } else if (umur < 65) {
             if (bekerja == false) {
@@ -2049,11 +1925,11 @@ $(function () {
                 bekerja = false;
                 gajib = 0;
                 kerjat = 0;
-                alert("Kamu sudah berhenti kerja.");
+                swal.fire("Kamu sudah berhenti kerja.");
                 status = "Tidak bekerja";
             }
         } else {
-            alert("Kamu terlalu tua untuk bekerja!");
+            swal.fire("Kamu terlalu tua untuk bekerja!");
         }
         update();
     }
@@ -2228,7 +2104,7 @@ $(function () {
     function dapatKerja() {
         updatea(10, 0, 0, 0);
         gajib = gaji[i];
-        alert("Kamu mendapat pekerjaan sebagai " + kerjad[kerjab] + ". Gaji per bulan Rp" + Math.floor(gajib) + ".");
+        swal.fire("Kamu mendapat pekerjaan sebagai " + kerjad[kerjab] + ". Gaji per bulan Rp" + Math.floor(gajib) + ".");
         bekerja = true;
         status = "Bekerja";
         pekerjaan();
@@ -2288,13 +2164,13 @@ $(function () {
         kerjab = a;
         kerjat = 0;
         gajib = Math.floor(Math.random() * 0.3 * gmin[kerjab]) + gmin[kerjab];
-        alert("Kamu naik pangkat menjadi " + kerjad[kerjab] + ". Gaji kamu sekarang " + gajib + ".");
+        swal.fire("Kamu naik pangkat menjadi " + kerjad[kerjab] + ". Gaji kamu sekarang " + gajib + ".");
         updatea(20, 0, 0, 0);
     }
 
     function pecat(a) {
         if (bekerja == true) {
-            alert("Kamu dipecat dari pekerjaan sebagai " + kerjad[kerjab] + ". Alasan: " + a);
+            swal.fire("Kamu dipecat dari pekerjaan sebagai " + kerjad[kerjab] + ". Alasan: " + a);
             bekerja = false;
             kerjat = 0;
             gajib = 0;
@@ -2304,7 +2180,7 @@ $(function () {
     }
 
     function tolak(a) {
-        alert("Maaf. Kamu tidak bisa.");
+        swal.fire("Ups...", "Maaf. Kamu tidak bisa.", "error");
         updatea(a, 0, 0, 0);
     }
 
@@ -2323,7 +2199,7 @@ $(function () {
                 uanga(150000);
             }
         } else {
-            alert("Kamu tidak bisa ikut gym karena kamu terlalu lemah.");
+            swal.fire("Kamu tidak bisa ikut gym karena kamu terlalu lemah.");
         }
         update();
     }
@@ -2383,7 +2259,7 @@ $(function () {
             if (sim == false) {
                 if (simb == false) {
                     if (smarts >= 50) {
-                        alert("Kamu sudah mendapatkan SIM!");
+                        swal.fire("Kamu sudah mendapatkan SIM!");
                         sim = true;
                         simu = 0;
                         updatea(10, 0, 0, 0);
@@ -2397,7 +2273,7 @@ $(function () {
                         if (smarts < 50) {
                             r = Math.random();
                             if (r > 0.5) {
-                                alert("Kamu sudah mendapatkan SIM!");
+                                swal.fire("Kamu sudah mendapatkan SIM!");
                                 sim = true;
                                 simu = 0;
                                 updatea(10, 0, 0, 0);
@@ -2405,7 +2281,7 @@ $(function () {
                                 tolak(0);
                             }
                         } else {
-                            alert("Kamu sudah mendapatkan SIM!");
+                            swal.fire("Kamu sudah mendapatkan SIM!");
                             sim = true;
                             simu = 0;
                             updatea(10, 0, 0, 0);
@@ -2413,7 +2289,7 @@ $(function () {
                     }
                 }
             } else {
-                alert("Kamu sudah mendapatkan SIM! Tahun terlisensi: " + simu);
+                swal.fire("Kamu sudah mendapatkan SIM! Tahun terlisensi: " + simu);
             }
             update();
         }
@@ -2424,22 +2300,22 @@ $(function () {
             kec[a] = true;
             switch (a) {
                 case 0:
-                    alert("Kamu sudah kecanduan Heroin!");
+                    swal.fire("Kamu sudah kecanduan Heroin!");
                     break;
                 case 1:
-                    alert("Kamu sudah kecanduan Ganja!");
+                    swal.fire("Kamu sudah kecanduan Ganja!");
                     break;
                 case 2:
-                    alert("Kamu sudah kecanduan Opium!");
+                    swal.fire("Kamu sudah kecanduan Opium!");
                     break;
                 case 3:
-                    alert("Kamu sudah kecanduan LSD!");
+                    swal.fire("Kamu sudah kecanduan LSD!");
                     break;
                 case 4:
-                    alert("Kamu sudah kecanduan MDMA!");
+                    swal.fire("Kamu sudah kecanduan MDMA!");
                     break;
                 case 5:
-                    alert("Kamu sudah kecanduan Morfin!");
+                    swal.fire("Kamu sudah kecanduan Morfin!");
             }
             updatea(-10, 0, 0, 0);
         }
@@ -2450,7 +2326,7 @@ $(function () {
             if (sim == true) {
                 mobilpp();
             } else {
-                alert("Kamu harus mendapatkan SIM dulu!");
+                swal.fire("Kamu harus mendapatkan SIM dulu!");
             }
             /* mobila=prompt("Mobil\nHarga: Rp"+Math.floor(mobilh)+"\nCicilan: Rp"+Math.floor(mobill)+"\nUmur: "+mobilu+" tahun\nKondisi: "+mobilk+"%\n1 = Lunas\n2 = Jual\n3 = Perbaiki");
             switch(mobila) {
@@ -2459,12 +2335,12 @@ $(function () {
                     if(uang>=mobill) {
                         uang-=mobill;
                         mobill=0;
-                        alert("Mobilmu sudah lunas!");
+                        swal.fire("Mobilmu sudah lunas!");
                     } else {
-                        alert("Uang kamu tidak mencukupi!");
+                        swal.fire("Uang kamu tidak mencukupi!");
                     }
                 } else {
-                    alert("Mobilmu sudah lunas!");
+                    swal.fire("Mobilmu sudah lunas!");
                 }
                 break;
                 case "2":
@@ -2474,7 +2350,7 @@ $(function () {
                 } else if(r<0.4) {
                     jualMobil();
                 } else {
-                    alert("Tidak ada yang mau beli mobilmu.");
+                    swal.fire("Tidak ada yang mau beli mobilmu.");
                 }
             } */
             update();
@@ -2558,7 +2434,7 @@ $(function () {
             }
             uanga(mobild / 5);
         } else {
-            alert("Kamu harus punya pekerjaan!");
+            swal.fire("Kamu harus punya pekerjaan!");
         }
         update();
     }
@@ -2577,7 +2453,7 @@ $(function () {
     }
 
     function jualMobil() {
-        alert("Mobilmu terjual!")
+        swal.fire("Mobilmu terjual!")
         uang += mobilh - mobill;
         mobilp = false;
         mobill = 0;
@@ -2597,12 +2473,12 @@ $(function () {
                             if (uang >= rumahl) {
                                 uang -= rumahl;
                                 rumahl = 0;
-                                alert("Rumahmu sudah lunas!");
+                                swal.fire("Rumahmu sudah lunas!");
                             } else {
-                                alert("Uang kamu tidak mencukupi!");
+                                swal.fire("Uang kamu tidak mencukupi!");
                             }
                         } else {
-                            alert("Rumahmu sudah lunas!");
+                            swal.fire("Rumahmu sudah lunas!");
                         }
                         break;
                     case "2":
@@ -2620,7 +2496,7 @@ $(function () {
                         } else if (r < 0.1) {
                             jualRumah();
                         } else {
-                            alert("Tidak ada yang mau beli rumahmu.");
+                            swal.fire("Tidak ada yang mau beli rumahmu.");
                         }
                         break;
                     case "3":
@@ -2729,7 +2605,7 @@ $(function () {
             }
             uanga(rumahd / 5);
         } else {
-            alert("Kamu harus punya pekerjaan!");
+            swal.fire("Kamu harus punya pekerjaan!");
         }
         update();
     }
@@ -2749,7 +2625,7 @@ $(function () {
     }
 
     function jualRumah() {
-        alert("Rumahmu terjual!");
+        swal.fire("Rumahmu terjual!");
         uang += rumahh - rumahl;
         rumahp = false;
         rumahl = 0;
@@ -2803,7 +2679,7 @@ $(function () {
     function meninggal() {
         if (died == false) {
             died = true;
-            alert("Kamu sudah meninggal dunia!");
+            swal.fire("Kamu sudah meninggal dunia!");
             document.write("Nama kamu " + nama + ". Kamu adalah " + gd + ". Kamu lahir tanggal " + day + " " + month[mon - 1] + " " + year + ". Umur kamu " + umur + " tahun.");
         }
     }
