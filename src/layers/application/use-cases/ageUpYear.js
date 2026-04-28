@@ -116,6 +116,13 @@ export function ageUpYear(state, rng = Math.random) {
     
     const report = `[Laporan Keuangan Keluarga] Pajak: Rp${taxes.toLocaleString("id-ID")}, Hidup: Rp${basicExpenses.toLocaleString("id-ID")}, Anak: Rp${childcareCost.toLocaleString("id-ID")}, Transport: Rp${transportCost.toLocaleString("id-ID")}${eventCost > 0 ? `, Lain-lain: Rp${eventCost.toLocaleString("id-ID")}` : ""}`;
     pushLog(next, report);
+
+    // --- POCKET MONEY (Uang Jajan) ---
+    if (next.age >= 6) {
+      const pocketMoney = next.family.wealthStatus === "rich" ? 1_000_000 : next.family.wealthStatus === "middle" ? 350_000 : 75_000;
+      next.money += pocketMoney;
+      pushLog(next, `Orang tuamu memberimu uang jajan sebesar Rp${pocketMoney.toLocaleString("id-ID")} tahun ini.`);
+    }
   } else {
     // Independent Player Economy
     let playerExpenses = 15_000_000 + transportCost; // Base kos + makan + transport

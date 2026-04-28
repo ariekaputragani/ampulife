@@ -184,22 +184,130 @@ export default function LayeredGameView() {
 }
 
 function AssetsTab({ state, options, actions, onBack }) {
+  const isIndependent = state.profile?.isIndependent;
+  const availableFunds = isIndependent ? state.money : state.family.savings;
+  const fundLabel = isIndependent ? "Uang Pribadi" : "Tabungan Keluarga";
+  const [pendingAsset, setPendingAsset] = useState(null);
+
+  const handleAssetClick = (asset) => {
+    if (isIndependent) {
+      actions.buyAsset(asset.id);
+    } else {
+      setPendingAsset(asset);
+    }
+  };
+
   return (
     <div className={styles.tabPane}>
       <h3>Aset & Toko</h3>
-      <div className={styles.optionsList}>
-        {options.assets.map((asset) => (
-          <button key={asset.id} onClick={() => actions.buyAsset(asset.id)} disabled={state.money < asset.price}>
-            {asset.name} (Rp{asset.price.toLocaleString("id-ID")})
-          </button>
-        ))}
+      
+      {/* Pending Asset Decision Modal */}
+      {pendingAsset && (
+        <div className={styles.modalBackdrop}>
+          <div className={styles.modalContent} style={{ background: "#fff", color: "#333" }}>
+            <h3 style={{ marginBottom: "5px" }}>{pendingAsset.name}</h3>
+            <div style={{ fontSize: "16px", fontWeight: "bold", color: "#e03131", marginBottom: "15px" }}>
+              Harga: Rp{pendingAsset.price.toLocaleString("id-ID")}
+            </div>
+            <p style={{ fontSize: "13px", marginBottom: "20px", color: "#666" }}>
+              Bagaimana kamu ingin mendapatkan barang ini?
+            </p>
+            <div className={styles.modalOptionsList}>
+              <button 
+                className={styles.modalOptionButton} 
+                onClick={() => {
+                  actions.buyAsset(pendingAsset.id);
+                  setPendingAsset(null);
+                }}
+                disabled={state.money < pendingAsset.price}
+              >
+                💰 Beli Pakai Uang Sendiri
+                <div style={{ fontSize: "10px", opacity: 0.8 }}>Uang Jajan: Rp{state.money.toLocaleString("id-ID")}</div>
+              </button>
+              <button 
+                className={styles.modalOptionButton} 
+                onClick={() => {
+                  actions.askParents(pendingAsset.id);
+                  setPendingAsset(null);
+                }}
+                style={{ background: "#e7f5ff", color: "#228be6" }}
+              >
+                🙏 Minta Dibelikan Orang Tua
+                <div style={{ fontSize: "10px", opacity: 0.8 }}>Peluang keberhasilan tergantung Smarts & Hubungan.</div>
+              </button>
+              <button 
+                className={styles.secondaryButton} 
+                onClick={() => setPendingAsset(null)}
+                style={{ marginTop: "10px", width: "100%" }}
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Owned Assets Section */}
+      <div style={{ marginBottom: "20px" }}>
+        <h4 style={{ fontSize: "14px", color: "#495057", marginBottom: "8px" }}>📦 Aset Milikku</h4>
+        {state.assets && state.assets.length > 0 ? (
+          <div className={styles.optionsList}>
+            {state.assets.map((asset, idx) => (
+              <div key={`${asset.id}-${idx}`} className={styles.itemCard} style={{ padding: "10px", fontSize: "13px", background: "#f8f9fa", borderLeft: "4px solid #40c057" }}>
+                <strong>{asset.name}</strong>
+                <div style={{ fontSize: "11px", color: "#868e96" }}>Dibeli pada umur {asset.boughtAtAge} tahun</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontSize: "12px", color: "#adb5bd", fontStyle: "italic" }}>Belum memiliki aset apapun.</div>
+        )}
       </div>
-      <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "10px" }}>Kembali</button>
+
+      <div className={styles.divider} />
+
+      {/* Store Section */}
+      <div style={{ marginTop: "10px" }}>
+        <h4 style={{ fontSize: "14px", color: "#495057", marginBottom: "8px" }}>🏪 Toko Aset</h4>
+        <div style={{ fontSize: "11px", color: "#228be6", marginBottom: "10px" }}>Tersedia: <strong>Rp{availableFunds.toLocaleString("id-ID")}</strong> ({fundLabel})</div>
+        <div className={styles.optionsList}>
+          {options.assets.map((asset) => {
+            const isAffordable = availableFunds >= asset.price;
+            return (
+              <button 
+                key={asset.id} 
+                onClick={() => handleAssetClick(asset)} 
+                style={{ textAlign: "left", padding: "12px", marginBottom: "8px", opacity: isAffordable || !isIndependent ? 1 : 0.6 }}
+              >
+                <div style={{ fontWeight: "bold", fontSize: "14px" }}>{asset.name}</div>
+                <div style={{ fontSize: "11px", color: "#666", margin: "4px 0" }}>💡 {asset.description}</div>
+                <div style={{ fontSize: "12px", color: isAffordable ? "#2f9e44" : "#e03131", fontWeight: "bold" }}>
+                  Rp{asset.price.toLocaleString("id-ID")}
+                </div>
+                <div style={{ fontSize: "10px", color: "#868e96", marginTop: "4px" }}>
+                  Efek: {asset.delta.happy > 0 ? `😊+${asset.delta.happy} ` : ""}{asset.delta.smarts > 0 ? `🧠+${asset.delta.smarts} ` : ""}{asset.delta.looks > 0 ? `✨+${asset.delta.looks} ` : ""}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "15px" }}>Kembali</button>
     </div>
   );
 }
 
 function RelationsTab({ state, actions, onBack }) {
+  const relActions = [
+    { id: "chat", name: "💬 Ngobrol", desc: "Berbagi cerita santai.", effect: "📈 +5%" },
+    { id: "rant", name: "🗣️ Curhat", desc: "Menceritakan keluh kesah.", effect: "📈 +8%, 😊 +5" },
+    { id: "ask_money", name: "💰 Minta Uang", desc: "Minta uang saku.", effect: "💸 +Uang, 📉 -5%", familyOnly: true },
+    { id: "gift", name: "🎁 Hadiah", desc: "Memberi kado (Rp1jt).", effect: "📈 +15%" },
+    { id: "ask_out", name: "❤️ Pacaran", desc: "Ajak pacaran.", effect: "Status: Pacar", oppositeOnly: true, minAge: 14, hideIfPartner: true },
+    { id: "propose", name: "💍 Lamar", desc: "Ajak menikah (Rp50jt).", effect: "Status: Pasangan", partnerOnly: true }
+  ];
+
   const statusLabels = {
     family: "Keluarga",
     acquaintance: "Kenalan",
@@ -234,41 +342,27 @@ function RelationsTab({ state, actions, onBack }) {
                 max="100" 
                 style={{ width: "100%", height: "8px", marginTop: "8px" }}
               />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "12px" }}>
+                {relActions.map(action => {
+                  if (action.familyOnly && rel.status !== "family") return null;
+                  if (action.oppositeOnly && !isOppositeGender) return null;
+                  if (action.minAge && state.age < action.minAge) return null;
+                  if (action.partnerOnly && rel.status !== "partner") return null;
+                  if (action.hideIfPartner && (rel.status === "partner" || rel.status === "spouse")) return null;
 
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", marginTop: "10px" }}>
-                <button 
-                  disabled={isInteracted}
-                  onClick={() => actions.interact(rel.id, "chat")}
-                  style={{ flex: 1, fontSize: "12px", padding: "6px" }}
-                >
-                  💬 Ngobrol
-                </button>
-                <button 
-                  disabled={isInteracted}
-                  onClick={() => actions.interact(rel.id, "gift")}
-                  style={{ flex: 1, fontSize: "12px", padding: "6px" }}
-                >
-                  🎁 Hadiah
-                </button>
-                
-                {/* Romantic Actions */}
-                {state.age >= 14 && isOppositeGender && rel.status !== "partner" && rel.status !== "spouse" && rel.status !== "family" && (
-                  <button 
-                    onClick={() => actions.interact(rel.id, "ask_out")}
-                    style={{ flex: "1 0 100%", fontSize: "12px", padding: "6px", background: "#fff0f6", color: "#d6336c", borderColor: "#ffdeeb" }}
-                  >
-                    ❤️ Tembak / Ajak Pacaran
-                  </button>
-                )}
-
-                {rel.status === "partner" && (
-                  <button 
-                    onClick={() => actions.interact(rel.id, "propose")}
-                    style={{ flex: "1 0 100%", fontSize: "12px", padding: "6px", background: "#f8f0fc", color: "#ae3ec9", borderColor: "#f3d9fa" }}
-                  >
-                    💍 Lamar Pernikahan
-                  </button>
-                )}
+                  return (
+                    <button 
+                      key={action.id}
+                      disabled={isInteracted && action.id !== "ask_out" && action.id !== "propose"}
+                      onClick={() => actions.interact(rel.id, action.id)}
+                      style={{ textAlign: "left", padding: "8px", height: "auto", display: "flex", flexDirection: "column" }}
+                    >
+                      <span style={{ fontWeight: "bold", fontSize: "12px" }}>{action.name}</span>
+                      <span style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>{action.desc}</span>
+                      <span style={{ fontSize: "9px", color: "#228be6", fontWeight: "bold" }}>{action.effect}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           );

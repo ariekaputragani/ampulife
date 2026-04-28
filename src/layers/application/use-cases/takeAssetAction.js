@@ -19,15 +19,24 @@ export function takeAssetAction(state, assetId) {
     return next;
   }
 
-  if (next.money < asset.price) {
-    pushLog(next, `Uang belum cukup untuk membeli ${asset.name}.`);
+  const isIndependent = next.profile?.isIndependent;
+  const availableFunds = isIndependent ? next.money : next.family.savings;
+
+  if (availableFunds < asset.price) {
+    pushLog(next, `Dana tidak cukup untuk membeli ${asset.name}.`);
     return next;
   }
 
-  next.money -= asset.price;
+  if (isIndependent) {
+    next.money -= asset.price;
+  } else {
+    next.family.savings -= asset.price;
+  }
+
   next.assets.push({ id: asset.id, name: asset.name, boughtAtAge: next.age });
   next.stats = applyStatDelta(next.stats, asset.delta);
 
-  pushLog(next, `Kamu membeli ${asset.name} seharga Rp${asset.price.toLocaleString("id-ID")}.`);
+  const buyer = isIndependent ? "Kamu membeli" : "Orang tuamu membelikan";
+  pushLog(next, `${buyer} ${asset.name} seharga Rp${asset.price.toLocaleString("id-ID")}.`);
   return next;
 }

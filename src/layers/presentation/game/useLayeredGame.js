@@ -13,6 +13,7 @@ import { takePromotionAction } from "@/layers/application/use-cases/takePromotio
 import { setupCharacter } from "@/layers/application/use-cases/setupCharacter";
 import { handleEventChoice } from "@/layers/application/use-cases/handleEventChoice";
 import { takeActivityAction } from "@/layers/application/use-cases/takeActivityAction";
+import { askParentsAction } from "@/layers/application/use-cases/askParentsAction";
 import { changeLifestyleAction } from "@/layers/application/use-cases/changeLifestyleAction";
 import {
   clearGameState,
@@ -66,6 +67,8 @@ export function useLayeredGame() {
     takeJob: (jobId) => setState((current) => takeJobAction(current, jobId)),
     buyAsset: (assetId) =>
       setState((current) => takeAssetAction(current, assetId)),
+    askParents: (assetId) =>
+      setState((current) => askParentsAction(current, assetId)),
     interact: (relationId, actionKey) =>
       setState((current) => takeRelationAction(current, relationId, actionKey)),
     study: (educationId) =>
