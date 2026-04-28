@@ -25,6 +25,22 @@ export function ageUpYear(state, rng = Math.random) {
 
   let grossIncome = 0;
 
+  // --- DYNAMIC WEALTH & PHK LOGIC ---
+  if (next.family.isBankrupt) {
+    // Survival mode income
+    next.family.monthlyIncome = 1_500_000;
+  }
+
+  // Dynamic Wealth Status evaluation
+  const { savings: famSavings, monthlyIncome: famIncome } = next.family;
+  if (famSavings > 500_000_000 && famIncome > 20_000_000) {
+    next.family.wealthStatus = "rich";
+  } else if (famSavings < 50_000_000 && famIncome < 5_000_000) {
+    next.family.wealthStatus = "poor";
+  } else if (famSavings >= 50_000_000 && famIncome >= 5_000_000) {
+    next.family.wealthStatus = "middle";
+  }
+
   // 1. Family Cash Flow Calculation
   const monthlyIncome = next.family.monthlyIncome;
   const yearlyIncome = monthlyIncome * 12;
@@ -40,8 +56,19 @@ export function ageUpYear(state, rng = Math.random) {
   }
 
   // --- BASIC HOUSEHOLD EXPENSES (Living Costs) ---
+  let lifestyleMult = 1.0;
+  const lifestyle = next.financial.lifestyle || "normal";
+  
+  if (lifestyle === "hemat") {
+    lifestyleMult = 0.8;
+    next.stats.happy = clamp(next.stats.happy - 4);
+  } else if (lifestyle === "mewah") {
+    lifestyleMult = 1.6;
+    next.stats.happy = clamp(next.stats.happy + 8);
+  }
+
   const expenseRatio = next.family.wealthStatus === "poor" ? 0.75 : next.family.wealthStatus === "middle" ? 0.6 : 0.35;
-  const basicExpenses = Math.floor(yearlyIncome * expenseRatio);
+  const basicExpenses = Math.floor(yearlyIncome * expenseRatio * lifestyleMult);
 
   // --- CHILDCARE COSTS (Player's Needs) ---
   let childcareCost = 0;
@@ -52,34 +79,69 @@ export function ageUpYear(state, rng = Math.random) {
   // Scale childcare cost by wealth (Rich families spend way more)
   if (next.family.wealthStatus === "rich") childcareCost *= 15;
   else if (next.family.wealthStatus === "middle") childcareCost *= 2.5;
+  else if (next.family.wealthStatus === "poor") childcareCost *= 0.25; // Massive subsidy/family care
+
+  // Apply lifestyle impact to childcare as well
+  childcareCost = Math.floor(childcareCost * lifestyleMult);
 
   // --- TRANSPORTATION COSTS ---
   const assets = next.family.assets || { motor: false, car: false }; // Fallback for old saves
-  let transportCost = 3_000_000; // Default: Public transport (Angkot/Ojol)
+  let transportCost = 3_000_000; // Default: Public transport
   
+  if (next.family.wealthStatus === "poor") transportCost = 1_200_000; // Use cheaper options/walking
+
   if (assets.car) {
     transportCost = next.family.wealthStatus === "rich" ? 45_000_000 : 15_000_000;
   } else if (assets.motor) {
     transportCost = 1_500_000; // More efficient than public transport
   }
 
-  // --- TOTAL DEDUCTION ---
-  const totalDeduction = taxes + basicExpenses + childcareCost + transportCost;
-  next.family.savings += (yearlyIncome - totalDeduction);
-
-  // --- TRIGGER RANDOM EVENT (Before report to capture costs) ---
-  const savingsBeforeEvent = next.family.savings;
-  triggerRandomEvent(next, rng);
-  const eventCost = Math.max(0, savingsBeforeEvent - next.family.savings);
-
-  // --- LOGGING: NARRATIVE & FORMAL ---
-  if (taxes > 0) {
-    pushLog(next, `Orang tua ku baru saja membayar pajak penghasilan tahunan mereka.`);
-  }
-  pushLog(next, `Orang tua ku membelikan semua kebutuhan pokok dan keperluan pribadi ku tahun ini.`);
+  // --- TOTAL DEDUCTION & INDEPENDENCE LOGIC ---
+  let eventCost = 0;
   
-  const report = `[Laporan Keuangan Keluarga] Pajak: Rp${taxes.toLocaleString("id-ID")}, Hidup: Rp${basicExpenses.toLocaleString("id-ID")}, Anak: Rp${childcareCost.toLocaleString("id-ID")}, Transport: Rp${transportCost.toLocaleString("id-ID")}${eventCost > 0 ? `, Lain-lain: Rp${eventCost.toLocaleString("id-ID")}` : ""}`;
-  pushLog(next, report);
+  if (!next.profile.isIndependent) {
+    const totalDeduction = taxes + basicExpenses + childcareCost + transportCost;
+    next.family.savings += (yearlyIncome - totalDeduction);
+
+    // --- TRIGGER RANDOM EVENT (Before report to capture costs) ---
+    const savingsBeforeEvent = next.family.savings;
+    triggerRandomEvent(next, rng);
+    eventCost = Math.max(0, savingsBeforeEvent - next.family.savings);
+
+    // --- LOGGING: NARRATIVE & FORMAL (FAMILY) ---
+    if (taxes > 0) {
+      pushLog(next, `Orang tua ku baru saja membayar pajak penghasilan tahunan mereka.`);
+    }
+    pushLog(next, `Orang tua ku membelikan semua kebutuhan pokok dan keperluan pribadi ku tahun ini.`);
+    
+    const report = `[Laporan Keuangan Keluarga] Pajak: Rp${taxes.toLocaleString("id-ID")}, Hidup: Rp${basicExpenses.toLocaleString("id-ID")}, Anak: Rp${childcareCost.toLocaleString("id-ID")}, Transport: Rp${transportCost.toLocaleString("id-ID")}${eventCost > 0 ? `, Lain-lain: Rp${eventCost.toLocaleString("id-ID")}` : ""}`;
+    pushLog(next, report);
+  } else {
+    // Independent Player Economy
+    let playerExpenses = 15_000_000 + transportCost; // Base kos + makan + transport
+    
+    // Taxes for player
+    let playerTaxes = 0;
+    if (grossIncome > 60_000_000) {
+      playerTaxes = Math.floor((grossIncome - 60_000_000) * 0.05);
+    }
+    
+    playerExpenses += playerTaxes;
+    
+    if (next.money < playerExpenses) {
+      next.stats.happy -= 15;
+      next.stats.health -= 5;
+      pushLog(next, `Uangmu tidak cukup untuk membayar sewa kos dan makan! Kamu terpaksa berhutang dan makan seadanya.`);
+      next.money = 0; // or negative if we allow debt
+    } else {
+      next.money -= playerExpenses;
+    }
+
+    triggerRandomEvent(next, rng);
+
+    const report = `[Pengeluaran Pribadi] Pajak: Rp${playerTaxes.toLocaleString("id-ID")}, Kos/Makan/Transport: Rp${playerExpenses.toLocaleString("id-ID")}`;
+    pushLog(next, report);
+  }
 
   // Education Cost Logic
   if (next.education.level !== "none") {
@@ -207,7 +269,6 @@ export function ageUpYear(state, rng = Math.random) {
   }
 
   // Lifestyle & Budgeting Logic
-  const lifestyle = next.financial?.lifestyle || "normal";
   const lifestyleNames = { hemat: "Hemat", normal: "Normal", mewah: "Mewah" };
 
   if (grossIncome > 0) {
@@ -267,6 +328,11 @@ export function ageUpYear(state, rng = Math.random) {
         if (next.education.yearsStudied >= edu.yearsToComplete) {
           next.education.completed.push(next.education.level);
           const graduatedName = edu.name;
+          
+          if (next.education.level === "university") {
+            next.profile.isIndependent = true; // Lulus kuliah = wajib mandiri
+          }
+
           next.education.level = "none";
           next.education.yearsStudied = 0;
           next.family.isScholarshipActive = false;
@@ -276,6 +342,13 @@ export function ageUpYear(state, rng = Math.random) {
         }
       }
     }
+  }
+
+  // Feature Unlocks
+  if (next.age === 7) {
+    pushLog(next, "FITUR TERBUKA: Kamu sekarang bisa mencari Beasiswa di menu Aktivitas!");
+  } else if (next.age === 12) {
+    pushLog(next, "FITUR TERBUKA: Kehidupan sosial dimulai. Kamu sekarang bisa ikut Ekstrakurikuler di menu Aktivitas!");
   }
 
   if (next.healthStatus.condition !== "healthy") {

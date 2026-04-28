@@ -59,6 +59,7 @@ export function getAvailableActivities(state) {
     { id: "library", name: "Pergi ke Perpustakaan", minAge: 6, cost: 0 },
     { id: "apply_scholarship", name: "Cari Beasiswa", minAge: 7, cost: 0 },
     { id: "work_part_time", name: "Kerja Part-time (Siswa)", minAge: 15, cost: 0 },
+    { id: "join_extracurricular", name: "Ikut Ekstrakurikuler", minAge: 12, cost: 150_000 },
   ];
 
   if (state.socialMedia.isJoined) {

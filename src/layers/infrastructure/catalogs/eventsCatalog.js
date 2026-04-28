@@ -288,4 +288,84 @@ export const eventsCatalog = [
       return { summary: `${person} ku jatuh sakit dan harus dirawat di rumah sakit. Beruntung ada BPJS sehingga biaya tidak terlalu mencekik.` };
     },
   },
+  {
+    id: "parent_phk",
+    label: "Krisis Ekonomi (PHK)",
+    minAge: 0,
+    maxAge: 30,
+    weight: (state) => {
+      // Only for middle/rich who are not already bankrupt
+      if (state.family.wealthStatus === "poor" || state.family.isBankrupt || state.profile.isIndependent) return 0;
+      return 0.4; // Small chance every year
+    },
+    apply: (state) => {
+      state.family.isBankrupt = true;
+      state.family.monthlyIncome = 1_500_000; // Survival mode
+      state.stats.happy = Math.max(0, state.stats.happy - 25);
+      return { summary: "Ayahmu terkena PHK mendadak akibat perusahaannya bangkrut. Ekonomi keluargamu kini dalam krisis besar." };
+    },
+  },
+  {
+    id: "parent_job_recovery",
+    label: "Pemulihan Karier",
+    minAge: 0,
+    maxAge: 30,
+    weight: (state) => {
+      if (!state.family.isBankrupt || state.profile.isIndependent) return 0;
+      return 0.6; // Higher chance to recover each year
+    },
+    apply: (state) => {
+      state.family.isBankrupt = false;
+      const isSerabutan = Math.random() > 0.4;
+      
+      if (isSerabutan) {
+        state.family.monthlyIncome = 3_500_000;
+        state.stats.happy += 10;
+        return { summary: "Ayahmu akhirnya mendapat pekerjaan baru, meski gajinya lebih kecil dari sebelumnya. Paling tidak keluarga kita bisa bernapas lega." };
+      } else {
+        state.family.monthlyIncome = 8_000_000 + Math.floor(Math.random() * 5_000_000);
+        state.stats.happy += 20;
+        return { summary: "Kabar gembira! Ayahmu diterima bekerja di perusahaan besar dengan gaji yang mapan. Masa krisis telah berlalu." };
+      }
+    },
+  },
+  {
+    id: "adult_transition",
+    label: "Fase Kedewasaan",
+    minAge: 18,
+    maxAge: 18,
+    weight: (state) => {
+      if (state.profile.isIndependent) return 0;
+      return 100; // Guaranteed to trigger at age 18
+    },
+    isInteractive: true,
+    apply: (state) => ({
+      summary: "Kamu telah lulus SMA dan beranjak dewasa. Apa rencanamu selanjutnya?",
+      options: [
+        {
+          id: "college",
+          label: "Lanjut Kuliah (Tanggungan Ortu)",
+          resolve: (s) => {
+            if (s.family.savings < 50_000_000) {
+              s.profile.isIndependent = true;
+              s.stats.happy -= 10;
+              return "Orang tuamu tidak memiliki cukup tabungan untuk membiayai kuliah. Kamu terpaksa mencari kerja dan hidup mandiri.";
+            }
+            s.education.level = "university";
+            s.education.yearsStudied = 0;
+            return "Kamu memutuskan untuk melanjutkan kuliah. Orang tua masih akan menanggung biaya hidupmu.";
+          },
+        },
+        {
+          id: "work",
+          label: "Langsung Kerja (Mandiri)",
+          resolve: (s) => {
+            s.profile.isIndependent = true;
+            s.stats.happy += 5;
+            return "Kamu memutuskan untuk hidup mandiri, mencari kos-kosan, dan mengelola keuanganmu sendiri mulai sekarang.";
+          },
+        },
+      ],
+    }),
+  },
 ];

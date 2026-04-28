@@ -234,20 +234,97 @@
 .modalBackdrop {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modalContent {
-  background: white;
-  padding: 20px;
-  border: 1px solid #333;
-  width: 90%;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px 20px;
+  border-radius: 20px;
+  width: 100%;
   max-width: 400px;
   text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modalIcon {
+  font-size: 50px;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+/* Modal Categories */
+.modalSchool { border-top: 8px solid #4dabf7; }
+.modalHealth { border-top: 8px solid #ff8787; }
+.modalFinance { border-top: 8px solid #ffd43b; }
+.modalLife { border-top: 8px solid #63e6be; }
+.modalEmergency { border-top: 8px solid #fa5252; }
+
+.modalSummary {
+  font-size: 15px;
+  color: #495057;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.modalOptionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modalOptionButton {
+  background: #f1f3f5;
+  border: 2px solid transparent;
+  padding: 12px 15px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #343a40;
+}
+
+.modalOptionButton:hover {
+  background: #e9ecef;
+  transform: scale(1.02);
+  border-color: #adb5bd;
+}
+
+.modalOptionButtonPrimary {
+  background: #339af0;
+  color: white;
+}
+
+.modalOptionButtonPrimary:hover {
+  background: #228be6;
 }
 
 .divider {

@@ -13,6 +13,7 @@ export function createInitialGameState() {
         month: "Januari",
         year: 2026,
       },
+      isIndependent: false, // Menandakan apakah pemain sudah mandiri secara finansial
     },
     actions: [
       {
@@ -50,6 +51,13 @@ export function createInitialGameState() {
         cost: 0,
         delta: { happy: -5, health: -5, smarts: 0, looks: 0 },
       },
+      {
+        id: "join_extracurricular",
+        name: "Ikut Ekstrakurikuler",
+        minAge: 12,
+        cost: 150_000,
+        delta: { happy: 5, health: 0, smarts: 5, looks: 2 },
+      },
     ],
     age: 0,
     money: 0,
@@ -61,6 +69,7 @@ export function createInitialGameState() {
       savings: 0,
       monthlyIncome: 0,
       isScholarshipActive: false,
+      isBankrupt: false, // Menandakan apakah ortu terkena PHK/Krisis
       assets: {
         motor: false,
         car: false,

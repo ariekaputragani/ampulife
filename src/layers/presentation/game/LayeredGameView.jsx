@@ -97,32 +97,73 @@ export default function LayeredGameView() {
 
         {/* Navigation Grid (Buttons) */}
         {activeTab === "journal" && (
-          <div className={styles.navGrid}>
-            <button style={{ width: "33.33%" }} onClick={() => setActiveTab("jobs")}>Karir</button>
-            <button style={{ width: "33.33%" }} onClick={() => setActiveTab("assets")}>Aset</button>
-            <button style={{ width: "33.33%" }} onClick={() => setActiveTab("relations")}>Hubungan</button>
-            <button style={{ width: "33.33%" }} onClick={() => setActiveTab("activities")}>Aktivitas</button>
-            <button style={{ width: "33.33%" }} onClick={() => setActiveTab("health")}>Medis</button>
-            <button style={{ width: "33.33%" }} onClick={() => setActiveTab("finance")}>Keuangan</button>
-          </div>
+          <>
+            <div className={styles.navGrid}>
+              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("jobs")}>Karir</button>
+              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("assets")}>Aset</button>
+              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("relations")}>Hubungan</button>
+              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("activities")}>Aktivitas</button>
+              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("health")}>Medis</button>
+              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("finance")}>Keuangan</button>
+            </div>
+            <button 
+              className={styles.secondaryButton} 
+              style={{ width: "100%", marginTop: "10px", color: "#e03131", borderColor: "#ffa8a8" }}
+              onClick={() => {
+                if (confirm("Akhiri hidup ini dan mulai dari awal? Semua progres akan hilang.")) {
+                  actions.reset();
+                  window.location.reload(); // Reload to ensure clean state
+                }
+              }}
+            >
+              🔄 Ulangi Hidup (Reset)
+            </button>
+          </>
         )}
       </main>
 
       {/* Interactive Event Modal */}
-      {state.currentEvent && (
-        <div className={styles.modalBackdrop}>
-          <div className={styles.modalContent}>
-            <h2>Kejadian: {state.currentEvent.summary}</h2>
-            <div className={styles.optionsList}>
-              {state.currentEvent.options.map((opt) => (
-                <button key={opt.id} onClick={() => actions.handleEventChoice(opt.id)}>
-                  {opt.label}
-                </button>
-              ))}
+      {state.currentEvent && (() => {
+        const eventId = state.currentEvent.id;
+        let icon = "🌟";
+        let categoryClass = styles.modalLife;
+
+        // Map events to categories and icons
+        if (["school_award", "drop_out_school", "bully", "scholarship_offer", "academic_achievement", "adult_transition"].includes(eventId)) {
+          icon = "🏫";
+          categoryClass = styles.modalSchool;
+        } else if (["illness", "parent_sick"].includes(eventId)) {
+          icon = "🩺";
+          categoryClass = styles.modalHealth;
+        } else if (["financial_crisis", "household_crisis", "parent_phk"].includes(eventId)) {
+          icon = "🚨";
+          categoryClass = styles.modalEmergency;
+        } else if (["side_income", "parent_job_recovery"].includes(eventId)) {
+          icon = "💰";
+          categoryClass = styles.modalFinance;
+        }
+
+        return (
+          <div className={styles.modalBackdrop}>
+            <div className={`${styles.modalContent} ${categoryClass}`}>
+              <span className={styles.modalIcon}>{icon}</span>
+              <h2 className={styles.modalTitle}>Kejadian Khusus</h2>
+              <p className={styles.modalSummary}>{state.currentEvent.summary}</p>
+              <div className={styles.modalOptionsList}>
+                {state.currentEvent.options.map((opt, idx) => (
+                  <button 
+                    key={opt.id} 
+                    className={`${styles.modalOptionButton} ${idx === 0 ? styles.modalOptionButtonPrimary : ""}`}
+                    onClick={() => actions.handleEventChoice(opt.id)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Death Modal */}
       {!state.life.isAlive && (
@@ -208,10 +249,15 @@ function HealthTab({ state, options, actions, onBack }) {
         </div>
         {options.treatments.map((tr) => (
           <button key={tr.id} onClick={() => actions.treatment(tr.id)} disabled={tr.disabled}>
-            👨‍⚕️ {tr.name} 
-            {tr.isFreeWithBPJS ? " (Gratis BPJS)" : 
-             tr.isCoveredByParents ? " (Ditanggung Ortu)" : 
-             ` (Rp${tr.cost.toLocaleString("id-ID")})`}
+            👨‍⚕️ {tr.name} (Rp{tr.cost.toLocaleString("id-ID")})
+            <div style={{ fontSize: "11px", color: "#2f9e44", fontWeight: "bold", marginTop: "2px" }}>
+              +{tr.effect.health} Health {tr.canCure ? "• Bisa Sembuh" : "• Meredakan Gejala"}
+            </div>
+            <span style={{ fontSize: "10px", display: "block", color: "#666" }}>
+              {tr.isFreeWithBPJS ? "✅ Gratis BPJS" : 
+               tr.isCoveredByParents ? "👨‍👩‍👦 Ditanggung Ortu" : 
+               "💰 Bayar Mandiri"}
+            </span>
           </button>
         ))}
       </div>
@@ -293,31 +339,45 @@ function FinanceTab({ state, actions, onBack }) {
         </p>
       </div>
 
-      <div className={styles.itemCard} style={{ background: "#e7f5ff", borderLeft: "4px solid #228be6", padding: "10px", marginBottom: "10px", color: "#333" }}>
-        <h4>Ekonomi Keluarga</h4>
-        <p>Status: <strong>{state.family.wealthStatus.toUpperCase()}</strong></p>
-        <p>Tabungan Keluarga: <strong>Rp{state.family.savings.toLocaleString("id-ID")}</strong></p>
-        <p>Gaji Orang Tua: <strong>Rp{state.family.monthlyIncome.toLocaleString("id-ID")}/bln</strong></p>
-        <p>Status Beasiswa: <strong style={{ color: state.family.isScholarshipActive ? "green" : "red" }}>{state.family.isScholarshipActive ? "AKTIF" : "TIDAK ADA"}</strong></p>
-      </div>
+      {!state.profile?.isIndependent ? (
+        <div className={styles.itemCard} style={{ background: "#e7f5ff", borderLeft: "4px solid #228be6", padding: "10px", marginBottom: "10px", color: "#333" }}>
+          <h4>Ekonomi Keluarga</h4>
+          <p>Status: <strong>{state.family.wealthStatus.toUpperCase()}</strong></p>
+          <p>Tabungan Keluarga: <strong>Rp{state.family.savings.toLocaleString("id-ID")}</strong></p>
+          <p>Gaji Orang Tua: <strong>Rp{state.family.monthlyIncome.toLocaleString("id-ID")}/bln</strong></p>
+          <p>Status Beasiswa: <strong style={{ color: state.family.isScholarshipActive ? "green" : "red" }}>{state.family.isScholarshipActive ? "AKTIF" : "TIDAK ADA"}</strong></p>
+        </div>
+      ) : (
+        <div className={styles.itemCard} style={{ background: "#ebfbee", borderLeft: "4px solid #40c057", padding: "10px", marginBottom: "10px", color: "#333" }}>
+          <h4>Ekonomi Pribadi</h4>
+          <p>Status: <strong>MANDIRI</strong></p>
+          <p>Uang Tersedia: <strong>Rp{state.money.toLocaleString("id-ID")}</strong></p>
+          <p style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>Kamu sekarang bertanggung jawab penuh atas biaya kos, makan, dan pajak pribadimu.</p>
+        </div>
+      )}
       <div className={styles.optionsList}>
         <button 
           onClick={() => actions.changeLifestyle("hemat")} 
-          style={{ background: lifestyle === "hemat" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "hemat" ? "bold" : "normal" }}
+          style={{ background: lifestyle === "hemat" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "hemat" ? "bold" : "normal", textAlign: "left", padding: "12px" }}
         >
-          {lifestyle === "hemat" ? "✓ " : ""}Set Gaya Hidup: HEMAT
+          <div>{lifestyle === "hemat" ? "✓ " : ""}Gaya Hidup: <strong>HEMAT</strong></div>
+          <div style={{ fontSize: "11px", color: "#2b8a3e", marginTop: "4px" }}>📉 Biaya Hidup -20% | 📉 Kebahagiaan -4/thn</div>
         </button>
+
         <button 
           onClick={() => actions.changeLifestyle("normal")} 
-          style={{ background: lifestyle === "normal" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "normal" ? "bold" : "normal" }}
+          style={{ background: lifestyle === "normal" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "normal" ? "bold" : "normal", textAlign: "left", padding: "12px" }}
         >
-          {lifestyle === "normal" ? "✓ " : ""}Set Gaya Hidup: NORMAL
+          <div>{lifestyle === "normal" ? "✓ " : ""}Gaya Hidup: <strong>NORMAL</strong></div>
+          <div style={{ fontSize: "11px", color: "#495057", marginTop: "4px" }}>⚖️ Biaya Standar | ⚖️ Kebahagiaan Stabil</div>
         </button>
+
         <button 
           onClick={() => actions.changeLifestyle("mewah")} 
-          style={{ background: lifestyle === "mewah" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "mewah" ? "bold" : "normal" }}
+          style={{ background: lifestyle === "mewah" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "mewah" ? "bold" : "normal", textAlign: "left", padding: "12px" }}
         >
-          {lifestyle === "mewah" ? "✓ " : ""}Set Gaya Hidup: MEWAH
+          <div>{lifestyle === "mewah" ? "✓ " : ""}Gaya Hidup: <strong>MEWAH</strong></div>
+          <div style={{ fontSize: "11px", color: "#e03131", marginTop: "4px" }}>📈 Biaya Hidup +60% | 📈 Kebahagiaan +8/thn</div>
         </button>
       </div>
       <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "15px" }}>Kembali</button>

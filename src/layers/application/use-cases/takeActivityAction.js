@@ -82,10 +82,33 @@ export function takeActivityAction(state, activityId) {
         message = "Kamu terlalu muda untuk bekerja part-time.";
       } else {
         const salary = 1_500_000 + Math.floor(Math.random() * 1_000_000);
-        newState.family.savings += salary;
+        if (newState.profile?.isIndependent) {
+          newState.money += salary;
+          message = `Kamu bekerja part-time dan mendapat bayaran Rp${salary.toLocaleString("id-ID")}.`;
+        } else {
+          newState.family.savings += salary;
+          message = `Kamu bekerja part-time dan menyumbang Rp${salary.toLocaleString("id-ID")} ke tabungan keluarga.`;
+        }
         newState.stats.health = Math.max(0, newState.stats.health - 5);
         newState.stats.happy = Math.max(0, newState.stats.happy - 3);
-        message = `Kamu bekerja part-time dan menyumbang Rp${salary.toLocaleString("id-ID")} ke tabungan keluarga.`;
+      }
+      break;
+
+    case "join_extracurricular":
+      if (newState.education.level === "none" || newState.education.level === "university") {
+        message = "Kamu harus berada di SD, SMP, atau SMA untuk ikut ekstrakurikuler.";
+      } else if (newState.money >= 150_000 || (!newState.profile?.isIndependent && newState.family.savings > 150_000)) {
+        if (newState.profile?.isIndependent) {
+          newState.money -= 150_000;
+        } else {
+          newState.family.savings -= 150_000;
+        }
+        newState.stats.happy = Math.min(100, newState.stats.happy + 5);
+        newState.stats.smarts = Math.min(100, newState.stats.smarts + 3);
+        newState.stats.looks = Math.min(100, newState.stats.looks + 2);
+        message = "Kamu aktif mengikuti kegiatan ekstrakurikuler sekolah. Teman-teman barumu sangat seru!";
+      } else {
+        message = "Tidak ada cukup uang untuk membayar uang kas ekstrakurikuler.";
       }
       break;
 
