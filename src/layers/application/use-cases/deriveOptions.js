@@ -57,6 +57,8 @@ export function getAvailableActivities(state) {
   const acts = [
     { id: "gym", name: "Pergi ke Gym", minAge: 14, cost: 150_000 },
     { id: "library", name: "Pergi ke Perpustakaan", minAge: 6, cost: 0 },
+    { id: "apply_scholarship", name: "Cari Beasiswa", minAge: 7, cost: 0 },
+    { id: "work_part_time", name: "Kerja Part-time (Siswa)", minAge: 15, cost: 0 },
   ];
 
   if (state.socialMedia.isJoined) {

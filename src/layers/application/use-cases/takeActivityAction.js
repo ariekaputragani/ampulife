@@ -58,6 +58,37 @@ export function takeActivityAction(state, activityId) {
       }
       break;
 
+    case "apply_scholarship":
+      if (newState.education.level === "none") {
+        message = "Kamu harus sedang bersekolah untuk melamar beasiswa.";
+      } else if (newState.family.isScholarshipActive) {
+        message = "Kamu sudah memiliki beasiswa yang aktif.";
+      } else {
+        const smarts = newState.stats.smarts;
+        const chance = 0.2 + (smarts - 75) * 0.02;
+        if (smarts >= 75 && Math.random() < chance) {
+          newState.family.isScholarshipActive = true;
+          newState.stats.happy = Math.min(100, newState.stats.happy + 15);
+          message = "SELAMAT! Lamaran beasiswamu diterima. Biaya sekolah tahun ini gratis!";
+        } else {
+          newState.stats.happy = Math.max(0, newState.stats.happy - 5);
+          message = "Maaf, lamaran beasiswamu ditolak. Coba lagi tahun depan.";
+        }
+      }
+      break;
+
+    case "work_part_time":
+      if (newState.age < 15) {
+        message = "Kamu terlalu muda untuk bekerja part-time.";
+      } else {
+        const salary = 1_500_000 + Math.floor(Math.random() * 1_000_000);
+        newState.family.savings += salary;
+        newState.stats.health = Math.max(0, newState.stats.health - 5);
+        newState.stats.happy = Math.max(0, newState.stats.happy - 3);
+        message = `Kamu bekerja part-time dan menyumbang Rp${salary.toLocaleString("id-ID")} ke tabungan keluarga.`;
+      }
+      break;
+
     default:
       message = "Aktivitas tidak dikenal.";
   }

@@ -292,6 +292,14 @@ function FinanceTab({ state, actions, onBack }) {
           {lifestyle === "mewah" && "Mewah: Tabung 10%, Hidup foya-foya (Kebahagiaan +3/thn)."}
         </p>
       </div>
+
+      <div className={styles.itemCard} style={{ background: "#e7f5ff", borderLeft: "4px solid #228be6", padding: "10px", marginBottom: "10px", color: "#333" }}>
+        <h4>Ekonomi Keluarga</h4>
+        <p>Status: <strong>{state.family.wealthStatus.toUpperCase()}</strong></p>
+        <p>Tabungan Keluarga: <strong>Rp{state.family.savings.toLocaleString("id-ID")}</strong></p>
+        <p>Gaji Orang Tua: <strong>Rp{state.family.monthlyIncome.toLocaleString("id-ID")}/bln</strong></p>
+        <p>Status Beasiswa: <strong style={{ color: state.family.isScholarshipActive ? "green" : "red" }}>{state.family.isScholarshipActive ? "AKTIF" : "TIDAK ADA"}</strong></p>
+      </div>
       <div className={styles.optionsList}>
         <button 
           onClick={() => actions.changeLifestyle("hemat")} 

@@ -25,25 +25,80 @@ export function ageUpYear(state, rng = Math.random) {
 
   let grossIncome = 0;
 
-  // Uang Jajan (Allowance) System
-  if (next.age >= 6 && next.age <= 18) {
-    let allowance = 0;
-    if (next.familyWealth === "poor") {
-      const base = Math.floor(rng() * 500000); // 0 - 500k
-      allowance = Math.round(base / 10000) * 10000; // Pembulatan 10rb
-    } else if (next.familyWealth === "middle") {
-      const base = Math.floor(rng() * 3000000) + 2000000; // 2M - 5M
-      allowance = Math.round(base / 50000) * 50000; // Pembulatan 50rb
-    } else if (next.familyWealth === "rich") {
-      const base = Math.floor(rng() * 35000000) + 15000000; // 15M - 50M
-      allowance = Math.round(base / 100000) * 100000; // Pembulatan 100rb
-    }
+  // 1. Family Cash Flow Calculation
+  const monthlyIncome = next.family.monthlyIncome;
+  const yearlyIncome = monthlyIncome * 12;
+
+  // --- TAX CALCULATION (PPh Progresif) ---
+  let taxes = 0;
+  if (yearlyIncome > 500_000_000) {
+    taxes = Math.floor((yearlyIncome - 500_000_000) * 0.30 + (250_000_000 * 0.15) + (190_000_000 * 0.05));
+  } else if (yearlyIncome > 250_000_000) {
+    taxes = Math.floor((yearlyIncome - 250_000_000) * 0.15 + (190_000_000 * 0.05));
+  } else if (yearlyIncome > 60_000_000) {
+    taxes = Math.floor((yearlyIncome - 60_000_000) * 0.05);
+  }
+
+  // --- BASIC HOUSEHOLD EXPENSES (Living Costs) ---
+  const expenseRatio = next.family.wealthStatus === "poor" ? 0.75 : next.family.wealthStatus === "middle" ? 0.6 : 0.35;
+  const basicExpenses = Math.floor(yearlyIncome * expenseRatio);
+
+  // --- CHILDCARE COSTS (Player's Needs) ---
+  let childcareCost = 0;
+  if (next.age <= 4) childcareCost = 4_000_000;
+  else if (next.age <= 12) childcareCost = 2_000_000;
+  else if (next.age <= 18) childcareCost = 5_000_000;
+  
+  // Scale childcare cost by wealth (Rich families spend way more)
+  if (next.family.wealthStatus === "rich") childcareCost *= 15;
+  else if (next.family.wealthStatus === "middle") childcareCost *= 2.5;
+
+  // --- TOTAL DEDUCTION ---
+  const totalDeduction = taxes + basicExpenses + childcareCost;
+  next.family.savings += (yearlyIncome - totalDeduction);
+
+  // --- LOGGING: NARRATIVE & FORMAL ---
+  if (taxes > 0) {
+    pushLog(next, `Orang tua ku baru saja membayar pajak penghasilan tahunan mereka.`);
+  }
+  pushLog(next, `Orang tua ku membelikan semua kebutuhan pokok dan keperluan pribadi ku tahun ini.`);
+  
+  const report = `[Laporan Keuangan Keluarga] Pajak: Rp${taxes.toLocaleString("id-ID")}, Hidup: Rp${basicExpenses.toLocaleString("id-ID")}, Anak: Rp${childcareCost.toLocaleString("id-ID")}`;
+  pushLog(next, report);
+
+  // Education Cost Logic
+  if (next.education.level !== "none") {
+    const educationCosts = {
+      elementary: 1_200_000,
+      junior_high: 3_000_000,
+      high_school: 6_000_000,
+      university: 25_000_000,
+    };
+
+    let yearlyFee = educationCosts[next.education.level] || 0;
     
-    if (allowance > 0) {
+    if (next.family.isScholarshipActive) {
+      yearlyFee = 0;
+      pushLog(next, "Kamu bersekolah dengan beasiswa tahun ini (Biaya Rp0).");
+    } else {
+      next.family.savings -= yearlyFee;
+      pushLog(next, `Keluargamu membayar biaya sekolah ${next.education.level} sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
+    }
+
+    // Financial Crisis check
+    if (next.family.savings < 0 && !next.family.isScholarshipActive) {
+      pushLog(next, "PERINGATAN: Tabungan keluargamu habis! Kamu terancam putus sekolah.");
+    }
+  }
+
+  // Allowance derived from family income
+  if (next.age >= 6 && next.age <= 18) {
+    const allowancePercent = next.family.wealthStatus === "rich" ? 0.05 : next.family.wealthStatus === "middle" ? 0.02 : 0.005;
+    const allowance = Math.floor((next.family.monthlyIncome * allowancePercent) * (0.8 + rng() * 0.4));
+    
+    if (allowance > 0 && next.family.savings > 0) {
       grossIncome += allowance;
-      pushLog(next, `Kamu mendapat jatah uang jajan sebesar Rp${allowance.toLocaleString("id-ID")} tahun ini.`);
-    } else if (next.familyWealth === "poor") {
-      pushLog(next, `Tahun ini keluargamu sedang kesulitan, kamu tidak mendapat uang jajan.`);
+      pushLog(next, `Kamu mendapat uang jajan Rp${allowance.toLocaleString("id-ID")} tahun ini.`);
     }
   }
   
@@ -160,6 +215,7 @@ export function ageUpYear(state, rng = Math.random) {
           const graduatedName = edu.name;
           next.education.level = "none";
           next.education.yearsStudied = 0;
+          next.family.isScholarshipActive = false;
           pushLog(next, `LULUS! Kamu telah menyelesaikan pendidikan ${graduatedName}.`);
         } else {
           pushLog(next, `Kamu melanjutkan studi ${edu.name} (Tahun ke-${next.education.yearsStudied}).`);

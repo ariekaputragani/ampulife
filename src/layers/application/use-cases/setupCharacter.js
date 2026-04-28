@@ -20,6 +20,29 @@ export function setupCharacter(state, { name, city, gender, birthDate }) {
   else if (wealthRoll > 0.9) familyWealth = "rich";
 
   next.familyWealth = familyWealth;
+  
+  // Initialize Family Finances
+  let savings = 100_000_000; // default middle
+  let monthlyIncome = 15_000_000;
+  
+  if (familyWealth === "poor") {
+    savings = Math.floor(Math.random() * 2_000_000) + 500_000;
+    monthlyIncome = Math.floor(Math.random() * 2_000_000) + 1_500_000; // 1.5jt - 3.5jt
+  } else if (familyWealth === "rich") {
+    savings = Math.floor(Math.random() * 5_000_000_000) + 500_000_000;
+    monthlyIncome = Math.floor(Math.random() * 70_000_000) + 30_000_000; // 30jt - 100jt
+  } else {
+    savings = Math.floor(Math.random() * 40_000_000) + 10_000_000;
+    monthlyIncome = Math.floor(Math.random() * 10_000_000) + 5_000_000; // 5jt - 15jt
+  }
+
+  next.family = {
+    wealthStatus: familyWealth,
+    savings,
+    monthlyIncome,
+    isScholarshipActive: false,
+  };
+
   next.hasBPJS = familyWealth === "poor" ? "PBI" : false; // Poor gets free BPJS PBI
 
   // Generate Initial Stats

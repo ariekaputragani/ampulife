@@ -170,4 +170,122 @@ export const eventsCatalog = [
       return { summary: "Keluargamu memberi dukungan moral dan bantuan dana kecil." };
     },
   },
+  {
+    id: "scholarship_offer",
+    label: "Tawaran Beasiswa",
+    minAge: 12,
+    maxAge: 22,
+    weight: (state) => {
+      if (state.education.level === "none" || state.family.isScholarshipActive) return 0;
+      return state.stats.smarts > 75 ? 0.8 : 0.2;
+    },
+    isInteractive: true,
+    apply: (state) => ({
+      summary: "Sekolahmu menawarkan program beasiswa bagi siswa terpilih. Apakah kamu ingin mendaftar?",
+      options: [
+        {
+          id: "apply",
+          label: "Daftar Sekarang",
+          resolve: (s) => {
+            const chance = 0.35 + (s.stats.smarts - 75) * 0.02; // higher chance than manual
+            if (Math.random() < chance) {
+              s.family.isScholarshipActive = true;
+              s.stats.happy += 10;
+              return "Luar biasa! Kamu memenangkan beasiswa tersebut.";
+            }
+            return "Sayang sekali, kamu belum berhasil mendapatkan beasiswa kali ini.";
+          },
+        },
+        {
+          id: "ignore",
+          label: "Tidak Tertarik",
+          resolve: (s) => "Kamu melewatkan kesempatan tersebut.",
+        },
+      ],
+    }),
+  },
+  {
+    id: "financial_crisis",
+    label: "Krisis Keuangan Keluarga",
+    minAge: 6,
+    maxAge: 22,
+    weight: (state) => {
+      if (state.family.savings > 0 || state.education.level === "none" || state.family.isScholarshipActive) return 0;
+      return 2.0; // High weight if savings are negative
+    },
+    isInteractive: true,
+    apply: (state) => ({
+      summary: "Tabungan keluargamu habis. Orang tuamu tidak sanggup lagi membayar biaya sekolahmu.",
+      options: [
+        {
+          id: "dropout",
+          label: "Berhenti Sekolah & Kerja",
+          resolve: (s) => {
+            s.education.level = "none";
+            s.stats.happy -= 20;
+            s.family.savings += 2_000_000;
+            return "Kamu putus sekolah dan mulai bekerja serabutan untuk membantu keluarga.";
+          },
+        },
+        {
+          id: "parttime",
+          label: "Kerja Part-time (Tetap Sekolah)",
+          resolve: (s) => {
+            s.stats.health -= 15;
+            s.stats.happy -= 10;
+            s.family.savings += 5_000_000;
+            return "Kamu memaksakan diri bekerja malam hari agar tetap bisa sekolah. Tubuhmu sangat lelah.";
+          },
+        },
+      ],
+    }),
+  },
+  {
+    id: "academic_achievement",
+    label: "Juara Lomba Akademik",
+    minAge: 10,
+    maxAge: 22,
+    weight: (state) => (state.stats.smarts > 80 ? 0.9 : 0.1),
+    apply: (state) => {
+      const prize = 5_000_000 + Math.floor(Math.random() * 10_000_000);
+      state.family.savings += prize;
+      state.stats.happy += 15;
+      state.stats.smarts += 5;
+      return { summary: `Kamu menjuarai lomba tingkat nasional dan mendapat hadiah Rp${prize.toLocaleString("id-ID")}!` };
+    },
+  },
+  {
+    id: "household_crisis",
+    label: "Masalah Rumah Tangga",
+    minAge: 5,
+    maxAge: 18,
+    weight: (state) => (state.family.savings > 5_000_000 ? 0.6 : 0.2),
+    apply: (state) => {
+      const repairs = [
+        { msg: "Atap rumah kami bocor dan Ayah harus memanggil tukang untuk memperbaikinya.", cost: 2_500_000 },
+        { msg: "Motor Bapak tiba-tiba mogok dan butuh servis besar agar bisa dipakai kerja lagi.", cost: 1_500_000 },
+        { msg: "Pipa air di rumah kami pecah, Ibu sibuk membersihkan air yang menggenang.", cost: 800_000 },
+      ];
+      const picked = repairs[Math.floor(Math.random() * repairs.length)];
+      state.family.savings -= picked.cost;
+      return { summary: picked.msg };
+    },
+  },
+  {
+    id: "parent_sick",
+    label: "Orang Tua Sakit",
+    minAge: 0,
+    maxAge: 25,
+    weight: (state) => (state.family.wealthStatus === "poor" ? 0.8 : 0.4),
+    apply: (state) => {
+      let cost = 5_000_000;
+      if (state.family.wealthStatus === "rich") cost = 35_000_000;
+      if (state.family.wealthStatus === "poor") cost = 500_000; // Diasumsikan pakai BPJS PBI, hanya bayar obat luar/admin
+      
+      state.family.savings -= cost;
+      state.stats.happy -= 10;
+      const person = Math.random() > 0.5 ? "Ibu" : "Bapak";
+      return { summary: `${person} ku jatuh sakit dan harus dirawat di rumah sakit. Beruntung ada BPJS sehingga biaya tidak terlalu mencekik.` };
+    },
+  },
 ];

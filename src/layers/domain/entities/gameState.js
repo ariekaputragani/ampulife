@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 export function createInitialGameState() {
   return {
@@ -36,11 +36,31 @@ export function createInitialGameState() {
         cost: 0,
         delta: { happy: 2, health: 0, smarts: 0, looks: 1 },
       },
+      {
+        id: "apply_scholarship",
+        name: "Cari Beasiswa",
+        minAge: 7,
+        cost: 0,
+        delta: { happy: 0, health: 0, smarts: 2, looks: 0 },
+      },
+      {
+        id: "work_part_time",
+        name: "Kerja Part-time (Siswa)",
+        minAge: 15,
+        cost: 0,
+        delta: { happy: -5, health: -5, smarts: 0, looks: 0 },
+      },
     ],
     age: 0,
     money: 0,
     financial: {
       lifestyle: "normal", // hemat, normal, mewah
+    },
+    family: {
+      wealthStatus: "middle", // poor, middle, rich
+      savings: 0,
+      monthlyIncome: 0,
+      isScholarshipActive: false,
     },
     stats: {
       happy: 62,
