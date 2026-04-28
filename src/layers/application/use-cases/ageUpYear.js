@@ -156,16 +156,46 @@ export function ageUpYear(state, rng = Math.random) {
     const costConfig = educationCosts[next.education.level];
     let yearlyFee = costConfig ? costConfig[next.family.wealthStatus] : 0;
     
-    if (next.family.isScholarshipActive) {
-      yearlyFee = 0;
-      pushLog(next, "Kamu bersekolah dengan beasiswa tahun ini (Biaya Rp0).");
-    } else {
-      next.family.savings -= yearlyFee;
-      if (yearlyFee > 0) {
-        pushLog(next, `Keluargamu membayar biaya sekolah ${next.education.level} sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
-      } else {
-        pushLog(next, `Kamu bersekolah di sekolah negeri secara gratis.`);
+    // --- SCHOLARSHIP MANAGEMENT ---
+    if (!next.family.activeScholarships) next.family.activeScholarships = [];
+    next.family.activeScholarships = next.family.activeScholarships.map(s => ({
+      ...s,
+      yearsLeft: s.yearsLeft - 1
+    })).filter(s => s.yearsLeft > 0);
+
+    // Auto-grant for POOR families
+    if (next.family.wealthStatus === "poor" && next.education.yearsStudied === 1) {
+      if (!next.family.activeScholarships.some(s => s.type === "pemerintah")) {
+        next.family.activeScholarships.push({
+          id: `gov_${next.education.level}_${Date.now()}`,
+          name: "Beasiswa Bantuan Pemerintah (KIP)",
+          type: "pemerintah",
+          coverage: "full",
+          amount: 100,
+          yearsLeft: 12
+        });
+        pushLog(next, "✨ Kamu mendapatkan bantuan pendidikan gratis dari Pemerintah karena kondisi ekonomi keluarga.");
       }
+    }
+
+    // --- APPLY DISCOUNTS ---
+    let totalDiscount = 0;
+    next.family.activeScholarships.forEach(s => {
+      if (s.coverage === "full") totalDiscount = yearlyFee;
+      else if (s.coverage === "partial") totalDiscount += (yearlyFee * (s.amount / 100));
+      else if (s.coverage === "fixed") totalDiscount += s.amount;
+    });
+
+    yearlyFee = Math.max(0, yearlyFee - totalDiscount);
+    if (totalDiscount > 0) {
+      pushLog(next, `Beasiswa memotong biaya sekolahmu sebesar Rp${totalDiscount.toLocaleString("id-ID")}.`);
+    }
+
+    next.family.savings -= yearlyFee;
+    if (yearlyFee > 0) {
+      pushLog(next, `Keluargamu membayar biaya sekolah ${next.education.level} sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
+    } else {
+      pushLog(next, `Kamu bersekolah ${next.education.level} secara gratis tahun ini.`);
     }
 
     // 3. Family Asset Purchase (Chance-based)
@@ -372,6 +402,52 @@ export function ageUpYear(state, rng = Math.random) {
     next.life.isAlive = false;
     next.life.causeOfDeath = "Kesehatan kritis";
     pushLog(next, "Karakter meninggal karena kesehatan mencapai 0.");
+  }
+
+  // --- RELATIONSHIP DECAY & NEW FRIENDS ---
+  next.relations = next.relations.map(rel => {
+    // Family decays very slowly (if at all), Friends/Partners decay faster
+    if (rel.status !== "family") {
+      rel.relationship = Math.max(0, rel.relationship - 3);
+    }
+    return rel;
+  }).filter(rel => {
+    // Remove if lost contact (unless family)
+    if (rel.status !== "family" && rel.relationship <= 0) {
+      pushLog(next, `Kamu kehilangan kontak dengan ${rel.name} karena sudah terlalu lama tidak mengobrol.`);
+      return false;
+    }
+    return true;
+  });
+
+  // Generate new friends at school milestones
+  if ([6, 12, 15].includes(next.age)) {
+    const isMale = rng() > 0.5;
+    const namesM = ["Budi", "Agus", "Dedi", "Rian", "Adit", "Fajar", "Surya"];
+    const namesF = ["Siti", "Sari", "Lani", "Maya", "Indah", "Putri", "Dewi"];
+    const newName = isMale ? namesM[Math.floor(rng() * namesM.length)] : namesF[Math.floor(rng() * namesF.length)];
+    
+    next.relations.push({
+      id: `friend_${next.age}_${Date.now()}`,
+      label: "Teman Sekolah",
+      name: newName,
+      relationship: 45,
+      gender: isMale ? "male" : "female",
+      status: "friend",
+      lastInteractionAge: -1
+    });
+    pushLog(next, `Kamu berkenalan dengan teman baru bernama ${newName} di sekolah.`);
+  }
+
+  // --- FEATURE UNLOCK NOTIFICATIONS ---
+  if (next.age === 5) {
+    pushLog(next, "✨ FITUR TERBUKA: Kamu sekarang sudah cukup umur untuk berteman. Menu [Hubungan] kini tersedia!");
+  } else if (next.age === 6) {
+    pushLog(next, "🎒 FITUR TERBUKA: Waktunya sekolah! Menu [Aktivitas] kini tersedia untuk eksplorasi harian.");
+  } else if (next.age === 10) {
+    pushLog(next, "🎮 FITUR TERBUKA: Kamu mulai menginginkan barang-barang pribadi. Menu [Aset] kini tersedia!");
+  } else if (next.age === 15) {
+    pushLog(next, "💼 FITUR TERBUKA: Kamu sudah cukup besar untuk mencari uang saku sendiri. Menu [Karir] kini tersedia!");
   }
 
   return next;

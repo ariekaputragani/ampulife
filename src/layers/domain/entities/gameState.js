@@ -68,7 +68,7 @@ export function createInitialGameState() {
       wealthStatus: "middle", // poor, middle, rich
       savings: 0,
       monthlyIncome: 0,
-      isScholarshipActive: false,
+      activeScholarships: [], // Array untuk menampung beasiswa aktif
       isBankrupt: false, // Menandakan apakah ortu terkena PHK/Krisis
       assets: {
         motor: false,
@@ -115,14 +115,33 @@ export function createInitialGameState() {
     },
     assets: [],
     relations: [
-      { id: "father", label: "Bapak", name: "Rahmat", bond: 68, support: 72 },
-      { id: "mother", label: "Ibu", name: "Anisa", bond: 72, support: 70 },
+      { 
+        id: "father", 
+        label: "Bapak", 
+        name: "Rahmat", 
+        relationship: 68, 
+        support: 72, 
+        gender: "male", 
+        status: "family", 
+        lastInteractionAge: -1 
+      },
+      { 
+        id: "mother", 
+        label: "Ibu", 
+        name: "Anisa", 
+        relationship: 72, 
+        support: 70, 
+        gender: "female", 
+        status: "family", 
+        lastInteractionAge: -1 
+      },
     ],
     currentEvent: null, // Used for interactive events
     jailActions: {
       hasRioted: false,
       hasAttemptedEscape: false,
     },
+    lastActivityAges: {}, // Melacak umur terakhir setiap aktivitas dilakukan
     history: [
       {
         id: "boot",

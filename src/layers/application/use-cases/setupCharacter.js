@@ -63,8 +63,26 @@ export function setupCharacter(state, { name, city, gender, birthDate }) {
   const baseSupport = familyWealth === "rich" ? 90 : familyWealth === "poor" ? 40 : 65;
 
   next.relations = [
-    { id: "father", label: "Bapak", name: fatherName, bond: 70, support: baseSupport },
-    { id: "mother", label: "Ibu", name: motherName, bond: 75, support: baseSupport + 5 },
+    { 
+      id: "father", 
+      label: "Bapak", 
+      name: fatherName, 
+      relationship: 70, 
+      support: baseSupport, 
+      gender: "male", 
+      status: "family", 
+      lastInteractionAge: -1 
+    },
+    { 
+      id: "mother", 
+      label: "Ibu", 
+      name: motherName, 
+      relationship: 75, 
+      support: baseSupport + 5, 
+      gender: "female", 
+      status: "family", 
+      lastInteractionAge: -1 
+    },
   ];
   
   pushLog(next, `Kehidupan baru dimulai!`);

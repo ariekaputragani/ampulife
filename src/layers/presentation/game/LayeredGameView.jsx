@@ -99,10 +99,10 @@ export default function LayeredGameView() {
         {activeTab === "journal" && (
           <>
             <div className={styles.navGrid}>
-              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("jobs")}>Karir</button>
-              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("assets")}>Aset</button>
-              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("relations")}>Hubungan</button>
-              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("activities")}>Aktivitas</button>
+              {state.age >= 15 && <button style={{ width: "33.33%" }} onClick={() => setActiveTab("jobs")}>Karir</button>}
+              {state.age >= 10 && <button style={{ width: "33.33%" }} onClick={() => setActiveTab("assets")}>Aset</button>}
+              {state.age >= 5 && <button style={{ width: "33.33%" }} onClick={() => setActiveTab("relations")}>Hubungan</button>}
+              {state.age >= 6 && <button style={{ width: "33.33%" }} onClick={() => setActiveTab("activities")}>Aktivitas</button>}
               <button style={{ width: "33.33%" }} onClick={() => setActiveTab("health")}>Medis</button>
               <button style={{ width: "33.33%" }} onClick={() => setActiveTab("finance")}>Keuangan</button>
             </div>
@@ -200,18 +200,80 @@ function AssetsTab({ state, options, actions, onBack }) {
 }
 
 function RelationsTab({ state, actions, onBack }) {
+  const statusLabels = {
+    family: "Keluarga",
+    acquaintance: "Kenalan",
+    friend: "Teman",
+    best_friend: "Sahabat",
+    partner: "Pacar ❤️",
+    spouse: "Pasangan 💍"
+  };
+
   return (
     <div className={styles.tabPane}>
-      <h3>Hubungan</h3>
-      {state.relations.map((rel) => (
-        <div key={rel.id} className={styles.itemCard} style={{ borderBottom: "1px solid #eee", padding: "10px 0" }}>
-          <strong>{rel.name}</strong> ({rel.label}) - Kedekatan: {rel.bond}%
-          <div style={{ display: "flex", gap: "5px", marginTop: "5px" }}>
-            <button onClick={() => actions.relationAction(rel.id, "talk")}>Ngobrol</button>
-            <button onClick={() => actions.relationAction(rel.id, "gift")}>Hadiah</button>
-          </div>
-        </div>
-      ))}
+      <h3>Hubungan & Sosial</h3>
+      <div className={styles.optionsList}>
+        {state.relations.map((rel) => {
+          const isInteracted = rel.lastInteractionAge === state.age;
+          const currentRel = rel.relationship ?? rel.bond ?? 0;
+          const currentGender = rel.gender || (rel.id === "mother" ? "female" : "male");
+          const isOppositeGender = currentGender !== state.profile.gender;
+          
+          return (
+            <div key={rel.id} className={styles.itemCard} style={{ padding: "12px", borderLeft: rel.status === "partner" || rel.status === "spouse" ? "4px solid #f06595" : "4px solid #ced4da", marginBottom: "10px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <strong>{rel.name}</strong> {currentGender === "male" ? "♂️" : "♀️"}
+                  <div style={{ fontSize: "11px", color: "#868e96" }}>{rel.label} • {statusLabels[rel.status] || (rel.id === "father" || rel.id === "mother" ? "Keluarga" : "Teman")}</div>
+                </div>
+                <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057" }}>{currentRel}%</div>
+              </div>
+              
+              <progress 
+                value={currentRel} 
+                max="100" 
+                style={{ width: "100%", height: "8px", marginTop: "8px" }}
+              />
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", marginTop: "10px" }}>
+                <button 
+                  disabled={isInteracted}
+                  onClick={() => actions.interact(rel.id, "chat")}
+                  style={{ flex: 1, fontSize: "12px", padding: "6px" }}
+                >
+                  💬 Ngobrol
+                </button>
+                <button 
+                  disabled={isInteracted}
+                  onClick={() => actions.interact(rel.id, "gift")}
+                  style={{ flex: 1, fontSize: "12px", padding: "6px" }}
+                >
+                  🎁 Hadiah
+                </button>
+                
+                {/* Romantic Actions */}
+                {state.age >= 14 && isOppositeGender && rel.status !== "partner" && rel.status !== "spouse" && rel.status !== "family" && (
+                  <button 
+                    onClick={() => actions.interact(rel.id, "ask_out")}
+                    style={{ flex: "1 0 100%", fontSize: "12px", padding: "6px", background: "#fff0f6", color: "#d6336c", borderColor: "#ffdeeb" }}
+                  >
+                    ❤️ Tembak / Ajak Pacaran
+                  </button>
+                )}
+
+                {rel.status === "partner" && (
+                  <button 
+                    onClick={() => actions.interact(rel.id, "propose")}
+                    style={{ flex: "1 0 100%", fontSize: "12px", padding: "6px", background: "#f8f0fc", color: "#ae3ec9", borderColor: "#f3d9fa" }}
+                  >
+                    💍 Lamar Pernikahan
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
       <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "10px" }}>Kembali</button>
     </div>
   );
@@ -222,17 +284,56 @@ function ActivitiesTab({ state, options, actions, onBack }) {
     <div className={styles.tabPane}>
       <h3>Aktivitas Umum</h3>
       <div className={styles.optionsList}>
-        {options.activities.map((act) => (
-          <button key={act.id} onClick={() => actions.takeActivity(act.id)} disabled={act.cost && state.money < act.cost}>
-            {act.name} {act.cost ? `(Rp${act.cost.toLocaleString("id-ID")})` : ""}
-          </button>
-        ))}
-        <div className={styles.divider} />
-        {options.crimes.map((crime) => (
-          <button key={crime.id} onClick={() => actions.doCrime(crime.id)}>
-            {crime.name}
-          </button>
-        ))}
+        {options.activities.map((act) => {
+          const isDone = state.lastActivityAges?.[act.id] === state.age;
+          return (
+            <button 
+              key={act.id} 
+              onClick={() => actions.takeActivity(act.id)} 
+              disabled={isDone || (act.cost && state.money < act.cost)}
+              style={{ 
+                textAlign: "left", 
+                padding: "12px", 
+                marginBottom: "8px", 
+                display: "block", 
+                width: "100%",
+                background: isDone ? "#f1f3f5" : "#fff",
+                color: isDone ? "#adb5bd" : "inherit"
+              }}
+            >
+              <div style={{ fontWeight: "bold", fontSize: "14px" }}>
+                {isDone ? "✅ " : ""}{act.name} {act.cost > 0 ? `(Rp${act.cost.toLocaleString("id-ID")})` : ""}
+              </div>
+              {act.description && (
+                <div style={{ fontSize: "11px", color: isDone ? "#adb5bd" : "#666", marginTop: "4px", lineHeight: "1.4" }}>
+                  💡 {act.description}
+                </div>
+              )}
+              {act.effects && (
+                <div style={{ fontSize: "11px", color: isDone ? "#adb5bd" : "#2f9e44", fontWeight: "bold", marginTop: "4px" }}>
+                  {isDone ? "Sudah dilakukan tahun ini" : `✨ ${act.effects}`}
+                </div>
+              )}
+            </button>
+          );
+        })}
+        
+        {options.crimes.length > 0 && (
+          <>
+            <div className={styles.divider} style={{ margin: "15px 0" }} />
+            <h4 style={{ marginBottom: "10px", color: "#e03131" }}>Aktivitas Berisiko</h4>
+            {options.crimes.map((crime) => (
+              <button 
+                key={crime.id} 
+                onClick={() => actions.doCrime(crime.id)}
+                style={{ textAlign: "left", padding: "12px", marginBottom: "8px", borderLeft: "4px solid #e03131" }}
+              >
+                <div style={{ fontWeight: "bold" }}>⚠️ {crime.name}</div>
+                <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>Hati-hati, aksi ini bisa membuatmu berurusan dengan polisi.</div>
+              </button>
+            ))}
+          </>
+        )}
       </div>
       <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "10px" }}>Kembali</button>
     </div>
@@ -345,7 +446,19 @@ function FinanceTab({ state, actions, onBack }) {
           <p>Status: <strong>{state.family.wealthStatus.toUpperCase()}</strong></p>
           <p>Tabungan Keluarga: <strong>Rp{state.family.savings.toLocaleString("id-ID")}</strong></p>
           <p>Gaji Orang Tua: <strong>Rp{state.family.monthlyIncome.toLocaleString("id-ID")}/bln</strong></p>
-          <p>Status Beasiswa: <strong style={{ color: state.family.isScholarshipActive ? "green" : "red" }}>{state.family.isScholarshipActive ? "AKTIF" : "TIDAK ADA"}</strong></p>
+          <div style={{ marginTop: "10px", borderTop: "1px solid #dee2e6", paddingTop: "10px" }}>
+            <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057", marginBottom: "5px" }}>Beasiswa Aktif:</div>
+            {state.family.activeScholarships && state.family.activeScholarships.length > 0 ? (
+              state.family.activeScholarships.map(s => (
+                <div key={s.id} style={{ background: "#fff", padding: "8px", borderRadius: "4px", marginBottom: "5px", border: "1px solid #ced4da", fontSize: "11px" }}>
+                  <div style={{ fontWeight: "bold", color: "#2f9e44" }}>🎓 {s.name}</div>
+                  <div style={{ color: "#868e96" }}>Sisa: {s.yearsLeft} tahun</div>
+                </div>
+              ))
+            ) : (
+              <div style={{ fontSize: "11px", color: "#adb5bd" }}>Tidak ada beasiswa aktif.</div>
+            )}
+          </div>
         </div>
       ) : (
         <div className={styles.itemCard} style={{ background: "#ebfbee", borderLeft: "4px solid #40c057", padding: "10px", marginBottom: "10px", color: "#333" }}>

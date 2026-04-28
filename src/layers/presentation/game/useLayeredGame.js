@@ -66,7 +66,7 @@ export function useLayeredGame() {
     takeJob: (jobId) => setState((current) => takeJobAction(current, jobId)),
     buyAsset: (assetId) =>
       setState((current) => takeAssetAction(current, assetId)),
-    relationAction: (relationId, actionKey) =>
+    interact: (relationId, actionKey) =>
       setState((current) => takeRelationAction(current, relationId, actionKey)),
     study: (educationId) =>
       setState((current) => takeEducationAction(current, educationId)),

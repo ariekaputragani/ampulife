@@ -1,8 +1,19 @@
-import { pushLog } from "@/layers/domain/entities/stateUtils";
+import { pushLog, cloneState } from "@/layers/domain/entities/stateUtils";
 
 export function takeActivityAction(state, activityId) {
-  let newState = { ...state };
+  let newState = cloneState(state);
   let message = "";
+
+  // Ensure lastActivityAges exists (for backward compatibility)
+  if (!newState.lastActivityAges) newState.lastActivityAges = {};
+
+  // Check if already done this year
+  if (newState.lastActivityAges[activityId] === newState.age) {
+    return state; // No change if already done
+  }
+
+  // Record that it was done this year
+  newState.lastActivityAges[activityId] = newState.age;
 
   switch (activityId) {
     case "gym":
@@ -61,18 +72,40 @@ export function takeActivityAction(state, activityId) {
     case "apply_scholarship":
       if (newState.education.level === "none") {
         message = "Kamu harus sedang bersekolah untuk melamar beasiswa.";
-      } else if (newState.family.isScholarshipActive) {
-        message = "Kamu sudah memiliki beasiswa yang aktif.";
       } else {
         const smarts = newState.stats.smarts;
-        const chance = 0.2 + (smarts - 75) * 0.02;
-        if (smarts >= 75 && Math.random() < chance) {
-          newState.family.isScholarshipActive = true;
-          newState.stats.happy = Math.min(100, newState.stats.happy + 15);
-          message = "SELAMAT! Lamaran beasiswamu diterima. Biaya sekolah tahun ini gratis!";
+        const roll = Math.random();
+        
+        if (smarts < 75) {
+          message = "Nilai akademikmu belum cukup memuaskan untuk mendapatkan beasiswa.";
+        } else if (roll < 0.7) { // 30% success chance if smart
+          // Success! Determine type
+          const typeRoll = Math.random();
+          let scholarship = {
+            id: `sch_${Date.now()}`,
+            yearsLeft: Math.floor(Math.random() * 3) + 1 // 1-3 years
+          };
+
+          if (typeRoll < 0.2) {
+            scholarship.name = "Beasiswa Prestasi Swasta (Full)";
+            scholarship.coverage = "full";
+            scholarship.amount = 100;
+          } else if (typeRoll < 0.6) {
+            scholarship.name = "Beasiswa Bakti Swasta (Partial 50%)";
+            scholarship.coverage = "partial";
+            scholarship.amount = 50;
+          } else {
+            const fixedAmount = 5_000_000 + (Math.floor(Math.random() * 5) * 1_000_000);
+            scholarship.name = `Beasiswa Dana Pendidikan (Rp${fixedAmount.toLocaleString("id-ID")})`;
+            scholarship.coverage = "fixed";
+            scholarship.amount = fixedAmount;
+          }
+
+          if (!newState.family.activeScholarships) newState.family.activeScholarships = [];
+          newState.family.activeScholarships.push(scholarship);
+          message = `SELAMAT! Kamu berhasil mendapatkan ${scholarship.name} selama ${scholarship.yearsLeft} tahun.`;
         } else {
-          newState.stats.happy = Math.max(0, newState.stats.happy - 5);
-          message = "Maaf, lamaran beasiswamu ditolak. Coba lagi tahun depan.";
+          message = "Maaf, lamaran beasiswamu ditolak. Coba lagi tahun depan dengan prestasi yang lebih baik.";
         }
       }
       break;
