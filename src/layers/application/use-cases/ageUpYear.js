@@ -21,7 +21,7 @@ export function ageUpYear(state, rng = Math.random) {
   }
 
   next.age += 1;
-  next.healthStatus.treatedThisYear = false;
+  next.healthStatus.treatmentCount = 0;
 
   let grossIncome = 0;
 
@@ -53,9 +53,24 @@ export function ageUpYear(state, rng = Math.random) {
   if (next.family.wealthStatus === "rich") childcareCost *= 15;
   else if (next.family.wealthStatus === "middle") childcareCost *= 2.5;
 
+  // --- TRANSPORTATION COSTS ---
+  const assets = next.family.assets || { motor: false, car: false }; // Fallback for old saves
+  let transportCost = 3_000_000; // Default: Public transport (Angkot/Ojol)
+  
+  if (assets.car) {
+    transportCost = next.family.wealthStatus === "rich" ? 45_000_000 : 15_000_000;
+  } else if (assets.motor) {
+    transportCost = 1_500_000; // More efficient than public transport
+  }
+
   // --- TOTAL DEDUCTION ---
-  const totalDeduction = taxes + basicExpenses + childcareCost;
+  const totalDeduction = taxes + basicExpenses + childcareCost + transportCost;
   next.family.savings += (yearlyIncome - totalDeduction);
+
+  // --- TRIGGER RANDOM EVENT (Before report to capture costs) ---
+  const savingsBeforeEvent = next.family.savings;
+  triggerRandomEvent(next, rng);
+  const eventCost = Math.max(0, savingsBeforeEvent - next.family.savings);
 
   // --- LOGGING: NARRATIVE & FORMAL ---
   if (taxes > 0) {
@@ -63,26 +78,65 @@ export function ageUpYear(state, rng = Math.random) {
   }
   pushLog(next, `Orang tua ku membelikan semua kebutuhan pokok dan keperluan pribadi ku tahun ini.`);
   
-  const report = `[Laporan Keuangan Keluarga] Pajak: Rp${taxes.toLocaleString("id-ID")}, Hidup: Rp${basicExpenses.toLocaleString("id-ID")}, Anak: Rp${childcareCost.toLocaleString("id-ID")}`;
+  const report = `[Laporan Keuangan Keluarga] Pajak: Rp${taxes.toLocaleString("id-ID")}, Hidup: Rp${basicExpenses.toLocaleString("id-ID")}, Anak: Rp${childcareCost.toLocaleString("id-ID")}, Transport: Rp${transportCost.toLocaleString("id-ID")}${eventCost > 0 ? `, Lain-lain: Rp${eventCost.toLocaleString("id-ID")}` : ""}`;
   pushLog(next, report);
 
   // Education Cost Logic
   if (next.education.level !== "none") {
+    // 2. Education Cost Logic (Scaled by Wealth)
     const educationCosts = {
-      elementary: 1_200_000,
-      junior_high: 3_000_000,
-      high_school: 6_000_000,
-      university: 25_000_000,
+      elementary: { poor: 0, middle: 5_000_000, rich: 45_000_000 },
+      junior_high: { poor: 0, middle: 8_000_000, rich: 65_000_000 },
+      high_school: { poor: 0, middle: 12_000_000, rich: 90_000_000 },
+      university: { poor: 5_000_000, middle: 35_000_000, rich: 250_000_000 },
     };
 
-    let yearlyFee = educationCosts[next.education.level] || 0;
+    const costConfig = educationCosts[next.education.level];
+    let yearlyFee = costConfig ? costConfig[next.family.wealthStatus] : 0;
     
     if (next.family.isScholarshipActive) {
       yearlyFee = 0;
       pushLog(next, "Kamu bersekolah dengan beasiswa tahun ini (Biaya Rp0).");
     } else {
       next.family.savings -= yearlyFee;
-      pushLog(next, `Keluargamu membayar biaya sekolah ${next.education.level} sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
+      if (yearlyFee > 0) {
+        pushLog(next, `Keluargamu membayar biaya sekolah ${next.education.level} sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
+      } else {
+        pushLog(next, `Kamu bersekolah di sekolah negeri secara gratis.`);
+      }
+    }
+
+    // 3. Family Asset Purchase (Chance-based)
+    if (!next.family.assets) next.family.assets = { motor: false, car: false };
+    const { assets: famAssets, savings } = next.family;
+    const rngVal = rng();
+    
+    // Logic for POOR (Used Motor only)
+    if (next.family.wealthStatus === "poor") {
+      if (!famAssets.motor && savings > 12_000_000 && rngVal < 0.10 && next.age > 4) {
+        const motorCost = 8_000_000; 
+        next.family.savings -= motorCost;
+        next.family.assets.motor = true;
+        pushLog(next, `Orang tua ku membeli motor bekas agar bisa menghemat ongkos harian (Rp${motorCost.toLocaleString("id-ID")}).`);
+      }
+    } else {
+      // Logic for Middle & Rich
+      // Buy Motor (if none and savings > 40M)
+      if (!famAssets.motor && !famAssets.car && savings > 40_000_000 && rngVal < 0.15 && next.age > 4) {
+        const motorCost = next.family.wealthStatus === "rich" ? 65_000_000 : 25_000_000;
+        next.family.savings -= motorCost;
+        next.family.assets.motor = true;
+        pushLog(next, `Orang tua ku baru saja membeli motor baru untuk transportasi keluarga (Rp${motorCost.toLocaleString("id-ID")}).`);
+      }
+      
+      // Buy Car (if none and savings > threshold)
+      const carThreshold = next.family.wealthStatus === "rich" ? 800_000_000 : 250_000_000;
+      if (!famAssets.car && savings > carThreshold && rngVal < 0.10 && next.age > 6) {
+        const carCost = next.family.wealthStatus === "rich" ? 750_000_000 : 280_000_000;
+        next.family.savings -= carCost;
+        next.family.assets.car = true;
+        pushLog(next, `Keluargaku baru saja membeli mobil baru! Impian Ayah akhirnya tercapai. (Rp${carCost.toLocaleString("id-ID")}).`);
+      }
     }
 
     // Financial Crisis check
@@ -241,9 +295,6 @@ export function ageUpYear(state, rng = Math.random) {
 
   pushLog(next, `Kamu bertambah usia menjadi ${next.age} tahun.`);
   
-  // Trigger Event
-  triggerRandomEvent(next, rng);
-
   if (next.stats.health <= 0) {
     next.life.isAlive = false;
     next.life.causeOfDeath = "Kesehatan kritis";

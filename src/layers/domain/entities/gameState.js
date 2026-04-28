@@ -61,6 +61,10 @@ export function createInitialGameState() {
       savings: 0,
       monthlyIncome: 0,
       isScholarshipActive: false,
+      assets: {
+        motor: false,
+        car: false,
+      },
     },
     stats: {
       happy: 62,
@@ -94,6 +98,7 @@ export function createInitialGameState() {
       illnessId: null,
       severity: "none",
       untreatedYears: 0,
+      treatmentCount: 0,
     },
     life: {
       isAlive: true,

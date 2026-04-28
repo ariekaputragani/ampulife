@@ -26,7 +26,7 @@ export const illnessCatalog = [
     maxAge: 12,
     baseSeverity: "mild",
     yearlyPenalty: { health: 5, happy: 2 },
-    mortalityRisk: 0.02,
+    mortalityRisk: 0.005,
     chanceWeight: 40,
   },
   {
@@ -36,7 +36,7 @@ export const illnessCatalog = [
     maxAge: 65,
     baseSeverity: "moderate",
     yearlyPenalty: { health: 8, happy: 4 },
-    mortalityRisk: 0.05,
+    mortalityRisk: 0.02,
     chanceWeight: 30,
   },
   {
@@ -46,7 +46,7 @@ export const illnessCatalog = [
     maxAge: 100,
     baseSeverity: "severe",
     yearlyPenalty: { health: 15, happy: 10 },
-    mortalityRisk: 0.15,
+    mortalityRisk: 0.12,
     chanceWeight: 1, // Sangat jarang
   },
   {
@@ -56,7 +56,7 @@ export const illnessCatalog = [
     maxAge: 100,
     baseSeverity: "severe",
     yearlyPenalty: { health: 12, happy: 8 },
-    mortalityRisk: 0.1,
+    mortalityRisk: 0.08,
     chanceWeight: 20,
   },
   {
@@ -66,7 +66,7 @@ export const illnessCatalog = [
     maxAge: 100,
     baseSeverity: "moderate",
     yearlyPenalty: { health: 5, happy: 5, smarts: 10 },
-    mortalityRisk: 0.05,
+    mortalityRisk: 0.03,
     chanceWeight: 10,
   },
   {
@@ -76,7 +76,7 @@ export const illnessCatalog = [
     maxAge: 100,
     baseSeverity: "moderate",
     yearlyPenalty: { health: 4, happy: 3 },
-    mortalityRisk: 0.02,
+    mortalityRisk: 0.01,
     chanceWeight: 3,
   },
   {
@@ -86,7 +86,7 @@ export const illnessCatalog = [
     maxAge: 90,
     baseSeverity: "mild",
     yearlyPenalty: { health: 4, happy: 2 },
-    mortalityRisk: 0.01,
+    mortalityRisk: 0.005,
     chanceWeight: 100,
   },
   {
@@ -96,7 +96,7 @@ export const illnessCatalog = [
     maxAge: 100,
     baseSeverity: "moderate",
     yearlyPenalty: { health: 6, happy: 3 },
-    mortalityRisk: 0.04,
+    mortalityRisk: 0.02,
     chanceWeight: 15,
   },
   {
@@ -106,7 +106,7 @@ export const illnessCatalog = [
     maxAge: 90,
     baseSeverity: "moderate",
     yearlyPenalty: { health: 10, happy: 5 },
-    mortalityRisk: 0.07,
+    mortalityRisk: 0.04,
     chanceWeight: 10,
   },
   {
@@ -116,7 +116,7 @@ export const illnessCatalog = [
     maxAge: 100,
     baseSeverity: "severe",
     yearlyPenalty: { health: 12, happy: 5 },
-    mortalityRisk: 0.12,
+    mortalityRisk: 0.1,
     chanceWeight: 8,
   },
 ];

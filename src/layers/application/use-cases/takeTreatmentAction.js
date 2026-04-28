@@ -24,8 +24,8 @@ export function takeTreatmentAction(state, treatmentId) {
     return next;
   }
 
-  if (next.healthStatus.treatedThisYear) {
-    pushLog(next, "Kamu sudah berobat tahun ini. Istirahatlah dan tunggu tahun depan.");
+  if (next.healthStatus.treatmentCount >= 3) {
+    pushLog(next, "Kamu sudah terlalu sering berobat tahun ini. Tubuhmu butuh istirahat.");
     return next;
   }
 
@@ -65,7 +65,19 @@ export function takeTreatmentAction(state, treatmentId) {
     }
   }
 
-  next.healthStatus.treatedThisYear = true;
+  next.healthStatus.treatmentCount += 1;
+  
+  // Penalties for multiple visits
+  if (next.healthStatus.treatmentCount === 2) {
+    next.stats.happy = clamp(next.stats.happy - 5);
+    pushLog(next, "Kamu merasa lelah karena harus kembali berobat (Kebahagiaan -5).");
+  } else if (next.healthStatus.treatmentCount === 3) {
+    next.stats.happy = clamp(next.stats.happy - 15);
+    const adminFee = 150_000;
+    if (next.age > 18) next.money = Math.max(0, next.money - adminFee);
+    pushLog(next, "Antrian yang sangat panjang membuatmu stres (Kebahagiaan -15). Ada biaya admin tambahan Rp150.000.");
+  }
+
   next.stats.health = clamp(next.stats.health + treatment.effect.health);
   next.stats.happy = clamp(next.stats.happy + treatment.effect.happy);
 

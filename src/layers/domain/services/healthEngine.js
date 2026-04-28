@@ -46,7 +46,17 @@ export function applyIllnessProgression(state, rng = Math.random) {
 
   const ageRisk = state.age > 65 ? 0.05 : 0;
   const severityRisk = state.healthStatus.severity === "severe" ? 0.1 : 0;
-  const deathRisk = illness.mortalityRisk + ageRisk + severityRisk;
+  let deathRisk = illness.mortalityRisk + ageRisk + severityRisk;
+
+  // Protection: If treated this year, reduce death risk by 95%
+  if (state.healthStatus.treatmentCount > 0) {
+    deathRisk *= 0.05;
+  }
+
+  // Protection: Children (under 12) have better survival chance for common illnesses
+  if (state.age < 12) {
+    deathRisk *= 0.5;
+  }
 
   if (rng() < deathRisk) {
     state.life.isAlive = false;
