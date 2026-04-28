@@ -21,6 +21,8 @@ export function ageUpYear(state, rng = Math.random) {
   }
 
   next.age += 1;
+  next.legal.crimeAttemptsThisYear = 0;
+  next.legal.isCaughtThisYear = false;
   next.healthStatus.treatmentCount = 0;
 
   let grossIncome = 0;
@@ -118,10 +120,12 @@ export function ageUpYear(state, rng = Math.random) {
     pushLog(next, report);
 
     // --- POCKET MONEY (Uang Jajan) ---
-    if (next.age >= 6) {
+    if (next.age >= 6 && !next.legal.isCaughtThisYear && !next.legal.inJail) {
       const pocketMoney = next.family.wealthStatus === "rich" ? 1_000_000 : next.family.wealthStatus === "middle" ? 350_000 : 75_000;
       next.money += pocketMoney;
       pushLog(next, `Orang tuamu memberimu uang jajan sebesar Rp${pocketMoney.toLocaleString("id-ID")} tahun ini.`);
+    } else if (next.legal.isCaughtThisYear || next.legal.inJail) {
+      pushLog(next, `Tahun ini kamu tidak mendapatkan uang jajan sebagai hukuman karena kenakalanmu.`);
     }
   } else {
     // Independent Player Economy
@@ -269,6 +273,19 @@ export function ageUpYear(state, rng = Math.random) {
   });
 
   if (next.legal.inJail) {
+    // EXPULSION LOGIC: If jailed while in school, they get expelled
+    if (next.education.level !== "none") {
+      pushLog(next, `🚨 Kamu DIKELUARKAN dari sekolah ${next.education.level} karena harus menjalani masa hukuman di penjara.`);
+      next.education.level = "none";
+      next.education.yearsStudied = 0;
+      
+      // Scholarships are cancelled
+      if (next.family.activeScholarships && next.family.activeScholarships.length > 0) {
+        next.family.activeScholarships = [];
+        pushLog(next, "Semua beasiswa aktifmu telah dicabut karena pelanggaran perilaku.");
+      }
+    }
+
     next.legal.jailYearsLeft -= 1;
     next.stats = applyStatDelta(next.stats, {
       happy: -3,
@@ -455,6 +472,14 @@ export function ageUpYear(state, rng = Math.random) {
     pushLog(next, "🎮 FITUR TERBUKA: Kamu mulai menginginkan barang-barang pribadi. Menu [Aset] kini tersedia!");
   } else if (next.age === 15) {
     pushLog(next, "💼 FITUR TERBUKA: Kamu sudah cukup besar untuk mencari uang saku sendiri. Menu [Karir] kini tersedia!");
+  }
+
+  // --- PROACTIVE EDUCATION REMINDER ---
+  if (next.age > 18 && next.education.level === "none" && !next.education.completed.includes("high_school") && !next.legal.inJail) {
+    const yearsSinceDropout = next.age - 18;
+    if (yearsSinceDropout % 5 === 0) {
+      pushLog(next, "💡 TIPS: Kamu belum memiliki ijazah SMA. Cek menu [Pendidikan] untuk mengambil Program Paket C agar bisa melamar pekerjaan yang lebih baik.");
+    }
   }
 
   return next;

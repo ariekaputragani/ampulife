@@ -26,11 +26,17 @@ export function getAvailableAssets(state) {
 }
 
 export function getAvailableEducation(state) {
-  if (state.legal.inJail || !state.life.isAlive) {
+  if (state.legal.inJail || !state.life.isAlive || state.education.level !== "none") {
     return [];
   }
 
-  return educationCatalog.filter((item) => state.age >= item.minAge);
+  return educationCatalog.filter((item) => {
+    const isAgeValid = state.age >= item.minAge && (!item.maxAge || state.age <= item.maxAge);
+    const isNotCompleted = !state.education.completed.includes(item.id);
+    const meetsRequirement = item.requirement ? item.requirement(state) : true;
+    
+    return isAgeValid && isNotCompleted && meetsRequirement;
+  });
 }
 
 export function getAvailableCrimes(state) {

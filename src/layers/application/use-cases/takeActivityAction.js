@@ -72,6 +72,8 @@ export function takeActivityAction(state, activityId) {
     case "apply_scholarship":
       if (newState.education.level === "none") {
         message = "Kamu harus sedang bersekolah untuk melamar beasiswa.";
+      } else if (newState.family.activeScholarships && newState.family.activeScholarships.length > 0) {
+        message = "Kamu sudah memiliki beasiswa yang aktif. Selesaikan dulu atau tunggu sampai masa berlakunya habis.";
       } else {
         const smarts = newState.stats.smarts;
         const roll = Math.random();

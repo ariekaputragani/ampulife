@@ -61,6 +61,7 @@ export function createInitialGameState() {
     ],
     age: 0,
     money: 0,
+    lastAssetRequestAge: -1, // Pelacak untuk membatasi minta aset ke ortu
     financial: {
       lifestyle: "normal", // hemat, normal, mewah
     },
@@ -100,6 +101,8 @@ export function createInitialGameState() {
     legal: {
       inJail: false,
       jailYearsLeft: 0,
+      crimeAttemptsThisYear: 0,
+      isCaughtThisYear: false,
       records: [],
     },
     healthStatus: {

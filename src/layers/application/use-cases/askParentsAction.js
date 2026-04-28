@@ -9,6 +9,12 @@ export function askParentsAction(state, assetId) {
     return next;
   }
 
+  // Check if already requested this year
+  if (next.lastAssetRequestAge === next.age) {
+    pushLog(next, "Kamu sudah meminta barang ke orang tua tahun ini. Jangan terlalu sering merayu mereka, nanti mereka marah!");
+    return next;
+  }
+
   // Check if already owned
   if (next.assets.some((owned) => owned.id === asset.id)) {
     return next;
@@ -48,6 +54,9 @@ export function askParentsAction(state, assetId) {
 
   // Clamp chance between 5% and 95%
   chance = Math.max(0.05, Math.min(0.95, chance));
+
+  // Record this attempt
+  next.lastAssetRequestAge = next.age;
 
   const roll = Math.random();
   if (roll < chance) {

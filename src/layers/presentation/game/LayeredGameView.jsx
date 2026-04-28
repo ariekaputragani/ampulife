@@ -230,10 +230,15 @@ function AssetsTab({ state, options, actions, onBack }) {
                   actions.askParents(pendingAsset.id);
                   setPendingAsset(null);
                 }}
-                style={{ background: "#e7f5ff", color: "#228be6" }}
+                disabled={state.lastAssetRequestAge === state.age}
+                style={{ background: "#e7f5ff", color: "#228be6", opacity: state.lastAssetRequestAge === state.age ? 0.5 : 1 }}
               >
                 🙏 Minta Dibelikan Orang Tua
-                <div style={{ fontSize: "10px", opacity: 0.8 }}>Peluang keberhasilan tergantung Smarts & Hubungan.</div>
+                <div style={{ fontSize: "10px", opacity: 0.8 }}>
+                  {state.lastAssetRequestAge === state.age 
+                    ? "✅ Sudah minta tahun ini" 
+                    : "Peluang keberhasilan tergantung Smarts & Hubungan."}
+                </div>
               </button>
               <button 
                 className={styles.secondaryButton} 
