@@ -30,16 +30,20 @@ export default function CharacterCreation({ onSetup }) {
   const cityOptions = [
     { label: "DKI Jakarta", options: [{ value: "Jakarta", label: "Jakarta" }] },
     { label: "Banten", options: [{ value: "Serang", label: "Serang" }, { value: "Tangerang", label: "Tangerang" }] },
-    { label: "Jawa Barat", options: [
-      { value: "Bandung", label: "Bandung" }, { value: "Bekasi", label: "Bekasi" }, 
-      { value: "Bogor", label: "Bogor" }, { value: "Cirebon", label: "Cirebon" },
-      { value: "Sukabumi", label: "Sukabumi" }, { value: "Tasikmalaya", label: "Tasikmalaya" }
-    ]},
-    { label: "Jawa Tengah", options: [
-      { value: "Kudus", label: "Kudus" }, { value: "Pekalongan", label: "Pekalongan" },
-      { value: "Purwokerto", label: "Purwokerto" }, { value: "Semarang", label: "Semarang" },
-      { value: "Solo", label: "Solo" }, { value: "Tegal", label: "Tegal" }
-    ]},
+    {
+      label: "Jawa Barat", options: [
+        { value: "Bandung", label: "Bandung" }, { value: "Bekasi", label: "Bekasi" },
+        { value: "Bogor", label: "Bogor" }, { value: "Cirebon", label: "Cirebon" },
+        { value: "Sukabumi", label: "Sukabumi" }, { value: "Tasikmalaya", label: "Tasikmalaya" }
+      ]
+    },
+    {
+      label: "Jawa Tengah", options: [
+        { value: "Kudus", label: "Kudus" }, { value: "Pekalongan", label: "Pekalongan" },
+        { value: "Purwokerto", label: "Purwokerto" }, { value: "Semarang", label: "Semarang" },
+        { value: "Solo", label: "Solo" }, { value: "Tegal", label: "Tegal" }
+      ]
+    },
     { label: "Daerah Istimewa Yogyakarta", options: [{ value: "Yogyakarta", label: "Yogyakarta" }] },
     { label: "Jawa Timur", options: [{ value: "Malang", label: "Malang" }, { value: "Surabaya", label: "Surabaya" }] },
     { label: "Bali", options: [{ value: "Denpasar", label: "Denpasar" }] },
@@ -52,7 +56,7 @@ export default function CharacterCreation({ onSetup }) {
     "Januari", "Februari", "Maret", "April", "Mei", "Juni",
     "Juli", "Agustus", "September", "Oktober", "November", "Desember"
   ];
-  
+
   const yearOptions = [...Array(30)].map((_, i) => String(2026 - i));
 
   // Date Logic Ported from script.js
@@ -89,7 +93,7 @@ export default function CharacterCreation({ onSetup }) {
   const updateDayOptions = (maxDay) => {
     const newOptions = [...Array(maxDay)].map((_, i) => String(i + 1));
     setDynamicDayOptions(newOptions);
-    
+
     // Auto-correct selected day if it exceeds the new maxDay
     const currentDay = parseInt(form.birthDate.day, 10);
     if (!isNaN(currentDay) && currentDay > maxDay) {
@@ -107,11 +111,11 @@ export default function CharacterCreation({ onSetup }) {
   useEffect(() => {
     // Initialize Select2 after component mount and when options change (specifically for days)
     if (typeof window !== "undefined") {
-      
+
       const initSelect2 = (ref, options, keyPath, valValue, isSearchable = false) => {
         if (!ref.current) return;
         const $el = $(ref.current);
-        
+
         // Destroy existing instance if present before re-init
         if ($el.hasClass("select2-hidden-accessible")) {
           $el.select2('destroy');
@@ -128,7 +132,7 @@ export default function CharacterCreation({ onSetup }) {
           $el.val(valValue).trigger('change.select2');
         }
 
-        $el.off('change').on('change', function() {
+        $el.off('change').on('change', function () {
           const val = $(this).val();
           if (keyPath.includes('.')) {
             const [parent, child] = keyPath.split('.');
@@ -161,7 +165,7 @@ export default function CharacterCreation({ onSetup }) {
       if (form.birthDate.day) {
         $el.val(form.birthDate.day).trigger('change.select2');
       }
-      $el.off('change').on('change', function() {
+      $el.off('change').on('change', function () {
         setForm(prev => ({ ...prev, birthDate: { ...prev.birthDate, day: $(this).val() } }));
       });
     }
@@ -219,8 +223,8 @@ export default function CharacterCreation({ onSetup }) {
           </select>
         </div>
 
-        <div className={styles.teks} style={{ marginTop: '25px', marginBottom: '5px', textAlign: 'center' }}>Tanggal Lahir:</div>
-        
+        <div className={styles.teks} style={{ marginTop: '25px', marginBottom: '5px', textAlign: 'center' }}>Tasnggal Lahir:</div>
+
         <div style={{ display: 'flex', gap: '5px', marginBottom: '25px' }}>
           <div style={{ flex: '0 0 22%' }}>
             <select ref={dayRef} id="day" style={{ fontFamily: 'inherit' }}>
@@ -252,7 +256,7 @@ export default function CharacterCreation({ onSetup }) {
           <button id="lahirkan" type="submit" className={styles.primaryButton} style={{ marginTop: 0, marginBottom: 0 }}>Lahirkan!</button>
         </div>
       </form>
-      
+
       {/* Global styles to override Select2 and enforce Poppins/Hover exactly like screenshot */}
       <style jsx global>{`
         .select2-container {
