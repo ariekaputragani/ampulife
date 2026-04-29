@@ -108,7 +108,7 @@ export default function CharacterCreation({ onSetup }) {
     control: (provided, state) => ({
       ...provided,
       minHeight: '28px',
-      height: '35px',
+      height: '28px',
       backgroundColor: '#fff',
       border: '1px solid #aaa',
       borderRadius: '4px',
@@ -123,18 +123,20 @@ export default function CharacterCreation({ onSetup }) {
     valueContainer: (provided) => ({
       ...provided,
       padding: '0 4px',
-      height: '33px',
+      paddingRight: '20px',
+      height: '26px',
       cursor: 'pointer',
+      overflow: 'hidden',
     }),
     singleValue: (provided) => ({
       ...provided,
       color: '#444',
-      fontSize: '14px',
-      lineHeight: '33px',
+      fontSize: '100%',
+      lineHeight: '26px',
       textAlign: 'left',
-      position: 'relative',
-      transform: 'none',
-      maxWidth: '100%',
+      margin: 0,
+      padding: 0,
+      maxWidth: 'calc(100% - 2px)',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
@@ -142,15 +144,14 @@ export default function CharacterCreation({ onSetup }) {
     placeholder: (provided) => ({
       ...provided,
       color: '#999',
-      fontSize: '14px',
-      lineHeight: '33px',
+      fontSize: '100%',
+      lineHeight: '26px',
       textAlign: 'left',
-      position: 'relative',
-      transform: 'none',
-      maxWidth: '100%',
+      margin: 0,
+      padding: 0,
+      whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
     }),
     input: (provided) => ({
       ...provided,
@@ -183,16 +184,22 @@ export default function CharacterCreation({ onSetup }) {
       backgroundColor: state.isSelected ? '#5897fb' : state.isFocused ? '#5897fb' : 'transparent',
       color: state.isSelected || state.isFocused ? 'white' : '#333',
       cursor: 'pointer',
-      fontSize: '14px',
+      fontSize: '100%',
       padding: '6px 12px',
       textAlign: 'left',
+    }),
+    group: (provided) => ({
+      ...provided,
+      paddingTop: 0,
+      paddingBottom: 0,
     }),
     groupHeading: (provided) => ({
       ...provided,
       color: '#333',
-      fontSize: '13px',
+      fontSize: '100%',
       fontWeight: 'bold',
-      padding: '6px 12px',
+      padding: '6px 6px',
+      margin: 0,
       textTransform: 'none',
       textAlign: 'left',
     })
@@ -200,7 +207,7 @@ export default function CharacterCreation({ onSetup }) {
 
   const CustomDropdownIndicator = (props) => {
     return (
-      <div {...props.innerProps} style={{ padding: '0 8px', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+      <div {...props.innerProps} style={{ padding: '0 4px', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
         <span style={{
           borderColor: '#888 transparent transparent transparent',
           borderStyle: 'solid',
@@ -208,7 +215,8 @@ export default function CharacterCreation({ onSetup }) {
           height: 0,
           width: 0,
           display: 'inline-block',
-          marginTop: '2px'
+          marginTop: '2px',
+          transform: props.selectProps.menuIsOpen ? 'rotate(180deg)' : 'none'
         }} />
       </div>
     );
