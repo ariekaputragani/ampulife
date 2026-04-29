@@ -62,7 +62,8 @@
   text-align: center;
 }
 
-.primaryButton {
+.primaryButton,
+.ageUpButton {
   background: linear-gradient(to right, rgb(255, 77, 77) 0%, rgb(88, 88, 241) 100%);
   color: white;
   border: none;
@@ -76,7 +77,8 @@
   margin-bottom: 10px; */
 }
 
-.primaryButton:hover {
+.primaryButton:hover,
+.ageUpButton:hover {
   letter-spacing: 1px;
   background: linear-gradient(to right, rgb(124, 124, 255) 0%, rgb(251, 101, 101) 100%);
 }
@@ -92,10 +94,6 @@
   cursor: pointer;
   transition: all 0.3s ease;
   margin-bottom: 10px;
-}
-
-.secondaryButton:hover {
-  background: linear-gradient(to right, #00acee 0%, #3cc8ff 100%);
 }
 
 .tombol1Button,
@@ -125,17 +123,24 @@
   background: #3b5998;
 }
 
-.tombol1Button:hover,
-.tombol2Button:hover {
-  margin: 20px 0 20 0;
+.tombol1Button i,
+.tombol2Button i {
+  padding-right: 12px;
+  font-size: 20px;
 }
 
-.tombol1Button:hover {
+.tombol1Button:hover,
+.secondaryButton:hover {
   background: linear-gradient(to right, #00acee 0%, #3cc8ff 100%);
 }
 
 .tombol2Button:hover {
   background: linear-gradient(to right, #3b5998 0%, #476bb8 100%);
+}
+
+.tombol1Button:hover,
+.tombol2Button:hover {
+  margin: 20px 0 20 0;
 }
 
 .underline {
@@ -249,23 +254,6 @@
 .ageUpSection {
   margin-top: auto;
   padding: 10px;
-}
-
-.ageUpButton {
-  background: linear-gradient(to right, rgb(255, 77, 77) 0%, rgb(88, 88, 241) 100%);
-  color: white;
-  border: none;
-  height: 45px;
-  width: 100%;
-  font-size: 17px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.ageUpButton:hover {
-  letter-spacing: 1px;
-  background: linear-gradient(to right, rgb(124, 124, 255) 0%, rgb(251, 101, 101) 100%);
 }
 
 .navGrid {
