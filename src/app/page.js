@@ -20,7 +20,7 @@ export default function Home() {
   }, [state.mode, ready, router]);
 
   if (!ready || state.mode !== "menu") {
-    return <div className={styles.containerCenter}><div style={{color: 'white'}}>Memuat Kehidupan...</div></div>;
+    return <div className={styles.containerCenter}><div style={{ color: 'white' }}>Memuat Kehidupan...</div></div>;
   }
 
   return (

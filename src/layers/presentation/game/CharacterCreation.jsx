@@ -16,9 +16,9 @@ export default function CharacterCreation({ onSetup }) {
   });
 
   const cities = [
-    "Jakarta", "Serang", "Tangerang", "Bandung", "Bekasi", "Bogor", "Cirebon", 
-    "Sukabumi", "Tasikmalaya", "Kudus", "Pekalongan", "Purwokerto", "Semarang", 
-    "Solo", "Tegal", "Yogyakarta", "Malang", "Surabaya", "Denpasar", 
+    "Jakarta", "Serang", "Tangerang", "Bandung", "Bekasi", "Bogor", "Cirebon",
+    "Sukabumi", "Tasikmalaya", "Kudus", "Pekalongan", "Purwokerto", "Semarang",
+    "Solo", "Tegal", "Yogyakarta", "Malang", "Surabaya", "Denpasar",
     "Bandar Lampung", "Palembang", "Medan"
   ];
   const months = [
@@ -35,7 +35,7 @@ export default function CharacterCreation({ onSetup }) {
     <div className={styles.containerCenter}>
       <form onSubmit={handleSubmit} className={styles.legacyCard}>
         <div className={styles.judul}>AmpuLife</div>
-        
+
         <div className={styles.inputGroup}>
           <label>Nama Lengkap</label>
           <input
@@ -104,7 +104,7 @@ export default function CharacterCreation({ onSetup }) {
           </div>
         </div>
 
-        <button type="submit" className={styles.primaryButton}>Lahirkan!</button>
+        <button type="submit" className={styles.primaryButton}>Lahirskan!</button>
       </form>
     </div>
   );
