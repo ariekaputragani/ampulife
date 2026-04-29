@@ -136,11 +136,11 @@
 
 .tombol2Button:hover {
   background: linear-gradient(to right, #3b5998 0%, #476bb8 100%);
+  margin: 20px 0 20 0;
 }
 
-.tombol1Button:hover,
-.tombol2Button:hover {
-  margin: 20px 0 20 0;
+.tombol1Button:hover {
+  margin: 20px 0 0 0;
 }
 
 .underline {
