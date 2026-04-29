@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Select from "react-select";
 import Swal from "sweetalert2";
 import styles from "./layeredGame.module.css";
@@ -16,6 +16,8 @@ export default function CharacterCreation({ onSetup }) {
       year: "",
     },
   });
+
+  const [dynamicDayOptions, setDynamicDayOptions] = useState([]);
 
   const genderOptions = [
     { value: "male", label: "Laki-laki" },
@@ -43,14 +45,59 @@ export default function CharacterCreation({ onSetup }) {
     { label: "Sumatera Utara", options: [{ value: "Medan", label: "Medan" }] }
   ];
 
-  const dayOptions = [...Array(31)].map((_, i) => ({ value: String(i + 1), label: String(i + 1) }));
   const monthOptions = [
     "Januari", "Februari", "Maret", "April", "Mei", "Juni",
     "Juli", "Agustus", "September", "Oktober", "November", "Desember"
   ].map(m => ({ value: m, label: m }));
+  
   const yearOptions = [...Array(30)].map((_, i) => ({ value: String(2026 - i), label: String(2026 - i) }));
 
-  // Custom styles for react-select to match input-box
+  // Date Logic Ported from script.js
+  const getMaxDay = (m, y) => {
+    if (m === 2) {
+      if (y % 4 === 0) return 29;
+      return 28;
+    }
+    if (m === 4 || m === 6 || m === 9 || m === 11) return 30;
+    return 31;
+  };
+
+  const validMonthMap = {
+    "Januari": 1, "Februari": 2, "Maret": 3, "April": 4, "Mei": 5, "Juni": 6,
+    "Juli": 7, "Agustus": 8, "September": 9, "Oktober": 10, "November": 11, "Desember": 12
+  };
+
+  useEffect(() => {
+    // Initial load: 31 days
+    updateDayOptions(31);
+  }, []);
+
+  useEffect(() => {
+    const { month, year } = form.birthDate;
+    if (month && year) {
+      const monNum = validMonthMap[month];
+      if (monNum) {
+        const maxDay = getMaxDay(monNum, parseInt(year, 10));
+        updateDayOptions(maxDay);
+      }
+    }
+  }, [form.birthDate.month, form.birthDate.year]);
+
+  const updateDayOptions = (maxDay) => {
+    const newOptions = [...Array(maxDay)].map((_, i) => ({ value: String(i + 1), label: String(i + 1) }));
+    setDynamicDayOptions(newOptions);
+    
+    // Auto-correct selected day if it exceeds the new maxDay
+    const currentDay = parseInt(form.birthDate.day, 10);
+    if (!isNaN(currentDay) && currentDay > maxDay) {
+      setForm(prev => ({
+        ...prev,
+        birthDate: { ...prev.birthDate, day: String(maxDay) }
+      }));
+    }
+  };
+
+  // Custom styles for react-select
   const customStyles = {
     control: (provided) => ({
       ...provided,
@@ -60,11 +107,17 @@ export default function CharacterCreation({ onSetup }) {
       boxShadow: 'none',
       '&:hover': { borderBottom: '2px solid rgb(68, 68, 255)' },
       minHeight: '45px',
-      background: 'transparent'
+      background: 'transparent',
+      cursor: 'pointer'
     }),
     valueContainer: (provided) => ({
       ...provided,
-      padding: '0 10px'
+      padding: '0 10px',
+      cursor: 'pointer'
+    }),
+    option: (provided) => ({
+      ...provided,
+      cursor: 'pointer'
     }),
     indicatorSeparator: () => ({ display: 'none' })
   };
@@ -74,21 +127,13 @@ export default function CharacterCreation({ onSetup }) {
     if (!form.name || !form.gender || !form.city || !form.birthDate.day || !form.birthDate.month || !form.birthDate.year) {
       Swal.fire({
         icon: 'error',
-        title: 'Oops...',
-        text: 'Mohon lengkapi semua data!',
+        title: 'Ups...',
+        text: 'Masukkan data yang benar!',
       });
       return;
     }
 
-    Swal.fire({
-      icon: 'success',
-      title: 'Berhasil!',
-      text: 'Karakter berhasil dilahirkan.',
-      showConfirmButton: false,
-      timer: 1500
-    }).then(() => {
-      onSetup(form);
-    });
+    onSetup(form);
   };
 
   return (
@@ -99,6 +144,7 @@ export default function CharacterCreation({ onSetup }) {
         <div className={styles.inputGroup}>
           <input
             type="text"
+            id="nama"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="Nama Lengkap"
@@ -110,7 +156,7 @@ export default function CharacterCreation({ onSetup }) {
         <div className={styles.inputGroup} style={{ marginTop: '25px', zIndex: 3 }}>
           <Select
             options={genderOptions}
-            placeholder="Jenis Kelamin"
+            placeholder="Pilih Jenis Kelamin"
             styles={customStyles}
             onChange={(selected) => setForm({ ...form, gender: selected.value })}
           />
@@ -119,24 +165,25 @@ export default function CharacterCreation({ onSetup }) {
         <div className={styles.inputGroup} style={{ marginTop: '25px', zIndex: 2 }}>
           <Select
             options={cityOptions}
-            placeholder="Kota Kelahiran"
+            placeholder="Pilih Kota"
             styles={customStyles}
             onChange={(selected) => setForm({ ...form, city: selected.value })}
           />
         </div>
 
-        <div className={styles.sdgText} style={{ marginTop: '25px', marginBottom: '5px', textAlign: 'left', fontSize: '14px' }}>Tanggal Lahir:</div>
+        <div className={styles.teks} style={{ marginTop: '25px', marginBottom: '5px', textAlign: 'left' }}>Tanggal Lahir:</div>
         
         <div style={{ display: 'flex', gap: '5px', marginBottom: '25px', zIndex: 1, position: 'relative' }}>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: '0 0 22%' }}>
             <Select
-              options={dayOptions}
+              options={dynamicDayOptions}
               placeholder="Tgl"
               styles={customStyles}
+              value={dynamicDayOptions.find(o => o.value === form.birthDate.day) || null}
               onChange={(selected) => setForm({ ...form, birthDate: { ...form.birthDate, day: selected.value } })}
             />
           </div>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: '0 0 45%' }}>
             <Select
               options={monthOptions}
               placeholder="Bulan"
@@ -144,7 +191,7 @@ export default function CharacterCreation({ onSetup }) {
               onChange={(selected) => setForm({ ...form, birthDate: { ...form.birthDate, month: selected.value } })}
             />
           </div>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: '0 0 30%' }}>
             <Select
               options={yearOptions}
               placeholder="Tahun"
@@ -155,7 +202,7 @@ export default function CharacterCreation({ onSetup }) {
         </div>
 
         <div className={styles.inputGroup} style={{ marginTop: '40px' }}>
-          <button type="submit" className={styles.primaryButton}>Lahirkan!</button>
+          <button id="lahirkan" type="submit" className={styles.primaryButton}>Lahirkan!</button>
         </div>
       </form>
     </div>

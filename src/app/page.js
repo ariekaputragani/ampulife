@@ -27,18 +27,31 @@ export default function Home() {
     <div className={styles.containerCenter}>
       <div className={styles.legacyCard}>
         <div className={styles.judul}>AmpuLife</div>
-        <div className={styles.sdgText}>
+        <div className={styles.teks}>
           <img src="/legacy/images/logo.png" alt="Logo" className={styles.logo} />
         </div>
-        <div className={styles.sdgText}>Mengandung 17 SDGs</div>
+        <div className={styles.teks}>Mengandung 17 SDGs</div>
+        
         <div className={styles.inputGroup} style={{ marginTop: '40px', marginBottom: '20px' }}>
           <button onClick={() => {
             actions.startNewGame();
             router.push("/create");
           }} className={styles.primaryButton}>Mainkan!</button>
         </div>
+        
         <div className={styles.tombol1Button} style={{ padding: 0 }}>
-          <button className={styles.tombol1Button}><i className="fa fa-info"></i> Informasi Pengembang</button>
+          <button onClick={() => {
+            import('sweetalert2').then((Swal) => {
+              Swal.default.fire({
+                icon: 'info',
+                title: 'Info Pengembang',
+                html: 'By Ari Eka Putragani<br><br>' +
+                      'Dosen Pembimbing:<br>' +
+                      'Dani Arifudin, M.Kom.<br>' +
+                      'Banu Dwi Putranto, M.Kom.'
+              });
+            });
+          }} className={styles.tombol1Button}><i className="fa fa-info"></i> Informasi Pengembang</button>
         </div>
         
         {state.age > 0 && (

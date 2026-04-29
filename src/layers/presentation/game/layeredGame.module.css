@@ -43,6 +43,7 @@
   margin: 20px 0 10px 0;
   position: relative;
   color: #000;
+  text-align: left;
 }
 
 .judul::before {
@@ -60,6 +61,11 @@
   max-width: 150px;
   margin: 10px auto 20px;
   display: block;
+}
+
+.teks {
+  font-size: 14px;
+  text-align: center;
 }
 
 .sdgText {
