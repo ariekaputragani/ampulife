@@ -27,16 +27,20 @@ export default function CharacterCreation({ onSetup }) {
   const cityOptions = [
     { label: "DKI Jakarta", options: [{ value: "Jakarta", label: "Jakarta" }] },
     { label: "Banten", options: [{ value: "Serang", label: "Serang" }, { value: "Tangerang", label: "Tangerang" }] },
-    { label: "Jawa Barat", options: [
-      { value: "Bandung", label: "Bandung" }, { value: "Bekasi", label: "Bekasi" }, 
-      { value: "Bogor", label: "Bogor" }, { value: "Cirebon", label: "Cirebon" },
-      { value: "Sukabumi", label: "Sukabumi" }, { value: "Tasikmalaya", label: "Tasikmalaya" }
-    ]},
-    { label: "Jawa Tengah", options: [
-      { value: "Kudus", label: "Kudus" }, { value: "Pekalongan", label: "Pekalongan" },
-      { value: "Purwokerto", label: "Purwokerto" }, { value: "Semarang", label: "Semarang" },
-      { value: "Solo", label: "Solo" }, { value: "Tegal", label: "Tegal" }
-    ]},
+    {
+      label: "Jawa Barat", options: [
+        { value: "Bandung", label: "Bandung" }, { value: "Bekasi", label: "Bekasi" },
+        { value: "Bogor", label: "Bogor" }, { value: "Cirebon", label: "Cirebon" },
+        { value: "Sukabumi", label: "Sukabumi" }, { value: "Tasikmalaya", label: "Tasikmalaya" }
+      ]
+    },
+    {
+      label: "Jawa Tengah", options: [
+        { value: "Kudus", label: "Kudus" }, { value: "Pekalongan", label: "Pekalongan" },
+        { value: "Purwokerto", label: "Purwokerto" }, { value: "Semarang", label: "Semarang" },
+        { value: "Solo", label: "Solo" }, { value: "Tegal", label: "Tegal" }
+      ]
+    },
     { label: "Daerah Istimewa Yogyakarta", options: [{ value: "Yogyakarta", label: "Yogyakarta" }] },
     { label: "Jawa Timur", options: [{ value: "Malang", label: "Malang" }, { value: "Surabaya", label: "Surabaya" }] },
     { label: "Bali", options: [{ value: "Denpasar", label: "Denpasar" }] },
@@ -49,8 +53,8 @@ export default function CharacterCreation({ onSetup }) {
     "Januari", "Februari", "Maret", "April", "Mei", "Juni",
     "Juli", "Agustus", "September", "Oktober", "November", "Desember"
   ].map(m => ({ value: m, label: m }));
-  
-  const yearOptions = [...Array(30)].map((_, i) => ({ value: String(2026 - i), label: String(2026 - i) }));
+
+  const yearOptions = [...Array(37)].map((_, i) => ({ value: String(2026 - i), label: String(2026 - i) }));
 
   // Date Logic Ported from script.js
   const getMaxDay = (m, y) => {
@@ -70,7 +74,7 @@ export default function CharacterCreation({ onSetup }) {
   const updateDayOptions = (maxDay) => {
     const newOptions = [...Array(maxDay)].map((_, i) => ({ value: String(i + 1), label: String(i + 1) }));
     setDynamicDayOptions(newOptions);
-    
+
     // Auto-correct selected day if it exceeds the new maxDay
     const currentDay = parseInt(form.birthDate.day, 10);
     if (!isNaN(currentDay) && currentDay > maxDay) {
@@ -264,7 +268,7 @@ export default function CharacterCreation({ onSetup }) {
         </div>
 
         <div className={styles.teks} style={{ marginTop: '25px', marginBottom: '5px', textAlign: 'center' }}>Tanggal Lahir:</div>
-        
+
         <div style={{ display: 'flex', gap: '5px', marginBottom: '25px', position: 'relative', zIndex: 1 }}>
           <div style={{ flex: '0 0 22%' }}>
             <Select
