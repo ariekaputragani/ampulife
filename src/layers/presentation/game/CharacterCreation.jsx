@@ -97,29 +97,76 @@ export default function CharacterCreation({ onSetup }) {
     }
   };
 
-  // Custom styles for react-select
+  // Custom styles for react-select to exactly mimic default Select2
   const customStyles = {
-    control: (provided) => ({
+    control: (provided, state) => ({
       ...provided,
-      border: 'none',
-      borderBottom: '2px solid #ccc',
-      borderRadius: 0,
+      minHeight: '28px',
+      height: '35px',
+      backgroundColor: '#fff',
+      border: '1px solid #aaa',
+      borderRadius: '4px',
       boxShadow: 'none',
-      '&:hover': { borderBottom: '2px solid rgb(68, 68, 255)' },
-      minHeight: '45px',
-      background: 'transparent',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      '&:hover': {
+        borderColor: '#aaa',
+      },
     }),
     valueContainer: (provided) => ({
       ...provided,
-      padding: '0 10px',
-      cursor: 'pointer'
+      padding: '0 8px',
+      height: '33px',
+      cursor: 'pointer',
     }),
-    option: (provided) => ({
+    singleValue: (provided) => ({
       ...provided,
-      cursor: 'pointer'
+      color: '#444',
+      fontSize: '14px',
+      lineHeight: '33px',
     }),
-    indicatorSeparator: () => ({ display: 'none' })
+    placeholder: (provided) => ({
+      ...provided,
+      color: '#999',
+      fontSize: '14px',
+      lineHeight: '33px',
+    }),
+    input: (provided) => ({
+      ...provided,
+      margin: '0px',
+      padding: '0px',
+    }),
+    indicatorSeparator: () => ({ display: 'none' }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: '#888',
+      padding: '5px',
+      '&:hover': {
+        color: '#555'
+      }
+    }),
+    menu: (provided) => ({
+      ...provided,
+      marginTop: '1px',
+      border: '1px solid #aaa',
+      borderRadius: '4px',
+      boxShadow: '0 4px 5px rgba(0,0,0,0.15)',
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? '#5897fb' : state.isFocused ? '#5897fb' : 'transparent',
+      color: state.isSelected || state.isFocused ? 'white' : '#333',
+      cursor: 'pointer',
+      fontSize: '14px',
+      padding: '6px 12px'
+    }),
+    groupHeading: (provided) => ({
+      ...provided,
+      color: '#333',
+      fontSize: '13px',
+      fontWeight: 'bold',
+      padding: '6px 12px',
+      textTransform: 'none'
+    })
   };
 
   const handleSubmit = (e) => {
@@ -148,25 +195,27 @@ export default function CharacterCreation({ onSetup }) {
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="Nama Lengkap"
-            style={{ width: '100%', height: '45px', border: 'none', borderBottom: '2px solid #ccc', outline: 'none', fontSize: '16px', background: 'transparent' }}
+            style={{ width: '100%', height: '45px', border: 'none', outline: 'none', fontSize: '16px', background: 'transparent' }}
           />
           <div className={styles.underline}></div>
         </div>
 
-        <div className={styles.inputGroup} style={{ marginTop: '25px', zIndex: 3 }}>
+        <div style={{ marginTop: '25px', zIndex: 3, position: 'relative' }}>
           <Select
             options={genderOptions}
             placeholder="Pilih Jenis Kelamin"
             styles={customStyles}
+            isSearchable={false}
             onChange={(selected) => setForm({ ...form, gender: selected.value })}
           />
         </div>
 
-        <div className={styles.inputGroup} style={{ marginTop: '25px', zIndex: 2 }}>
+        <div style={{ marginTop: '25px', zIndex: 2, position: 'relative' }}>
           <Select
             options={cityOptions}
             placeholder="Pilih Kota"
             styles={customStyles}
+            isSearchable={true}
             onChange={(selected) => setForm({ ...form, city: selected.value })}
           />
         </div>
@@ -175,10 +224,12 @@ export default function CharacterCreation({ onSetup }) {
         
         <div style={{ display: 'flex', gap: '5px', marginBottom: '25px', zIndex: 1, position: 'relative' }}>
           <div style={{ flex: '0 0 22%' }}>
+
             <Select
               options={dynamicDayOptions}
               placeholder="Tgl"
               styles={customStyles}
+              isSearchable={false}
               value={dynamicDayOptions.find(o => o.value === form.birthDate.day) || null}
               onChange={(selected) => setForm({ ...form, birthDate: { ...form.birthDate, day: selected.value } })}
             />
@@ -188,6 +239,7 @@ export default function CharacterCreation({ onSetup }) {
               options={monthOptions}
               placeholder="Bulan"
               styles={customStyles}
+              isSearchable={false}
               onChange={(selected) => setForm({ ...form, birthDate: { ...form.birthDate, month: selected.value } })}
             />
           </div>
@@ -196,6 +248,7 @@ export default function CharacterCreation({ onSetup }) {
               options={yearOptions}
               placeholder="Tahun"
               styles={customStyles}
+              isSearchable={false}
               onChange={(selected) => setForm({ ...form, birthDate: { ...form.birthDate, year: selected.value } })}
             />
           </div>

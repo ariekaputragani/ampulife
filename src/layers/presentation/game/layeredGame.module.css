@@ -167,6 +167,16 @@
   background: #ccc;
 }
 
+.underline::before {
+  content: '';
+  position: absolute;
+  height: 2px;
+  width: 100%;
+  background: #ccc;
+  left: 0;
+  bottom: 0;
+}
+
 .underline::after {
   content: '';
   position: absolute;
@@ -175,14 +185,17 @@
   background: linear-gradient(to right, rgb(255, 77, 77) 0%, rgb(68, 68, 255) 100%);
   left: 0;
   bottom: 0;
-  transform: scaleX(0);
   transform-origin: left;
   transition: all 0.3s ease;
 }
 
-.inputGroup input:focus ~ .underline::after,
-.inputGroup select:focus ~ .underline::after {
-  transform: scaleX(1);
+.inputGroup input,
+.inputGroup select,
+.primaryButton,
+.secondaryButton,
+.tombol1Button,
+.tombol2Button {
+  font-family: inherit;
 }
 
 .header {
