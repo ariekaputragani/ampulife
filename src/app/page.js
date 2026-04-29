@@ -27,23 +27,28 @@ export default function Home() {
     <div className={styles.containerCenter}>
       <div className={styles.legacyCard}>
         <div className={styles.judul}>AmpuLife</div>
-        <img src="/legacy/images/logo.png" alt="AmpuLife Logo" className={styles.logo} />
-        <p className={styles.sdgText}>Mengandung 17 SDGs</p>
-        <div className={styles.inputGroup}>
+        <div className={styles.sdgText}>
+          <img src="/legacy/images/logo.png" alt="Logo" className={styles.logo} />
+        </div>
+        <div className={styles.sdgText}>Mengandung 17 SDGs</div>
+        <div className={styles.inputGroup} style={{ marginTop: '40px', marginBottom: '20px' }}>
           <button onClick={() => {
             actions.startNewGame();
             router.push("/create");
           }} className={styles.primaryButton}>Mainkan!</button>
         </div>
-        <div>
-          <button className={styles.secondaryButton}>ℹ Informasi Pengembang</button>
-          {state.age > 0 && (
+        <div className={styles.tombol1Button} style={{ padding: 0 }}>
+          <button className={styles.tombol1Button}><i className="fa fa-info"></i> Informasi Pengembang</button>
+        </div>
+        
+        {state.age > 0 && (
+          <div className={styles.tombol2Button} style={{ padding: 0 }}>
             <button onClick={() => {
               actions.setupCharacter(state.profile);
               router.push("/game");
-            }} className={styles.secondaryButton}>Lanjutkan Hidup</button>
-          )}
-        </div>
+            }} className={styles.tombol2Button}><i className="fa fa-play"></i> Lanjutkan Hidup</button>
+          </div>
+        )}
       </div>
     </div>
   );

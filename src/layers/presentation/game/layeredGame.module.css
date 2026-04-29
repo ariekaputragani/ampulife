@@ -104,6 +104,81 @@
   background: linear-gradient(to right, #00acee 0%, #3cc8ff 100%);
 }
 
+.tombol1Button {
+  display: block;
+  height: 45px;
+  width: 100%;
+  font-size: 15px;
+  text-decoration: none;
+  padding-left: 20px;
+  line-height: 45px;
+  color: white;
+  border-radius: 5px;
+  outline: none;
+  text-align: left;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  background: #00acee;
+  margin: 20px 0 12px 0;
+}
+
+.tombol1Button:hover {
+  background: linear-gradient(to right, #00acee 0%, #3cc8ff 100%);
+  margin: 20px 0 20px 0;
+}
+
+.tombol2Button {
+  display: block;
+  height: 45px;
+  width: 100%;
+  font-size: 15px;
+  text-decoration: none;
+  padding-left: 20px;
+  line-height: 45px;
+  color: white;
+  border-radius: 5px;
+  outline: none;
+  text-align: left;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  background: #3b5998;
+  margin: 20px 0 12px 0;
+}
+
+.tombol2Button:hover {
+  background: linear-gradient(to right, #3b5998 0%, #476bb8 100%);
+  margin: 20px 0 20px 0;
+}
+
+.underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: #ccc;
+}
+
+.underline::after {
+  content: '';
+  position: absolute;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(to right, rgb(255, 77, 77) 0%, rgb(68, 68, 255) 100%);
+  left: 0;
+  bottom: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: all 0.3s ease;
+}
+
+.inputGroup input:focus ~ .underline::after,
+.inputGroup select:focus ~ .underline::after {
+  transform: scaleX(1);
+}
+
 .header {
   background: #e04848;
   color: white;
