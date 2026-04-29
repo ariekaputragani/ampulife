@@ -36,6 +36,7 @@ export function useLayeredGame() {
   useEffect(() => {
     const saved = loadGameState();
     if (saved) {
+      // eslint-disable-next-line
       setState(saved);
     }
     setReady(true);

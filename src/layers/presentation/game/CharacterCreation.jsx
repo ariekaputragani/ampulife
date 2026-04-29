@@ -4,8 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import styles from "./layeredGame.module.css";
 import "select2/dist/css/select2.min.css";
-import $ from "jquery";
-import "select2";
 
 export default function CharacterCreation({ onSetup }) {
   const [form, setForm] = useState({
@@ -74,22 +72,6 @@ export default function CharacterCreation({ onSetup }) {
     "Juli": 7, "Agustus": 8, "September": 9, "Oktober": 10, "November": 11, "Desember": 12
   };
 
-  useEffect(() => {
-    // Initial load: 31 days
-    updateDayOptions(31);
-  }, []);
-
-  useEffect(() => {
-    const { month, year } = form.birthDate;
-    if (month && year) {
-      const monNum = validMonthMap[month];
-      if (monNum) {
-        const maxDay = getMaxDay(monNum, parseInt(year, 10));
-        updateDayOptions(maxDay);
-      }
-    }
-  }, [form.birthDate.month, form.birthDate.year]);
-
   const updateDayOptions = (maxDay) => {
     const newOptions = [...Array(maxDay)].map((_, i) => String(i + 1));
     setDynamicDayOptions(newOptions);
@@ -102,15 +84,37 @@ export default function CharacterCreation({ onSetup }) {
         birthDate: { ...prev.birthDate, day: String(maxDay) }
       }));
       // Also update select2 instance for day
-      if (dayRef.current) {
+      if (typeof window !== "undefined" && dayRef.current) {
+        const $ = require("jquery");
         $(dayRef.current).val(String(maxDay)).trigger('change.select2');
       }
     }
   };
 
   useEffect(() => {
+    // Initial load: 31 days
+    updateDayOptions(31);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const { month, year } = form.birthDate;
+    if (month && year) {
+      const monNum = validMonthMap[month];
+      if (monNum) {
+        const maxDay = getMaxDay(monNum, parseInt(year, 10));
+        updateDayOptions(maxDay);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.birthDate.month, form.birthDate.year]);
+
+  useEffect(() => {
     // Initialize Select2 after component mount and when options change (specifically for days)
     if (typeof window !== "undefined") {
+      const $ = require("jquery");
+      window.$ = window.jQuery = $;
+      require("select2");
 
       const initSelect2 = (ref, options, keyPath, valValue, isSearchable = false) => {
         if (!ref.current) return;
@@ -153,6 +157,7 @@ export default function CharacterCreation({ onSetup }) {
   // Day needs a separate effect because options change
   useEffect(() => {
     if (typeof window !== "undefined" && dayRef.current) {
+      const $ = require("jquery");
       const $el = $(dayRef.current);
       if ($el.hasClass("select2-hidden-accessible")) {
         $el.select2('destroy');
@@ -223,7 +228,7 @@ export default function CharacterCreation({ onSetup }) {
           </select>
         </div>
 
-        <div className={styles.teks} style={{ marginTop: '25px', marginBottom: '5px', textAlign: 'center' }}>Tasnggal Lahir:</div>
+        <div className={styles.teks} style={{ marginTop: '25px', marginBottom: '5px', textAlign: 'center' }}>Tanggal Lahir:</div>
 
         <div style={{ display: 'flex', gap: '5px', marginBottom: '25px' }}>
           <div style={{ flex: '0 0 22%' }}>
