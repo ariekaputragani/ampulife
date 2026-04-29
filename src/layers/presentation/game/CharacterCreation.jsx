@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Select from "react-select";
+import { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import styles from "./layeredGame.module.css";
+import "select2/dist/css/select2.min.css";
+import $ from "jquery";
+import "select2";
 
 export default function CharacterCreation({ onSetup }) {
   const [form, setForm] = useState({
@@ -17,12 +19,13 @@ export default function CharacterCreation({ onSetup }) {
     },
   });
 
-  const [dynamicDayOptions, setDynamicDayOptions] = useState([]);
+  const genderRef = useRef(null);
+  const cityRef = useRef(null);
+  const dayRef = useRef(null);
+  const monthRef = useRef(null);
+  const yearRef = useRef(null);
 
-  const genderOptions = [
-    { value: "male", label: "Laki-laki" },
-    { value: "female", label: "Perempuan" }
-  ];
+  const [dynamicDayOptions, setDynamicDayOptions] = useState([]);
 
   const cityOptions = [
     { label: "DKI Jakarta", options: [{ value: "Jakarta", label: "Jakarta" }] },
@@ -48,9 +51,9 @@ export default function CharacterCreation({ onSetup }) {
   const monthOptions = [
     "Januari", "Februari", "Maret", "April", "Mei", "Juni",
     "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-  ].map(m => ({ value: m, label: m }));
+  ];
   
-  const yearOptions = [...Array(30)].map((_, i) => ({ value: String(2026 - i), label: String(2026 - i) }));
+  const yearOptions = [...Array(30)].map((_, i) => String(2026 - i));
 
   // Date Logic Ported from script.js
   const getMaxDay = (m, y) => {
@@ -84,7 +87,7 @@ export default function CharacterCreation({ onSetup }) {
   }, [form.birthDate.month, form.birthDate.year]);
 
   const updateDayOptions = (maxDay) => {
-    const newOptions = [...Array(maxDay)].map((_, i) => ({ value: String(i + 1), label: String(i + 1) }));
+    const newOptions = [...Array(maxDay)].map((_, i) => String(i + 1));
     setDynamicDayOptions(newOptions);
     
     // Auto-correct selected day if it exceeds the new maxDay
@@ -94,80 +97,75 @@ export default function CharacterCreation({ onSetup }) {
         ...prev,
         birthDate: { ...prev.birthDate, day: String(maxDay) }
       }));
+      // Also update select2 instance for day
+      if (dayRef.current) {
+        $(dayRef.current).val(String(maxDay)).trigger('change.select2');
+      }
     }
   };
 
-  // Custom styles for react-select to exactly mimic default Select2
-  const customStyles = {
-    control: (provided, state) => ({
-      ...provided,
-      minHeight: '28px',
-      height: '35px',
-      backgroundColor: '#fff',
-      border: '1px solid #aaa',
-      borderRadius: '4px',
-      boxShadow: 'none',
-      cursor: 'pointer',
-      '&:hover': {
-        borderColor: '#aaa',
-      },
-    }),
-    valueContainer: (provided) => ({
-      ...provided,
-      padding: '0 8px',
-      height: '33px',
-      cursor: 'pointer',
-    }),
-    singleValue: (provided) => ({
-      ...provided,
-      color: '#444',
-      fontSize: '14px',
-      lineHeight: '33px',
-    }),
-    placeholder: (provided) => ({
-      ...provided,
-      color: '#999',
-      fontSize: '14px',
-      lineHeight: '33px',
-    }),
-    input: (provided) => ({
-      ...provided,
-      margin: '0px',
-      padding: '0px',
-    }),
-    indicatorSeparator: () => ({ display: 'none' }),
-    dropdownIndicator: (provided) => ({
-      ...provided,
-      color: '#888',
-      padding: '5px',
-      '&:hover': {
-        color: '#555'
+  useEffect(() => {
+    // Initialize Select2 after component mount and when options change (specifically for days)
+    if (typeof window !== "undefined") {
+      
+      const initSelect2 = (ref, options, keyPath, valValue, isSearchable = false) => {
+        if (!ref.current) return;
+        const $el = $(ref.current);
+        
+        // Destroy existing instance if present before re-init
+        if ($el.hasClass("select2-hidden-accessible")) {
+          $el.select2('destroy');
+        }
+
+        $el.select2({
+          width: "100%",
+          placeholder: options.placeholder || "",
+          minimumResultsForSearch: isSearchable ? 0 : Infinity // Hide search box if not searchable
+        });
+
+        // Set initial value without triggering change event
+        if (valValue) {
+          $el.val(valValue).trigger('change.select2');
+        }
+
+        $el.off('change').on('change', function() {
+          const val = $(this).val();
+          if (keyPath.includes('.')) {
+            const [parent, child] = keyPath.split('.');
+            setForm(prev => ({ ...prev, [parent]: { ...prev[parent], [child]: val } }));
+          } else {
+            setForm(prev => ({ ...prev, [keyPath]: val }));
+          }
+        });
+      };
+
+      initSelect2(genderRef, { placeholder: "Pilih Jenis Kelamin" }, "gender", form.gender, false);
+      initSelect2(cityRef, { placeholder: "Pilih Kota" }, "city", form.city, true);
+      initSelect2(monthRef, { placeholder: "Bulan" }, "birthDate.month", form.birthDate.month, false);
+      initSelect2(yearRef, { placeholder: "Tahun" }, "birthDate.year", form.birthDate.year, false);
+    }
+  }, []);
+
+  // Day needs a separate effect because options change
+  useEffect(() => {
+    if (typeof window !== "undefined" && dayRef.current) {
+      const $el = $(dayRef.current);
+      if ($el.hasClass("select2-hidden-accessible")) {
+        $el.select2('destroy');
       }
-    }),
-    menu: (provided) => ({
-      ...provided,
-      marginTop: '1px',
-      border: '1px solid #aaa',
-      borderRadius: '4px',
-      boxShadow: '0 4px 5px rgba(0,0,0,0.15)',
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      backgroundColor: state.isSelected ? '#5897fb' : state.isFocused ? '#5897fb' : 'transparent',
-      color: state.isSelected || state.isFocused ? 'white' : '#333',
-      cursor: 'pointer',
-      fontSize: '14px',
-      padding: '6px 12px'
-    }),
-    groupHeading: (provided) => ({
-      ...provided,
-      color: '#333',
-      fontSize: '13px',
-      fontWeight: 'bold',
-      padding: '6px 12px',
-      textTransform: 'none'
-    })
-  };
+      $el.select2({
+        width: "100%",
+        placeholder: "Tgl",
+        minimumResultsForSearch: Infinity
+      });
+      if (form.birthDate.day) {
+        $el.val(form.birthDate.day).trigger('change.select2');
+      }
+      $el.off('change').on('change', function() {
+        setForm(prev => ({ ...prev, birthDate: { ...prev.birthDate, day: $(this).val() } }));
+      });
+    }
+  }, [dynamicDayOptions]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -188,76 +186,112 @@ export default function CharacterCreation({ onSetup }) {
       <form onSubmit={handleSubmit} className={styles.legacyCard}>
         <div className={styles.judul}>AmpuLife</div>
 
-        <div className={styles.inputGroup}>
+        <div className={styles.inputGroup} style={{ marginTop: '25px', position: 'relative' }}>
           <input
             type="text"
             id="nama"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="Nama Lengkap"
-            style={{ width: '100%', height: '45px', border: 'none', outline: 'none', fontSize: '16px', background: 'transparent' }}
+            style={{ width: '100%', height: '45px', border: 'none', outline: 'none', fontSize: '16px', background: 'transparent', padding: '0', fontFamily: 'inherit' }}
           />
           <div className={styles.underline}></div>
         </div>
 
-        <div style={{ marginTop: '25px', zIndex: 3, position: 'relative' }}>
-          <Select
-            options={genderOptions}
-            placeholder="Pilih Jenis Kelamin"
-            styles={customStyles}
-            isSearchable={false}
-            onChange={(selected) => setForm({ ...form, gender: selected.value })}
-          />
+        <div className={styles.inputGroup} style={{ marginTop: '25px' }}>
+          <select ref={genderRef} id="jk" style={{ fontFamily: 'inherit' }}>
+            <option value=""></option>
+            <option value="male">Laki-laki</option>
+            <option value="female">Perempuan</option>
+          </select>
         </div>
 
-        <div style={{ marginTop: '25px', zIndex: 2, position: 'relative' }}>
-          <Select
-            options={cityOptions}
-            placeholder="Pilih Kota"
-            styles={customStyles}
-            isSearchable={true}
-            onChange={(selected) => setForm({ ...form, city: selected.value })}
-          />
+        <div className={styles.inputGroup} style={{ marginTop: '25px' }}>
+          <select ref={cityRef} id="kota" style={{ fontFamily: 'inherit' }}>
+            <option value=""></option>
+            {cityOptions.map((group, i) => (
+              <optgroup label={group.label} key={i}>
+                {group.options.map((opt, j) => (
+                  <option value={opt.value} key={j}>{opt.label}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
         </div>
 
-        <div className={styles.teks} style={{ marginTop: '25px', marginBottom: '5px', textAlign: 'left' }}>Tanggal Lahir:</div>
+        <div className={styles.teks} style={{ marginTop: '25px', marginBottom: '5px', textAlign: 'center' }}>Tanggal Lahir:</div>
         
-        <div style={{ display: 'flex', gap: '5px', marginBottom: '25px', zIndex: 1, position: 'relative' }}>
+        <div style={{ display: 'flex', gap: '5px', marginBottom: '25px' }}>
           <div style={{ flex: '0 0 22%' }}>
-
-            <Select
-              options={dynamicDayOptions}
-              placeholder="Tgl"
-              styles={customStyles}
-              isSearchable={false}
-              value={dynamicDayOptions.find(o => o.value === form.birthDate.day) || null}
-              onChange={(selected) => setForm({ ...form, birthDate: { ...form.birthDate, day: selected.value } })}
-            />
+            <select ref={dayRef} id="day" style={{ fontFamily: 'inherit' }}>
+              <option value=""></option>
+              {dynamicDayOptions.map(day => (
+                <option value={day} key={day}>{day}</option>
+              ))}
+            </select>
           </div>
           <div style={{ flex: '0 0 45%' }}>
-            <Select
-              options={monthOptions}
-              placeholder="Bulan"
-              styles={customStyles}
-              isSearchable={false}
-              onChange={(selected) => setForm({ ...form, birthDate: { ...form.birthDate, month: selected.value } })}
-            />
+            <select ref={monthRef} id="month" style={{ fontFamily: 'inherit' }}>
+              <option value=""></option>
+              {monthOptions.map(month => (
+                <option value={month} key={month}>{month}</option>
+              ))}
+            </select>
           </div>
           <div style={{ flex: '0 0 30%' }}>
-            <Select
-              options={yearOptions}
-              placeholder="Tahun"
-              styles={customStyles}
-              isSearchable={false}
-              onChange={(selected) => setForm({ ...form, birthDate: { ...form.birthDate, year: selected.value } })}
-            />
+            <select ref={yearRef} id="year" style={{ fontFamily: 'inherit' }}>
+              <option value=""></option>
+              {yearOptions.map(year => (
+                <option value={year} key={year}>{year}</option>
+              ))}
+            </select>
           </div>
         </div>
 
-        <div className={styles.inputGroup} style={{ marginTop: '40px' }}>
-          <button id="lahirkan" type="submit" className={styles.primaryButton}>Lahirkan!</button>
+        <div className={`${styles.inputGroup} ${styles.tombol}`} style={{ marginTop: '40px' }}>
+          <button id="lahirkan" type="submit" className={styles.primaryButton} style={{ marginTop: 0, marginBottom: 0 }}>Lahirkan!</button>
         </div>
       </form>
+      
+      {/* Global styles to override Select2 and enforce Poppins/Hover exactly like screenshot */}
+      <style jsx global>{`
+        .select2-container {
+          font-family: 'Poppins', sans-serif !important;
+          text-align: left;
+        }
+        .select2-container .select2-selection--single {
+          height: 35px !important;
+          border: 1px solid #aaa !important;
+          border-radius: 4px !important;
+          outline: none !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+          line-height: 33px !important;
+          padding-left: 8px !important;
+          color: #444 !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+          height: 33px !important;
+        }
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+          background-color: #5897fb !important;
+          color: white !important;
+        }
+        .select2-search__field {
+          outline: none !important;
+          font-family: 'Poppins', sans-serif !important;
+        }
+        .select2-results__group {
+          color: #333 !important;
+          font-weight: bold !important;
+          font-size: 13px !important;
+          padding: 6px 12px !important;
+        }
+        .select2-results__option {
+          padding: 6px 12px !important;
+          font-size: 14px !important;
+        }
+      `}</style>
     </div>
   );
 }
