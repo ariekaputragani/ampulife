@@ -1,4 +1,4 @@
-# AmpuLife Next
+# AmpuLife - Indie Life Simulator
 
 Workspace Next.js untuk migrasi bertahap dari versi HTML + jQuery lama.
 

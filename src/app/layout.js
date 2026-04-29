@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "AmpuLife Next",
+  title: "AmpuLife - Indie Life Simulator",
   description: "Framework workspace for AmpuLife with cleaner folder and function structure.",
 };
 

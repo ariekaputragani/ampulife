@@ -57,21 +57,9 @@
   background: linear-gradient(to right, rgb(255, 77, 77) 0%, rgb(68, 68, 255) 100%);
 }
 
-.logo {
-  max-width: 150px;
-  margin: 10px auto 20px;
-  display: block;
-}
-
 .teks {
   font-size: 14px;
   text-align: center;
-}
-
-.sdgText {
-  font-size: 14px;
-  text-align: center;
-  margin-bottom: 30px;
 }
 
 .primaryButton {
@@ -84,8 +72,8 @@
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 15px;
-  margin-bottom: 10px;
+  /* margin-top: 15px;
+  margin-bottom: 10px; */
 }
 
 .primaryButton:hover {
@@ -110,30 +98,7 @@
   background: linear-gradient(to right, #00acee 0%, #3cc8ff 100%);
 }
 
-.tombol1Button {
-  display: block;
-  height: 45px;
-  width: 100%;
-  font-size: 15px;
-  text-decoration: none;
-  padding-left: 20px;
-  line-height: 45px;
-  color: white;
-  border-radius: 5px;
-  outline: none;
-  text-align: left;
-  cursor: pointer;
-  border: none;
-  transition: all 0.3s ease;
-  background: #00acee;
-  margin: 20px 0 12px 0;
-}
-
-.tombol1Button:hover {
-  background: linear-gradient(to right, #00acee 0%, #3cc8ff 100%);
-  margin: 20px 0 20px 0;
-}
-
+.tombol1Button,
 .tombol2Button {
   display: block;
   height: 45px;
@@ -149,13 +114,28 @@
   cursor: pointer;
   border: none;
   transition: all 0.3s ease;
-  background: #3b5998;
   margin: 20px 0 12px 0;
+}
+
+.tombol1Button {
+  background: #00acee;
+}
+
+.tombol2Button {
+  background: #3b5998;
+}
+
+.tombol1Button:hover,
+.tombol2Button:hover {
+  margin: 20px 0 20 0;
+}
+
+.tombol1Button:hover {
+  background: linear-gradient(to right, #00acee 0%, #3cc8ff 100%);
 }
 
 .tombol2Button:hover {
   background: linear-gradient(to right, #3b5998 0%, #476bb8 100%);
-  margin: 20px 0 20px 0;
 }
 
 .underline {
