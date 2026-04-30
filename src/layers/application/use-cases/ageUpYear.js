@@ -60,7 +60,7 @@ export function ageUpYear(state, rng = Math.random) {
   // --- BASIC HOUSEHOLD EXPENSES (Living Costs) ---
   let lifestyleMult = 1.0;
   const lifestyle = next.financial.lifestyle || "normal";
-  
+
   if (lifestyle === "hemat") {
     lifestyleMult = 0.8;
     next.stats.happy = clamp(next.stats.happy - 4);
@@ -77,7 +77,7 @@ export function ageUpYear(state, rng = Math.random) {
   if (next.age <= 4) childcareCost = 4_000_000;
   else if (next.age <= 12) childcareCost = 2_000_000;
   else if (next.age <= 18) childcareCost = 5_000_000;
-  
+
   // Scale childcare cost by wealth (Rich families spend way more)
   if (next.family.wealthStatus === "rich") childcareCost *= 15;
   else if (next.family.wealthStatus === "middle") childcareCost *= 2.5;
@@ -89,7 +89,7 @@ export function ageUpYear(state, rng = Math.random) {
   // --- TRANSPORTATION COSTS ---
   const assets = next.family.assets || { motor: false, car: false }; // Fallback for old saves
   let transportCost = 3_000_000; // Default: Public transport
-  
+
   if (next.family.wealthStatus === "poor") transportCost = 1_200_000; // Use cheaper options/walking
 
   if (assets.car) {
@@ -100,7 +100,7 @@ export function ageUpYear(state, rng = Math.random) {
 
   // --- TOTAL DEDUCTION & INDEPENDENCE LOGIC ---
   let eventCost = 0;
-  
+
   if (!next.profile.isIndependent) {
     const totalDeduction = taxes + basicExpenses + childcareCost + transportCost;
     next.family.savings += (yearlyIncome - totalDeduction);
@@ -115,7 +115,7 @@ export function ageUpYear(state, rng = Math.random) {
       pushLog(next, `Orang tua ku baru saja membayar pajak penghasilan tahunan mereka.`);
     }
     pushLog(next, `Orang tua ku membelikan semua kebutuhan pokok dan keperluan pribadi ku tahun ini.`);
-    
+
     const report = `[Laporan Keuangan Keluarga] Pajak: Rp${taxes.toLocaleString("id-ID")}, Hidup: Rp${basicExpenses.toLocaleString("id-ID")}, Anak: Rp${childcareCost.toLocaleString("id-ID")}, Transport: Rp${transportCost.toLocaleString("id-ID")}${eventCost > 0 ? `, Lain-lain: Rp${eventCost.toLocaleString("id-ID")}` : ""}`;
     pushLog(next, report);
 
@@ -130,15 +130,15 @@ export function ageUpYear(state, rng = Math.random) {
   } else {
     // Independent Player Economy
     let playerExpenses = 15_000_000 + transportCost; // Base kos + makan + transport
-    
+
     // Taxes for player
     let playerTaxes = 0;
     if (grossIncome > 60_000_000) {
       playerTaxes = Math.floor((grossIncome - 60_000_000) * 0.05);
     }
-    
+
     playerExpenses += playerTaxes;
-    
+
     if (next.money < playerExpenses) {
       next.stats.happy -= 15;
       next.stats.health -= 5;
@@ -166,7 +166,7 @@ export function ageUpYear(state, rng = Math.random) {
 
     const costConfig = educationCosts[next.education.level];
     let yearlyFee = costConfig ? costConfig[next.family.wealthStatus] : 0;
-    
+
     // --- SCHOLARSHIP MANAGEMENT ---
     if (!next.family.activeScholarships) next.family.activeScholarships = [];
     next.family.activeScholarships = next.family.activeScholarships.map(s => ({
@@ -213,11 +213,11 @@ export function ageUpYear(state, rng = Math.random) {
     if (!next.family.assets) next.family.assets = { motor: false, car: false };
     const { assets: famAssets, savings } = next.family;
     const rngVal = rng();
-    
+
     // Logic for POOR (Used Motor only)
     if (next.family.wealthStatus === "poor") {
       if (!famAssets.motor && savings > 12_000_000 && rngVal < 0.10 && next.age > 4) {
-        const motorCost = 8_000_000; 
+        const motorCost = 8_000_000;
         next.family.savings -= motorCost;
         next.family.assets.motor = true;
         pushLog(next, `Orang tua ku membeli motor bekas agar bisa menghemat ongkos harian (Rp${motorCost.toLocaleString("id-ID")}).`);
@@ -231,7 +231,7 @@ export function ageUpYear(state, rng = Math.random) {
         next.family.assets.motor = true;
         pushLog(next, `Orang tua ku baru saja membeli motor baru untuk transportasi keluarga (Rp${motorCost.toLocaleString("id-ID")}).`);
       }
-      
+
       // Buy Car (if none and savings > threshold)
       const carThreshold = next.family.wealthStatus === "rich" ? 800_000_000 : 250_000_000;
       if (!famAssets.car && savings > carThreshold && rngVal < 0.10 && next.age > 6) {
@@ -252,13 +252,13 @@ export function ageUpYear(state, rng = Math.random) {
   if (next.age >= 6 && next.age <= 18) {
     const allowancePercent = next.family.wealthStatus === "rich" ? 0.05 : next.family.wealthStatus === "middle" ? 0.02 : 0.005;
     const allowance = Math.floor((next.family.monthlyIncome * allowancePercent) * (0.8 + rng() * 0.4));
-    
+
     if (allowance > 0 && next.family.savings > 0) {
       grossIncome += allowance;
       pushLog(next, `Kamu mendapat uang jajan Rp${allowance.toLocaleString("id-ID")} tahun ini.`);
     }
   }
-  
+
   // Social Media Growth
   if (next.socialMedia.isJoined) {
     const growth = next.stats.happy > 50 ? 1.2 : 1.05;
@@ -278,7 +278,7 @@ export function ageUpYear(state, rng = Math.random) {
       pushLog(next, `🚨 Kamu DIKELUARKAN dari sekolah ${next.education.level} karena harus menjalani masa hukuman di penjara.`);
       next.education.level = "none";
       next.education.yearsStudied = 0;
-      
+
       // Scholarships are cancelled
       if (next.family.activeScholarships && next.family.activeScholarships.length > 0) {
         next.family.activeScholarships = [];
@@ -345,7 +345,7 @@ export function ageUpYear(state, rng = Math.random) {
     let expenses = 2000000;
     if (lifestyle === "mewah") expenses = 10000000;
     if (lifestyle === "hemat") expenses = 500000;
-    
+
     expenses = Math.min(expenses, next.money);
     next.money -= expenses;
     next.stats = applyStatDelta(next.stats, { happy: -2 }); // Stres karena menguras tabungan
@@ -382,7 +382,7 @@ export function ageUpYear(state, rng = Math.random) {
         if (next.education.yearsStudied >= edu.yearsToComplete) {
           next.education.completed.push(next.education.level);
           const graduatedName = edu.name;
-          
+
           if (next.education.level === "university") {
             next.profile.isIndependent = true; // Lulus kuliah = wajib mandiri
           }
@@ -421,23 +421,74 @@ export function ageUpYear(state, rng = Math.random) {
   }));
 
   pushLog(next, `Kamu bertambah usia menjadi ${next.age} tahun.`);
-  
-  if (next.stats.health <= 0) {
+
+  // --- PLAYER DEATH CHANCE (OLD AGE) ---
+  // Normalizing life expectancy as per legacy script.js (lines 715-738)
+  if (next.life.isAlive && next.age >= 60) {
+    const deathRoll = rng();
+    let deathChance = 0;
+    if (next.age < 65) deathChance = 0.01;
+    else if (next.age < 75) deathChance = 0.02;
+    else if (next.age < 85) deathChance = 0.04;
+    else if (next.age < 90) deathChance = 0.10;
+    else deathChance = 0.20;
+
+    if (deathRoll < deathChance) {
+      next.life.isAlive = false;
+      const deathCauses = [
+        "meninggal karena sebab alamiah",
+        "meninggal karena usia tua",
+        "meninggal dunia saat tidur dengan tenang"
+      ];
+      next.life.causeOfDeath = deathCauses[Math.floor(rng() * deathCauses.length)];
+      pushLog(next, `🪦 Kamu ${next.life.causeOfDeath} pada usia ${next.age} tahun.`);
+    }
+  }
+
+  if (next.stats.health <= 0 && next.life.isAlive) {
     next.life.isAlive = false;
     next.life.causeOfDeath = "Kesehatan kritis";
     pushLog(next, "Karakter meninggal karena kesehatan mencapai 0.");
   }
 
-  // --- RELATIONSHIP DECAY & NEW FRIENDS ---
+  // --- RELATIONSHIP AGE & DEATHS ---
   next.relations = next.relations.map(rel => {
-    // Family decays very slowly (if at all), Friends/Partners decay faster
-    if (rel.status !== "family") {
-      rel.relationship = Math.max(0, rel.relationship - 3);
+    if (rel.isDead) return rel;
+
+    // Advance relation age
+    rel.age = (rel.age || next.age) + 1;
+
+    // Roll for death based on relation's age (Legacy logic 812-869)
+    const relDeathRoll = rng();
+    let relDeathChance = 0;
+    if (rel.age < 65) relDeathChance = 0.01;
+    else if (rel.age < 75) relDeathChance = 0.02;
+    else if (rel.age < 85) relDeathChance = 0.04;
+    else if (rel.age < 90) relDeathChance = 0.10;
+    else relDeathChance = 0.20;
+
+    if (relDeathRoll < relDeathChance) {
+      rel.isDead = true;
+      const relCauses = [
+        "meninggal karena sebab alamiah",
+        "meninggal karena usia tua",
+        "meninggal dunia saat tidur dengan tenang"
+      ];
+      const finalCause = relCauses[Math.floor(rng() * relCauses.length)];
+      
+      pushLog(next, `🕯️ Kabar duka: ${rel.label} mu, ${rel.name}, ${finalCause} pada usia ${rel.age} tahun.`);
+      next.stats.happy = Math.max(0, next.stats.happy - 25);
+    } else {
+      // Natural bond drift
+      if (rel.status !== "family") {
+        rel.relationship = Math.max(0, rel.relationship - 3);
+      } else {
+        rel.relationship = Math.min(100, Math.max(0, rel.relationship + (rng() > 0.6 ? 1 : -1)));
+      }
     }
     return rel;
   }).filter(rel => {
-    // Remove if lost contact (unless family)
-    if (rel.status !== "family" && rel.relationship <= 0) {
+    if (!rel.isDead && rel.status !== "family" && rel.relationship <= 0) {
       pushLog(next, `Kamu kehilangan kontak dengan ${rel.name} karena sudah terlalu lama tidak mengobrol.`);
       return false;
     }
@@ -447,14 +498,38 @@ export function ageUpYear(state, rng = Math.random) {
   // Generate new friends at school milestones
   if ([6, 12, 15].includes(next.age)) {
     const isMale = rng() > 0.5;
-    const namesM = ["Budi", "Agus", "Dedi", "Rian", "Adit", "Fajar", "Surya"];
-    const namesF = ["Siti", "Sari", "Lani", "Maya", "Indah", "Putri", "Dewi"];
+    const namesM = ["Ade", "Adib", "Adit", "Aditya", "Agung", "Agus", "Ahmad", "Akbar", "Alamsyah",
+      "Alif", "Ammar", "Ardi", "Arya", "Bayu", "Bimo", "Budi", "Danis", "Dedi",
+      "Deni", "Didi", "Diaz", "Edi", "Eko", "Fadil", "Fajar", "Faozan", "Farhan",
+      "Fauzan", "Fiki", "Gilang", "Gunawan", "Hendra", "Heru", "Hidayat", "Ilham",
+      "Indra", "Irfan", "Iwan", "Joko", "Kevin", "Kurniawan", "Lukman", "Lutfi",
+      "Maulana", "Mei", "Miko", "Muhammad", "Nizar", "Nova", "Novan", "Nugroho",
+      "Oktavian", "Praditya", "Rafi", "Rian", "Rizky", "Rudi", "Rudy", "Salman",
+      "Santoso", "Satria", "Setiawan", "Setya", "Slamet", "Suherman", "Surya",
+      "Syafik", "Taufik", "Tito", "Tono", "Tubagus", "Vandi", "Veri", "Wahyu",
+      "Wisnu", "Yusuf", "Zikri"];
+    const namesF = ["Adinda", "Adiratna", "Aisyah", "Alya", "Amalia", "Amisha", "Angkasa", "Ani",
+      "Anita", "Annisa", "Astuti", "Aulia", "Ayu", "Bella", "Budiwati", "Bulan",
+      "Cahya", "Cindy", "Citra", "Defi", "Dewi", "Diah", "Dian", "Dina", "Dinda",
+      "Dini", "Eka", "Elok", "Endah", "Eva", "Fani", "Farah", "Fitri", "Gemi",
+      "Gita", "Guritno", "Hana", "Harum", "Icha", "Imelda", "Indah", "Intan",
+      "Inten", "Irene", "Jayachandra", "Kartini", "Kemala", "Kemuning", "Kezia",
+      "Kristiyana", "Lani", "Legi", "Lestari", "Lia", "Lusi", "Maharani", "Maria",
+      "Marshanda", "Mawar", "Maya", "Mega", "Melati", "Mentari", "Merpati",
+      "Misrina", "Murni", "Mustika", "Nabila", "Nadira", "Nadya", "Nanda", "Ndari",
+      "Ningrat", "Ningrum", "Ningsih", "Nisa", "Nisi", "Nisrina", "Nova", "Novalia",
+      "Novi", "Novia", "Novita", "Nur", "Nurul", "Permata", "Pertiwi", "Puji",
+      "Puspita", "Putri", "Rani", "Rara", "Ratih", "Ratu", "Rika", "Rina", "Rini",
+      "Sarah", "Sari", "Sarwendah", "Sella", "Setiawati", "Shinta", "Siska",
+      "Siti", "Sri", "Susil", "Syifa", "Taman", "Tasya", "Tika", "Utama", "Vania",
+      "Vina", "Wangi", "Wati", "Wening", "Wulan", "Yuni"];
     const newName = isMale ? namesM[Math.floor(rng() * namesM.length)] : namesF[Math.floor(rng() * namesF.length)];
-    
+
     next.relations.push({
       id: `friend_${next.age}_${Date.now()}`,
       label: "Teman Sekolah",
       name: newName,
+      age: next.age, // Seumuran
       relationship: 45,
       gender: isMale ? "male" : "female",
       status: "friend",

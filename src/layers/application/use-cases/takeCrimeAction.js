@@ -70,7 +70,11 @@ export function takeCrimeAction(state, crimeId, rng = Math.random) {
     // SUCCESS
     next.money += reward;
     next.stats = applyStatDelta(next.stats, crime.statDelta);
-    pushLog(next, `Aksi ${crime.name} berhasil! Kamu mendapat Rp${reward.toLocaleString("id-ID")}.`);
+    if (crime.id === "troublemaker") {
+      pushLog(next, `Aksi ${crime.name} berhasil! Kamu merasa puas setelah mengerjai orang lewat order fiktif ojol.`);
+    } else {
+      pushLog(next, `Aksi ${crime.name} berhasil! Kamu mendapat Rp${reward.toLocaleString("id-ID")}.`);
+    }
   }
 
   return next;

@@ -1,4 +1,5 @@
 import { pickIllnessByAge } from "@/layers/infrastructure/catalogs/illnessCatalog";
+import { pushLog } from "@/layers/domain/entities/stateUtils";
 
 export const eventsCatalog = [
   {
@@ -34,6 +35,59 @@ export const eventsCatalog = [
       state.healthStatus.severity = illness?.baseSeverity ?? "mild";
       state.healthStatus.untreatedYears = 0;
       return { summary: `Kamu terkena ${illness?.name ?? "penyakit musiman"}.` };
+    },
+  },
+  {
+    id: "lightning_strike",
+    label: "Tersambar Petir",
+    minAge: 5,
+    weight: 0.01,
+    isInteractive: false,
+    apply: (state) => {
+      const isMiracle = Math.random() < 0.5;
+      if (isMiracle) {
+        state.stats = { happy: 100, health: 100, smarts: 100, looks: 100 };
+        return { summary: "⚡ KEJADIAN LUAR BIASA: Kamu tersambar petir! AJAIB, tubuhmu justru terasa sangat bertenaga dan jenius!" };
+      } else {
+        state.life.isAlive = false;
+        state.life.causeOfDeath = "meninggal setelah tersambar petir";
+        return { summary: "⚡ KEJADIAN LUAR BIASA: Kamu tersambar petir! Tragis, sambaran itu langsung mengakhiri hidupmu." };
+      }
+    },
+  },
+  {
+    id: "animal_encounter",
+    label: "Pertemuan Hewan",
+    minAge: 5,
+    weight: 0.1,
+    isInteractive: true,
+    apply: (state) => {
+      const animals = ["anjing", "babi hutan", "badak", "buaya", "gajah", "harimau", "ular", "tawon"];
+      const animal = animals[Math.floor(Math.random() * animals.length)];
+      return {
+        summary: `🌲 Saat sedang jalan-jalan, kamu berpapasan dengan seekor ${animal}! Apa yang akan kamu lakukan?`,
+        options: [
+          {
+            id: "run_away",
+            label: "Lari Sekencang-kencangnya",
+            resolve: (s) => "Kamu langsung lari sekencang mungkin dan berhasil selamat.",
+          },
+          {
+            id: "pet_animal",
+            label: "Mencoba Mendekat/Mengelus",
+            resolve: (s) => {
+              const friendly = Math.random() > 0.7;
+              if (friendly) {
+                s.stats.happy = Math.min(100, s.stats.happy + 20);
+                return `Ajaib! Hewan itu ternyata jinak dan sangat ramah.`;
+              } else {
+                s.stats.health = Math.max(0, s.stats.health - 25);
+                return `Aduh! Hewan itu menyerangmu saat kamu mencoba mendekat.`;
+              }
+            },
+          },
+        ],
+      };
     },
   },
   {

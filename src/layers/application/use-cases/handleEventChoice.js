@@ -7,6 +7,7 @@ export function handleEventChoice(state, optionId) {
   }
 
   const next = cloneState(state);
+  
   const catalogEvent = eventsCatalog.find((e) => e.id === next.currentEvent.id);
   
   if (catalogEvent && catalogEvent.isInteractive) {

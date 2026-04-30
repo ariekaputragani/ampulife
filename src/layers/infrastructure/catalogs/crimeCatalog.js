@@ -26,4 +26,14 @@ export const crimeCatalog = [
     jailYears: [3, 7],
     statDelta: { happy: -6, health: -2, smarts: 2, looks: -4 },
   },
+  {
+    id: "troublemaker",
+    name: "Pembuat Onar",
+    minAge: 8,
+    rewardRange: [0, 0],
+    jailChance: 0.05,
+    jailYears: [0, 1],
+    statDelta: { happy: 5, health: 0, smarts: -2, looks: -5 },
+    description: "Melakukan aksi meresahkan seperti order fiktif ojek online.",
+  },
 ];

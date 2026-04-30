@@ -4,6 +4,7 @@ import { useLayeredGame } from "./useLayeredGame";
 import styles from "./layeredGame.module.css";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 import { educationCatalog } from "@/layers/infrastructure/catalogs/educationCatalog";
 
 export default function LayeredGameView() {
@@ -37,7 +38,7 @@ export default function LayeredGameView() {
     <div className={styles.gameLayout}>
       {/* Top Part: Title & Money */}
       <header className={styles.header}>
-        AmpuLife | Rp{state.money.toLocaleString("id-ID")} | {state.age} Tahun
+        AmpuLife | Rp{state.money.toLocaleString("id-ID")} | {state.age} Th
       </header>
 
       <main className={styles.mainContent}>
@@ -46,7 +47,7 @@ export default function LayeredGameView() {
           <div className={styles.logWindow}>
             {groupedHistory.map((group) => (
               <div key={group.age} className={styles.ageGroup}>
-                <div className={styles.ageHeader}>{group.age} Tahun</div>
+                <div className={styles.ageHeader}>Umur: {group.age} tahun ({Number(state.profile.birthDate.year) + group.age})</div>
                 {group.logs.map((log) => (
                   <div key={log.id} className={styles.logItemText}>
                     {log.message}
@@ -106,14 +107,26 @@ export default function LayeredGameView() {
               <button style={{ width: "33.33%" }} onClick={() => setActiveTab("health")}>Medis</button>
               <button style={{ width: "33.33%" }} onClick={() => setActiveTab("finance")}>Keuangan</button>
             </div>
-            <button 
-              className={styles.secondaryButton} 
+            <button
+              className={styles.secondaryButton}
               style={{ width: "100%", marginTop: "10px", color: "#e03131", borderColor: "#ffa8a8" }}
               onClick={() => {
-                if (confirm("Akhiri hidup ini dan mulai dari awal? Semua progres akan hilang.")) {
-                  actions.reset();
-                  window.location.reload(); // Reload to ensure clean state
-                }
+                Swal.fire({
+                  title: 'Akhiri Hidup?',
+                  text: "Semua progres akan hilang dan kamu akan mulai dari awal.",
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#dc3741',
+                  cancelButtonColor: '#7066e0',
+                  confirmButtonText: 'Ya',
+                  cancelButtonText: 'Tidak',
+                  focusCancel: true
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    actions.reset();
+                    window.location.reload();
+                  }
+                });
               }}
             >
               🔄 Ulangi Hidup (Reset)
@@ -151,8 +164,8 @@ export default function LayeredGameView() {
               <p className={styles.modalSummary}>{state.currentEvent.summary}</p>
               <div className={styles.modalOptionsList}>
                 {state.currentEvent.options.map((opt, idx) => (
-                  <button 
-                    key={opt.id} 
+                  <button
+                    key={opt.id}
                     className={`${styles.modalOptionButton} ${idx === 0 ? styles.modalOptionButtonPrimary : ""}`}
                     onClick={() => actions.handleEventChoice(opt.id)}
                   >
@@ -200,7 +213,7 @@ function AssetsTab({ state, options, actions, onBack }) {
   return (
     <div className={styles.tabPane}>
       <h3>Aset & Toko</h3>
-      
+
       {/* Pending Asset Decision Modal */}
       {pendingAsset && (
         <div className={styles.modalBackdrop}>
@@ -213,8 +226,8 @@ function AssetsTab({ state, options, actions, onBack }) {
               Bagaimana kamu ingin mendapatkan barang ini?
             </p>
             <div className={styles.modalOptionsList}>
-              <button 
-                className={styles.modalOptionButton} 
+              <button
+                className={styles.modalOptionButton}
                 onClick={() => {
                   actions.buyAsset(pendingAsset.id);
                   setPendingAsset(null);
@@ -224,8 +237,8 @@ function AssetsTab({ state, options, actions, onBack }) {
                 💰 Beli Pakai Uang Sendiri
                 <div style={{ fontSize: "10px", opacity: 0.8 }}>Uang Jajan: Rp{state.money.toLocaleString("id-ID")}</div>
               </button>
-              <button 
-                className={styles.modalOptionButton} 
+              <button
+                className={styles.modalOptionButton}
                 onClick={() => {
                   actions.askParents(pendingAsset.id);
                   setPendingAsset(null);
@@ -235,13 +248,13 @@ function AssetsTab({ state, options, actions, onBack }) {
               >
                 🙏 Minta Dibelikan Orang Tua
                 <div style={{ fontSize: "10px", opacity: 0.8 }}>
-                  {state.lastAssetRequestAge === state.age 
-                    ? "✅ Sudah minta tahun ini" 
+                  {state.lastAssetRequestAge === state.age
+                    ? "✅ Sudah minta tahun ini"
                     : "Peluang keberhasilan tergantung Smarts & Hubungan."}
                 </div>
               </button>
-              <button 
-                className={styles.secondaryButton} 
+              <button
+                className={styles.secondaryButton}
                 onClick={() => setPendingAsset(null)}
                 style={{ marginTop: "10px", width: "100%" }}
               >
@@ -279,9 +292,9 @@ function AssetsTab({ state, options, actions, onBack }) {
           {options.assets.map((asset) => {
             const isAffordable = availableFunds >= asset.price;
             return (
-              <button 
-                key={asset.id} 
-                onClick={() => handleAssetClick(asset)} 
+              <button
+                key={asset.id}
+                onClick={() => handleAssetClick(asset)}
                 style={{ textAlign: "left", padding: "12px", marginBottom: "8px", opacity: isAffordable || !isIndependent ? 1 : 0.6 }}
               >
                 <div style={{ fontWeight: "bold", fontSize: "14px" }}>{asset.name}</div>
@@ -331,44 +344,62 @@ function RelationsTab({ state, actions, onBack }) {
           const currentRel = rel.relationship ?? rel.bond ?? 0;
           const currentGender = rel.gender || (rel.id === "mother" ? "female" : "male");
           const isOppositeGender = currentGender !== state.profile.gender;
-          
+          const isDead = rel.isDead;
+
           return (
-            <div key={rel.id} className={styles.itemCard} style={{ padding: "12px", borderLeft: rel.status === "partner" || rel.status === "spouse" ? "4px solid #f06595" : "4px solid #ced4da", marginBottom: "10px" }}>
+            <div 
+              key={rel.id} 
+              className={styles.itemCard} 
+              style={{ 
+                padding: "12px", 
+                borderLeft: isDead ? "4px solid #adb5bd" : (rel.status === "partner" || rel.status === "spouse" ? "4px solid #f06595" : "4px solid #ced4da"), 
+                marginBottom: "10px",
+                opacity: isDead ? 0.6 : 1,
+                background: isDead ? "#f8f9fa" : "#fff"
+              }}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <strong>{rel.name}</strong> {currentGender === "male" ? "♂️" : "♀️"}
-                  <div style={{ fontSize: "11px", color: "#868e96" }}>{rel.label} • {statusLabels[rel.status] || (rel.id === "father" || rel.id === "mother" ? "Keluarga" : "Teman")}</div>
+                  <strong>{rel.name}</strong> {isDead ? "🕯️" : (currentGender === "male" ? "♂️" : "♀️")}
+                  <div style={{ fontSize: "11px", color: "#868e96" }}>
+                    {isDead ? "Almarhum/ah" : rel.label} • {statusLabels[rel.status] || (rel.id === "father" || rel.id === "mother" ? "Keluarga" : "Teman")}
+                    {rel.age && ` • ${rel.age} Th`}
+                  </div>
                 </div>
-                <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057" }}>{currentRel}%</div>
+                {!isDead && <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057" }}>{currentRel}%</div>}
               </div>
-              
-              <progress 
-                value={currentRel} 
-                max="100" 
-                style={{ width: "100%", height: "8px", marginTop: "8px" }}
-              />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "12px" }}>
-                {relActions.map(action => {
-                  if (action.familyOnly && rel.status !== "family") return null;
-                  if (action.oppositeOnly && !isOppositeGender) return null;
-                  if (action.minAge && state.age < action.minAge) return null;
-                  if (action.partnerOnly && rel.status !== "partner") return null;
-                  if (action.hideIfPartner && (rel.status === "partner" || rel.status === "spouse")) return null;
 
-                  return (
-                    <button 
-                      key={action.id}
-                      disabled={isInteracted && action.id !== "ask_out" && action.id !== "propose"}
-                      onClick={() => actions.interact(rel.id, action.id)}
-                      style={{ textAlign: "left", padding: "8px", height: "auto", display: "flex", flexDirection: "column" }}
-                    >
-                      <span style={{ fontWeight: "bold", fontSize: "12px" }}>{action.name}</span>
-                      <span style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>{action.desc}</span>
-                      <span style={{ fontSize: "9px", color: "#228be6", fontWeight: "bold" }}>{action.effect}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              {!isDead && (
+                <>
+                  <progress
+                    value={currentRel}
+                    max="100"
+                    style={{ width: "100%", height: "8px", marginTop: "8px" }}
+                  />
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "12px" }}>
+                    {relActions.map(action => {
+                      if (action.familyOnly && rel.status !== "family") return null;
+                      if (action.oppositeOnly && !isOppositeGender) return null;
+                      if (action.minAge && state.age < action.minAge) return null;
+                      if (action.partnerOnly && rel.status !== "partner") return null;
+                      if (action.hideIfPartner && (rel.status === "partner" || rel.status === "spouse")) return null;
+
+                      return (
+                        <button
+                          key={action.id}
+                          disabled={isInteracted && action.id !== "ask_out" && action.id !== "propose"}
+                          onClick={() => actions.interact(rel.id, action.id)}
+                          style={{ textAlign: "left", padding: "8px", height: "auto", display: "flex", flexDirection: "column" }}
+                        >
+                          <span style={{ fontWeight: "bold", fontSize: "12px" }}>{action.name}</span>
+                          <span style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>{action.desc}</span>
+                          <span style={{ fontSize: "9px", color: "#228be6", fontWeight: "bold" }}>{action.effect}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
           );
         })}
@@ -386,15 +417,15 @@ function ActivitiesTab({ state, options, actions, onBack }) {
         {options.activities.map((act) => {
           const isDone = state.lastActivityAges?.[act.id] === state.age;
           return (
-            <button 
-              key={act.id} 
-              onClick={() => actions.takeActivity(act.id)} 
+            <button
+              key={act.id}
+              onClick={() => actions.takeActivity(act.id)}
               disabled={isDone || (act.cost && state.money < act.cost)}
-              style={{ 
-                textAlign: "left", 
-                padding: "12px", 
-                marginBottom: "8px", 
-                display: "block", 
+              style={{
+                textAlign: "left",
+                padding: "12px",
+                marginBottom: "8px",
+                display: "block",
                 width: "100%",
                 background: isDone ? "#f1f3f5" : "#fff",
                 color: isDone ? "#adb5bd" : "inherit"
@@ -416,14 +447,14 @@ function ActivitiesTab({ state, options, actions, onBack }) {
             </button>
           );
         })}
-        
+
         {options.crimes.length > 0 && (
           <>
             <div className={styles.divider} style={{ margin: "15px 0" }} />
             <h4 style={{ marginBottom: "10px", color: "#e03131" }}>Aktivitas Berisiko</h4>
             {options.crimes.map((crime) => (
-              <button 
-                key={crime.id} 
+              <button
+                key={crime.id}
                 onClick={() => actions.doCrime(crime.id)}
                 style={{ textAlign: "left", padding: "12px", marginBottom: "8px", borderLeft: "4px solid #e03131" }}
               >
@@ -454,9 +485,9 @@ function HealthTab({ state, options, actions, onBack }) {
               +{tr.effect.health} Health {tr.canCure ? "• Bisa Sembuh" : "• Meredakan Gejala"}
             </div>
             <span style={{ fontSize: "10px", display: "block", color: "#666" }}>
-              {tr.isFreeWithBPJS ? "✅ Gratis BPJS" : 
-               tr.isCoveredByParents ? "👨‍👩‍👦 Ditanggung Ortu" : 
-               "💰 Bayar Mandiri"}
+              {tr.isFreeWithBPJS ? "✅ Gratis BPJS" :
+                tr.isCoveredByParents ? "👨‍👩‍👦 Ditanggung Ortu" :
+                  "💰 Bayar Mandiri"}
             </span>
           </button>
         ))}
@@ -469,11 +500,11 @@ function HealthTab({ state, options, actions, onBack }) {
 function JobsTab({ state, options, actions, onBack }) {
   const currentJob = options.jobs.find(j => j.id === state.career.jobId);
   const currentEdu = educationCatalog.find(e => e.id === state.education.level);
-  
+
   return (
     <div className={styles.tabPane}>
       <h3>Karir & Pendidikan</h3>
-      
+
       {/* Education Section */}
       <div className={styles.itemCard} style={{ borderLeft: "4px solid #4dabf7", marginBottom: "15px" }}>
         <h4>Pendidikan Saat Ini</h4>
@@ -482,7 +513,7 @@ function JobsTab({ state, options, actions, onBack }) {
         ) : (
           <p>Tidak sedang menempuh pendidikan.</p>
         )}
-        
+
         {state.education.completed.length > 0 && (
           <p style={{ fontSize: "12px", color: "#666" }}>
             Gelar/Lulus: {state.education.completed.map(id => educationCatalog.find(e => e.id === id)?.name).join(", ")}
@@ -510,7 +541,7 @@ function JobsTab({ state, options, actions, onBack }) {
       )}
 
       <div className={styles.divider} />
-      
+
       <h4>Daftar Universitas / Kursus</h4>
       <div className={styles.optionsList}>
         {options.education.filter(e => e.minAge >= 18 || e.id === "ged").map((edu) => (
@@ -526,7 +557,7 @@ function JobsTab({ state, options, actions, onBack }) {
 
 function FinanceTab({ state, actions, onBack }) {
   const lifestyle = state.financial?.lifestyle || "normal";
-  
+
   return (
     <div className={styles.tabPane}>
       <h3>Keuangan & Gaya Hidup</h3>
@@ -568,24 +599,24 @@ function FinanceTab({ state, actions, onBack }) {
         </div>
       )}
       <div className={styles.optionsList}>
-        <button 
-          onClick={() => actions.changeLifestyle("hemat")} 
+        <button
+          onClick={() => actions.changeLifestyle("hemat")}
           style={{ background: lifestyle === "hemat" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "hemat" ? "bold" : "normal", textAlign: "left", padding: "12px" }}
         >
           <div>{lifestyle === "hemat" ? "✓ " : ""}Gaya Hidup: <strong>HEMAT</strong></div>
           <div style={{ fontSize: "11px", color: "#2b8a3e", marginTop: "4px" }}>📉 Biaya Hidup -20% | 📉 Kebahagiaan -4/thn</div>
         </button>
 
-        <button 
-          onClick={() => actions.changeLifestyle("normal")} 
+        <button
+          onClick={() => actions.changeLifestyle("normal")}
           style={{ background: lifestyle === "normal" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "normal" ? "bold" : "normal", textAlign: "left", padding: "12px" }}
         >
           <div>{lifestyle === "normal" ? "✓ " : ""}Gaya Hidup: <strong>NORMAL</strong></div>
           <div style={{ fontSize: "11px", color: "#495057", marginTop: "4px" }}>⚖️ Biaya Standar | ⚖️ Kebahagiaan Stabil</div>
         </button>
 
-        <button 
-          onClick={() => actions.changeLifestyle("mewah")} 
+        <button
+          onClick={() => actions.changeLifestyle("mewah")}
           style={{ background: lifestyle === "mewah" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "mewah" ? "bold" : "normal", textAlign: "left", padding: "12px" }}
         >
           <div>{lifestyle === "mewah" ? "✓ " : ""}Gaya Hidup: <strong>MEWAH</strong></div>

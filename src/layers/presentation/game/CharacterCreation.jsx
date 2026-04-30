@@ -122,8 +122,7 @@ export default function CharacterCreation({ onSetup }) {
     }),
     valueContainer: (provided) => ({
       ...provided,
-      padding: '0 4px',
-      paddingRight: '20px',
+      padding: '0 24px 0 8px',
       height: '26px',
       cursor: 'pointer',
       overflow: 'hidden',
@@ -136,7 +135,7 @@ export default function CharacterCreation({ onSetup }) {
       textAlign: 'left',
       margin: 0,
       padding: 0,
-      maxWidth: 'calc(100% - 2px)',
+      maxWidth: '100%',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
@@ -149,9 +148,9 @@ export default function CharacterCreation({ onSetup }) {
       textAlign: 'left',
       margin: 0,
       padding: 0,
-      whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
     }),
     input: (provided) => ({
       ...provided,
@@ -159,6 +158,16 @@ export default function CharacterCreation({ onSetup }) {
       padding: '0px',
       color: '#444',
       textAlign: 'left',
+    }),
+    indicatorsContainer: (provided) => ({
+      ...provided,
+      position: 'absolute',
+      right: '2px',
+      top: 0,
+      bottom: 0,
+      display: 'flex',
+      alignItems: 'center',
+      pointerEvents: 'none', // Allow clicks through to the control
     }),
     indicatorSeparator: () => ({ display: 'none' }),
     dropdownIndicator: (provided) => ({
@@ -207,7 +216,7 @@ export default function CharacterCreation({ onSetup }) {
 
   const CustomDropdownIndicator = (props) => {
     return (
-      <div {...props.innerProps} style={{ padding: '0 4px', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+      <div {...props.innerProps} style={{ padding: '0 4px', display: 'flex', alignItems: 'center', cursor: 'default' }}>
         <span style={{
           borderColor: '#888 transparent transparent transparent',
           borderStyle: 'solid',
@@ -253,7 +262,7 @@ export default function CharacterCreation({ onSetup }) {
           <div className={styles.underline}></div>
         </div>
 
-        <div style={{ marginTop: '25px', position: 'relative', zIndex: 3 }}>
+        <div style={{ marginTop: '25px', height: '45px', position: 'relative', zIndex: 3 }}>
           <Select
             options={genderOptions}
             placeholder="Pilih Jenis Kelamin"
@@ -264,7 +273,7 @@ export default function CharacterCreation({ onSetup }) {
           />
         </div>
 
-        <div style={{ marginTop: '25px', position: 'relative', zIndex: 2 }}>
+        <div style={{ marginTop: '25px', height: '45px', position: 'relative', zIndex: 2 }}>
           <Select
             options={cityOptions}
             placeholder="Pilih Kota"
@@ -275,9 +284,9 @@ export default function CharacterCreation({ onSetup }) {
           />
         </div>
 
-        <div className={styles.teks} style={{ marginTop: '25px', marginBottom: '5px', textAlign: 'center' }}>Tanggal Lahir:</div>
+        <div className={styles.teks} style={{ textAlign: 'center' }}>Tanggal Lahir:</div>
 
-        <div style={{ display: 'flex', gap: '5px', marginBottom: '25px', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', gap: '5px', marginTop: '25px', height: '45px', position: 'relative', zIndex: 1 }}>
           <div style={{ flex: '0 0 22%' }}>
             <Select
               options={dynamicDayOptions}
@@ -311,7 +320,7 @@ export default function CharacterCreation({ onSetup }) {
           </div>
         </div>
 
-        <div className={styles.inputGroup} style={{ marginTop: '40px' }}>
+        <div className={styles.inputGroup} style={{ marginTop: '40px', marginBottom: '20px' }}>
           <button id="lahirkan" type="submit" className={styles.primaryButton} style={{ marginTop: 0, marginBottom: 0 }}>Lahirkan!</button>
         </div>
       </form>

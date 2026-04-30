@@ -32,23 +32,47 @@ export function pushLog(state, message) {
 }
 
 const MALE_FIRST_NAMES = [
-  "Aadiktri", "Aavya", "Amara", "Anik", "Anil", "Arpit", "Ayaan", "Banil", "Buyisiwe",
-  "Cleveland", "Dinesh", "Donya", "Dhule", "Dube", "Dungi", "Dunyi", "Gordon", "Kabir",
-  "Kabul", "Kadir", "Leuwinanggung", "Lucuss", "Maxim", "Megah", "Om", "Omnia", "Opiyo",
-  "Panutan", "Pramana", "Rajiv", "Rohit", "Roman", "Sama", "Samar", "Sebastian", "Tej", "Zhiqiang"
+  "Ade", "Adib", "Adit", "Aditya", "Agung", "Agus", "Ahmad", "Akbar", "Alamsyah",
+  "Alif", "Ammar", "Ardi", "Arya", "Bayu", "Bimo", "Budi", "Danis", "Dedi",
+  "Deni", "Didi", "Diaz", "Edi", "Eko", "Fadil", "Fajar", "Faozan", "Farhan",
+  "Fauzan", "Fiki", "Gilang", "Gunawan", "Hendra", "Heru", "Hidayat", "Ilham",
+  "Indra", "Irfan", "Iwan", "Joko", "Kevin", "Kurniawan", "Lukman", "Lutfi",
+  "Maulana", "Mei", "Miko", "Muhammad", "Nizar", "Nova", "Novan", "Nugroho",
+  "Oktavian", "Praditya", "Rafi", "Rian", "Rizky", "Rudi", "Rudy", "Salman",
+  "Santoso", "Satria", "Setiawan", "Setya", "Slamet", "Suherman", "Surya",
+  "Syafik", "Taufik", "Tito", "Tono", "Tubagus", "Vandi", "Veri", "Wahyu",
+  "Wisnu", "Yusuf", "Zikri"
 ];
 
 const FEMALE_FIRST_NAMES = [
-  "Aasmi", "Celine", "Eka", "Ekenedilichukwu", "Maria", "Navya", "Omnia", "Selena",
-  "Serena", "Suyin", "Tasty", "Zhiqiuno"
+  "Adinda", "Adiratna", "Aisyah", "Alya", "Amalia", "Amisha", "Angkasa", "Ani",
+  "Anita", "Annisa", "Astuti", "Aulia", "Ayu", "Bella", "Budiwati", "Bulan",
+  "Cahya", "Cindy", "Citra", "Defi", "Dewi", "Diah", "Dian", "Dina", "Dinda",
+  "Dini", "Eka", "Elok", "Endah", "Eva", "Fani", "Farah", "Fitri", "Gemi",
+  "Gita", "Guritno", "Hana", "Harum", "Icha", "Imelda", "Indah", "Intan",
+  "Inten", "Irene", "Jayachandra", "Kartini", "Kemala", "Kemuning", "Kezia",
+  "Kristiyana", "Lani", "Legi", "Lestari", "Lia", "Lusi", "Maharani", "Maria",
+  "Marshanda", "Mawar", "Maya", "Mega", "Melati", "Mentari", "Merpati",
+  "Misrina", "Murni", "Mustika", "Nabila", "Nadira", "Nadya", "Nanda", "Ndari",
+  "Ningrat", "Ningrum", "Ningsih", "Nisa", "Nisi", "Nisrina", "Nova", "Novalia",
+  "Novi", "Novia", "Novita", "Nur", "Nurul", "Permata", "Pertiwi", "Puji",
+  "Puspita", "Putri", "Rani", "Rara", "Ratih", "Ratu", "Rika", "Rina", "Rini",
+  "Sarah", "Sari", "Sarwendah", "Sella", "Setiawati", "Shinta", "Siska",
+  "Siti", "Sri", "Susil", "Syifa", "Taman", "Tasya", "Tika", "Utama", "Vania",
+  "Vina", "Wangi", "Wati", "Wening", "Wulan", "Yuni"
 ];
 
 const LAST_NAMES = [
-  "Achaval", "Apolles", "Bhate", "Bhatta", "Bhave", "Chakarbarti", "Charlier", "Dikshit",
-  "Ethulo", "Gayakvade", "Gerung", "Gerungan", "Goossens", "Gordon", "Gulati", "Ho", "Hu",
-  "Ijendu", "Jamus", "Kamal", "Ketanggungan", "Khan", "Khatri", "Kohli", "Krueger", "Kumar",
-  "Modi", "Misra", "Nasution", "Nunes", "Pagar", "Perry", "Pertanggungan", "Sakuda", "Salib",
-  "Sellers", "Spinx", "Shah", "Stepanovna", "Tambunan", "Thakore", "Thakre", "Verheyen", "Wang", "Wong"
+  "Aji", "Alfian", "Anwar", "Ardian", "Ardiansyah", "Ardianto", "Arifudin",
+  "Ariyanto", "Azhar", "Ayadin", "Batubara", "Cahyanto", "Daulay", "Dewantoro",
+  "Dikara", "Dwi", "Fadhil", "Faizin", "Fauzi", "Firmansyah",
+  "Ginting", "Gunawan", "Hakim", "Hanif", "Harahap", "Hendrawan", "Hidayat",
+  "Kencana", "Kusuma", "Lubis", "Mahardika", "Mahesa", "Maheswara", "Maulana",
+  "Nasution", "Nugraha", "Nugroho", "Pane", "Permana", "Pohan", "Pradipta",
+  "Prasetya", "Prasetyo", "Pratama", "Putra", "Ramadhan", "Ridho", "Rianto",
+  "Rizky", "Rosyid", "Santosa", "Santoso", "Santos", "Saputra", "Septian",
+  "Setiawan", "Simanjuntak", "Sinaga", "Siregar", "Sitorus", "Suripto",
+  "Syahputra", "Utama", "Wahyu", "Warsito", "Wijaya", "Zaky"
 ];
 
 export function generateRandomName(gender) {
