@@ -9,8 +9,9 @@ import { educationCatalog } from "@/layers/infrastructure/catalogs/educationCata
 import { jobsCatalog } from "@/layers/infrastructure/catalogs/jobsCatalog";
 
 export default function LayeredGameView() {
-  const { state, options, actions, ready } = useLayeredGame();
+  const { state, options, actions, promotionInfo, ready } = useLayeredGame();
   const [activeTab, setActiveTab] = useState("journal");
+  const [selectedJobDetail, setSelectedJobDetail] = useState(null);
   const logEndRef = useRef(null);
   const router = useRouter();
 
@@ -109,7 +110,20 @@ export default function LayeredGameView() {
         {activeTab === "relations" && <RelationsTab state={state} actions={actions} onBack={() => setActiveTab("journal")} />}
         {activeTab === "activities" && <ActivitiesTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
         {activeTab === "education" && <EducationTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
-        {activeTab === "jobs" && <CareerTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
+        {activeTab === "jobs" && (
+          selectedJobDetail ? (
+            <JobDetailView job={selectedJobDetail} onBack={() => setSelectedJobDetail(null)} />
+          ) : (
+            <CareerTab 
+              state={state} 
+              options={options} 
+              actions={actions} 
+              promotionInfo={promotionInfo} 
+              onViewDetail={(job) => setSelectedJobDetail(job)}
+              onBack={() => setActiveTab("journal")} 
+            />
+          )
+        )}
         {activeTab === "health" && <HealthTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
         {activeTab === "finance" && <FinanceTab state={state} actions={actions} onBack={() => setActiveTab("journal")} />}
 
@@ -834,7 +848,97 @@ function EducationTab({ state, options, actions, onBack }) {
   );
 }
 
-function CareerTab({ state, options, actions, onBack }) {
+function JobDetailView({ job, onBack }) {
+  // Helper to trace the roadmap
+  const roadmap = [];
+  let curr = job;
+  // Trace backwards to find the start of the track
+  const allJobs = jobsCatalog;
+  let startNode = job;
+  let foundPrev = true;
+  while(foundPrev) {
+    const prev = allJobs.find(j => j.nextJobId === startNode.id);
+    if (prev) startNode = prev;
+    else foundPrev = false;
+  }
+
+  // Trace forwards to build the roadmap
+  let trace = startNode;
+  while(trace) {
+    roadmap.push(trace);
+    if (trace.nextJobId) {
+      trace = allJobs.find(j => j.id === trace.nextJobId);
+    } else {
+      trace = null;
+    }
+  }
+
+  return (
+    <div className={styles.tabPane}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "15px" }}>
+        <button onClick={onBack} className={styles.backIconButton}><i className="fa fa-arrow-left"></i></button>
+        <h3 style={{ margin: 0 }}>Detail Pekerjaan</h3>
+      </div>
+
+      <div className={styles.itemCard} style={{ borderLeft: "4px solid #228be6" }}>
+        <h2 style={{ margin: "0 0 5px 0", color: "#1864ab" }}>{job.name}</h2>
+        <div style={{ fontSize: "14px", color: "#2f9e44", fontWeight: "bold" }}>Gaji Dasar: Rp{job.salaryPerYear.toLocaleString("id-ID")}/thn</div>
+        <p style={{ fontSize: "12px", color: "#666", marginTop: "10px", lineHeight: "1.5" }}>
+          Pekerjaan ini berada di jalur <strong>{job.track.toUpperCase()}</strong>. 
+          {job.maxWealthStatus && ` Batas kekayaan untuk melamar: ${job.maxWealthStatus.toUpperCase()}.`}
+        </p>
+      </div>
+
+      <div style={{ marginTop: "20px" }}>
+        <h4 style={{ marginBottom: "10px" }}>Syarat Kualifikasi:</h4>
+        <div className={styles.statsCard} style={{ background: "#f8f9fa", padding: "12px" }}>
+          <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "13px", color: "#495057" }}>
+            <li>Umur Minimal: {job.minAge} Tahun</li>
+            <li>Kecerdasan Minimal: {job.minSmarts}</li>
+            {job.requiredMajor && <li>Wajib Lulusan: {job.requiredMajor.toUpperCase()}</li>}
+            {job.cleanRecordRequired && <li>Wajib Catatan Kriminal Bersih</li>}
+          </ul>
+        </div>
+      </div>
+
+      <div style={{ marginTop: "20px", marginBottom: "20px" }}>
+        <h4 style={{ marginBottom: "10px" }}>Roadmap Karir:</h4>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {roadmap.map((r, idx) => (
+            <div key={r.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div style={{ 
+                width: "24px", height: "24px", borderRadius: "50%", 
+                background: r.id === job.id ? "#228be6" : "#e9ecef",
+                color: r.id === job.id ? "#fff" : "#adb5bd",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "12px", fontWeight: "bold", border: "2px solid",
+                borderColor: r.id === job.id ? "#1864ab" : "#dee2e6"
+              }}>
+                {idx + 1}
+              </div>
+              <div style={{ 
+                flex: 1, padding: "10px", borderRadius: "8px",
+                background: r.id === job.id ? "#e7f5ff" : "#fff",
+                border: "1px solid",
+                borderColor: r.id === job.id ? "#a5d8ff" : "#e9ecef"
+              }}>
+                <div style={{ fontSize: "13px", fontWeight: "bold", color: r.id === job.id ? "#1864ab" : "#495057" }}>
+                  {r.name} {r.id === job.id ? "(Sekarang)" : ""}
+                </div>
+                <div style={{ fontSize: "11px", color: "#868e96" }}>Gaji: Rp{r.salaryPerYear.toLocaleString("id-ID")}/thn</div>
+              </div>
+              {idx < roadmap.length - 1 && <div style={{ height: "10px" }} />}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <button onClick={onBack} className={styles.primaryButton}>Kembali ke Daftar</button>
+    </div>
+  );
+}
+
+function CareerTab({ state, options, actions, promotionInfo, onViewDetail, onBack }) {
   const currentJob = jobsCatalog.find(j => j.id === state.career.jobId);
 
   return (
@@ -852,6 +956,26 @@ function CareerTab({ state, options, actions, onBack }) {
               <button onClick={() => actions.promote()} className={styles.primaryButton} style={{ flex: 1 }}>Cek Promosi</button>
               <button onClick={() => actions.resignJob()} className={styles.secondaryButton} style={{ flex: 1, backgroundColor: "#fff5f5", color: "#fa5252", borderColor: "#ffa8a8" }}>Resign</button>
             </div>
+
+            {promotionInfo && !promotionInfo.canPromote && (
+              <div style={{ marginTop: "12px", padding: "8px", background: "#fff9db", borderRadius: "4px", border: "1px solid #ffe066" }}>
+                <div style={{ fontSize: "11px", fontWeight: "bold", color: "#856404", marginBottom: "4px" }}>
+                  🎯 Syarat Naik Jabatan ke: {promotionInfo.nextJobName}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                  {promotionInfo.requirements.map(req => (
+                    <div key={req.id} style={{ fontSize: "10px", color: req.met ? "#2f9e44" : "#e03131", display: "flex", alignItems: "center", gap: "4px" }}>
+                      {req.met ? "✅" : "❌"} {req.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {promotionInfo && promotionInfo.canPromote && (
+              <div style={{ marginTop: "12px", padding: "8px", background: "#e7f5ff", borderRadius: "4px", border: "1px solid #a5d8ff", fontSize: "11px", color: "#1864ab", fontWeight: "bold" }}>
+                ✨ Kamu sudah layak untuk promosi! Klik tombol di atas.
+              </div>
+            )}
           </div>
         ) : (
           <p style={{ fontSize: "14px", color: "#868e96" }}>Belum memiliki pekerjaan.</p>
@@ -868,25 +992,42 @@ function CareerTab({ state, options, actions, onBack }) {
             if (isCurrent) return null; // Don't show current job in vacancies
 
             return (
-              <button
+              <div
                 key={job.id}
-                onClick={() => actions.applyJob(job.id)}
-                disabled={!!state.career.jobId}
-                style={{ textAlign: "left", padding: "12px", opacity: state.career.jobId ? 0.6 : 1 }}
+                className={styles.jobItemCard}
+                style={{ 
+                  textAlign: "left", padding: "12px", marginBottom: "10px",
+                  background: "#fff", borderRadius: "8px", border: "1px solid #e9ecef",
+                  opacity: state.career.jobId ? 0.6 : 1 
+                }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ fontWeight: "bold" }}>{job.name}</div>
-                  <span style={{ fontSize: "10px", background: job.type === "part-time" ? "#e7f5ff" : "#f8f9fa", padding: "2px 6px", borderRadius: "4px" }}>
-                    {job.type === "part-time" ? "Part-time" : "Full-time"}
-                  </span>
-                </div>
-                <div style={{ fontSize: "12px", color: "#2f9e44", fontWeight: "bold", marginTop: "2px" }}>
-                  Gaji: Rp{job.salaryPerYear.toLocaleString("id-ID")}/thn
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div style={{ flex: 1, cursor: state.career.jobId ? "not-allowed" : "pointer" }} onClick={() => !state.career.jobId && actions.applyJob(job.id)}>
+                    <div style={{ fontWeight: "bold" }}>{job.name}</div>
+                    <div style={{ fontSize: "12px", color: "#2f9e44", fontWeight: "bold", marginTop: "2px" }}>
+                      Gaji: Rp{job.salaryPerYear.toLocaleString("id-ID")}/thn
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "5px" }}>
+                    <span style={{ fontSize: "10px", background: job.type === "part-time" ? "#e7f5ff" : "#f8f9fa", padding: "2px 6px", borderRadius: "4px" }}>
+                      {job.type === "part-time" ? "Part-time" : "Full-time"}
+                    </span>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onViewDetail(job); }}
+                      style={{ 
+                        padding: "4px 8px", fontSize: "10px", background: "#f1f3f5", 
+                        border: "1px solid #dee2e6", borderRadius: "4px", color: "#495057",
+                        width: "auto", minWidth: "30px", cursor: "pointer"
+                      }}
+                    >
+                      <i className="fa fa-info-circle"></i> Info
+                    </button>
+                  </div>
                 </div>
                 {state.career.jobId && (
                   <div style={{ fontSize: "10px", color: "#fa5252", marginTop: "4px" }}>Resign dulu untuk melamar</div>
                 )}
-              </button>
+              </div>
             );
           })
         ) : (

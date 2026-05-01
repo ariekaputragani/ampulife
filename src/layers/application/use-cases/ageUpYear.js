@@ -135,7 +135,8 @@ export function ageUpYear(state, rng = Math.random) {
     }
   } else {
     // Independent Player Economy
-    let baseRent = next.profile.livingWithParents ? 0 : 7_000_000;
+    const hasHouse = next.assets?.some(a => a.id === "small_house" || a.id === "luxury_house");
+    let baseRent = (next.profile.livingWithParents || hasHouse) ? 0 : 7_000_000;
     let baseFoodMisc = 8_000_000;
     let playerExpenses = baseRent + baseFoodMisc + transportCost;
 
@@ -160,6 +161,8 @@ export function ageUpYear(state, rng = Math.random) {
     pushLog(next, report);
   }
 
+  let yearlyFee = 0;
+
   // Education Cost Logic
   if (next.education.level !== "none") {
     // 2. Education Cost Logic (Scaled by Wealth)
@@ -171,7 +174,7 @@ export function ageUpYear(state, rng = Math.random) {
     };
 
     const costConfig = educationCosts[next.education.level];
-    let yearlyFee = costConfig ? costConfig[next.family.wealthStatus] : 0;
+    yearlyFee = costConfig ? costConfig[next.family.wealthStatus] : 0;
 
     // --- SCHOLARSHIP MANAGEMENT ---
     if (!next.family.activeScholarships) next.family.activeScholarships = [];
@@ -719,7 +722,7 @@ export function ageUpYear(state, rng = Math.random) {
   // --- 9. NEW RELATIONSHIPS (School, Campus, & Workplace) ---
   const isInSchool = next.education.level && next.education.level !== "none";
   const hasJob = !!next.career.jobId;
-  const friendChance = isInSchool ? 0.25 : (hasJob ? 0.15 : 0.05);
+  const friendChance = isInSchool ? 0.30 : (hasJob ? 0.25 : 0.10);
 
   if (next.age >= 6 && rng() < friendChance) {
     // Smart Gender Balancing: If player has too many of one gender, increase chance for the other

@@ -41,6 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 
-graphify-out/cache/
-graphify-out/manifest.json
-graphify-out/cost.json
+graphify-out/

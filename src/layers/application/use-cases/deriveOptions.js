@@ -39,8 +39,14 @@ export function getAvailableEducation(state) {
   return educationCatalog.filter((item) => {
     const isAgeValid = state.age >= item.minAge && (!item.maxAge || state.age <= item.maxAge);
     const isNotCompleted = !state.education.completed.includes(item.id);
-    const meetsRequirement = item.requirement ? item.requirement(state) : true;
+    
+    // Check for any university degree already completed
+    const hasAnyUniDegree = state.education.completed.some(id => id.startsWith("university_"));
+    const isUniOption = item.id.startsWith("university_");
+    
+    if (isUniOption && hasAnyUniDegree) return false;
 
+    const meetsRequirement = item.requirement ? item.requirement(state) : true;
     return isAgeValid && isNotCompleted && meetsRequirement;
   });
 }

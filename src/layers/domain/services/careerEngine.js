@@ -49,24 +49,59 @@ export function computeYearlySalary(state, job) {
   return Math.floor(job.salaryPerYear * (1 + educationBoost + loyaltyBoost));
 }
 
-export function getPromotionTarget(state) {
+export function getPromotionRequirements(state) {
   const current = getJobById(state.career.jobId);
   if (!current || !current.nextJobId) {
     return null;
   }
 
   const nextJob = getJobById(current.nextJobId);
-  if (!nextJob) {
-    return null;
+  if (!nextJob) return null;
+
+  const reqs = [];
+  
+  // 1. Years in Role
+  const minYears = current.promotionAfterYears ?? 3;
+  if (state.career.yearsInRole < minYears) {
+    reqs.push({ 
+      id: "years", 
+      label: `Masa Kerja: ${state.career.yearsInRole}/${minYears} tahun`,
+      met: false 
+    });
+  } else {
+    reqs.push({ id: "years", label: `Masa Kerja: ${minYears}/${minYears} tahun`, met: true });
   }
 
-  if (state.career.yearsInRole < (current.promotionAfterYears ?? 99)) {
-    return null;
+  // 2. Smarts
+  const effectiveSmarts = getEffectiveSmarts(state);
+  if (effectiveSmarts < nextJob.minSmarts) {
+    reqs.push({ 
+      id: "smarts", 
+      label: `Kecerdasan: ${effectiveSmarts}/${nextJob.minSmarts}`,
+      met: false 
+    });
+  } else {
+    reqs.push({ id: "smarts", label: `Kecerdasan: Cukup`, met: true });
   }
 
-  if (!canTakeJob(state, nextJob)) {
-    return null;
+  // 3. Age
+  if (state.age < nextJob.minAge) {
+    reqs.push({ 
+      id: "age", 
+      label: `Umur Minimal: ${nextJob.minAge} tahun`,
+      met: false 
+    });
   }
 
-  return nextJob;
+  return {
+    nextJobName: nextJob.name,
+    requirements: reqs,
+    canPromote: reqs.every(r => r.met)
+  };
+}
+
+export function getPromotionTarget(state) {
+  const status = getPromotionRequirements(state);
+  if (!status || !status.canPromote) return null;
+  return getJobById(getJobById(state.career.jobId).nextJobId);
 }

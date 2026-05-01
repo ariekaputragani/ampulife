@@ -31,6 +31,7 @@ import {
   getAvailableActivities,
 } from "@/layers/application/use-cases/deriveOptions";
 import { generateRandomName } from "@/layers/domain/entities/stateUtils";
+import { getPromotionRequirements } from "@/layers/domain/services/careerEngine";
 
 export function useLayeredGame() {
   const [state, setState] = useState(createInitialGameState);
@@ -63,6 +64,8 @@ export function useLayeredGame() {
     }),
     [state]
   );
+
+  const promotionInfo = useMemo(() => getPromotionRequirements(state), [state]);
 
   const actions = {
     setupCharacter: (formData) => setState((current) => setupCharacter(current, formData)),
