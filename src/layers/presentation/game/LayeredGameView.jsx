@@ -648,7 +648,7 @@ function ActivitiesTab({ state, options, actions, onBack }) {
             <button
               key={act.id}
               onClick={() => actions.takeActivity(act.id)}
-              disabled={isDone || (act.cost && state.money < act.cost)}
+              disabled={isDone || act.disabled || (act.cost && state.money < act.cost)}
               style={{
                 textAlign: "left",
                 padding: "12px",
@@ -668,8 +668,8 @@ function ActivitiesTab({ state, options, actions, onBack }) {
                 </div>
               )}
               {act.effects && (
-                <div style={{ fontSize: "11px", color: isDone ? "#adb5bd" : "#2f9e44", fontWeight: "bold", marginTop: "4px" }}>
-                  {isDone ? "Sudah dilakukan tahun ini" : `✨ ${act.effects}`}
+                <div style={{ fontSize: "11px", color: isDone ? "#adb5bd" : (act.disabled ? "#e03131" : "#2f9e44"), fontWeight: "bold", marginTop: "4px" }}>
+                  {isDone ? "Sudah dilakukan tahun ini" : (act.disabled ? `🚫 ${act.disabledReason}` : `✨ ${act.effects}`)}
                 </div>
               )}
             </button>
@@ -750,6 +750,23 @@ function EducationTab({ state, options, actions, onBack }) {
                 </span>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Status Beasiswa Aktif */}
+        {((state.family.activeScholarships && state.family.activeScholarships.length > 0) || state.family.isScholarshipActive) && (
+          <div style={{ marginTop: "15px", padding: "10px", background: "#f1f3f5", borderRadius: "8px", border: "1px dashed #adb5bd" }}>
+            <div style={{ fontSize: "12px", fontWeight: "bold", color: "#2f9e44", marginBottom: "5px" }}>🎓 Beasiswa Aktif:</div>
+            {state.family.activeScholarships && state.family.activeScholarships.length > 0 ? (
+              state.family.activeScholarships.map((sch, idx) => (
+                <div key={idx} style={{ fontSize: "11px", color: "#495057", marginBottom: "3px" }}>
+                  • <strong>{sch.name}</strong> ({sch.coverage === "full" || sch.coverage === 1 ? "Full Coverage" : (sch.amount ? `${sch.amount}%` : "Partial")})
+                  <div style={{ fontSize: "10px", color: "#868e96", marginLeft: "10px" }}>Berlaku: {sch.yearsLeft || 0} tahun lagi</div>
+                </div>
+              ))
+            ) : (
+              <div style={{ fontSize: "11px", color: "#495057" }}>• Beasiswa Pendidikan (Full Coverage)</div>
+            )}
           </div>
         )}
 

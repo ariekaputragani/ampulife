@@ -45,13 +45,13 @@ export const assetsCatalog = [
     delta: { happy: 8, health: 0, smarts: 4, looks: 5 },
   },
   {
-    id: "sim",
-    name: "🪪 SIM (Surat Izin Mengemudi)",
+    id: "sim_fast_track",
+    name: "🪪 SIM (Jalur Cepat)",
     price: 1_200_000,
     minAge: 17,
     isProductive: true,
-    description: "Identitas resmi untuk mengemudikan kendaraan bermotor di jalan raya.",
-    delta: { happy: 5, health: 0, smarts: 2, looks: 0 },
+    description: "Mendapatkan SIM secara instan tanpa ujian. Mahal tapi pasti jadi.",
+    delta: { happy: 5, health: 0, smarts: 0, looks: 0 },
   },
   {
     id: "laptop",

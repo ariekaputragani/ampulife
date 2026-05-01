@@ -30,6 +30,16 @@ export function canTakeJob(state, job) {
     return false;
   }
 
+  if (job.maxWealthStatus) {
+    const statusLevels = { poor: 1, middle: 2, rich: 3 };
+    const currentLevel = statusLevels[state.family.wealthStatus] || 1;
+    const maxLevel = statusLevels[job.maxWealthStatus];
+
+    if (currentLevel > maxLevel) {
+      return false;
+    }
+  }
+
   return true;
 }
 

@@ -25,23 +25,38 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     }
   }
 
-  else if (eventId === "sim_test") {
+  else if (eventId === "driving_test") {
     if (choiceId === "yes") {
-      // 80% chance to pass
-      const passChance = 0.8;
+      const cost = 250_000;
+      const canAfford = next.profile?.isIndependent ? next.money >= cost : (next.money >= cost || next.family.savings >= cost);
+
+      if (!canAfford) {
+        pushLog(next, "Saya tidak memiliki cukup uang untuk membayar biaya administrasi ujian SIM.");
+        return next;
+      }
+
+      // Deduct money
+      if (next.profile?.isIndependent || next.money >= cost) {
+        next.money -= cost;
+      } else {
+        next.family.savings -= cost;
+      }
+
+      // 70% base chance + boost from smarts
+      const passChance = 0.6 + (next.stats.smarts / 250);
       if (Math.random() < passChance) {
         if (!next.profile.licenses) next.profile.licenses = [];
         if (!next.profile.licenses.includes("SIM A/C")) {
           next.profile.licenses.push("SIM A/C");
         }
         next.stats.happy = clamp(next.stats.happy + 15);
-        pushLog(next, "Selamat! Saya berhasil lulus ujian SIM dan sekarang resmi bisa berkendara.");
+        pushLog(next, "Selamat! Saya berhasil lulus ujian SIM secara resmi dan sekarang bisa berkendara.");
       } else {
         next.stats.happy = clamp(next.stats.happy - 10);
-        pushLog(next, "Sayang sekali, Saya gagal dalam ujian SIM tahun ini. Saya harus mencobanya lagi nanti.");
+        pushLog(next, "Sayang sekali, saya gagal dalam ujian praktik karena menabrak tiang. Uang administrasi saya hangus.");
       }
     } else {
-      pushLog(next, "Saya memutuskan untuk tidak mengambil ujian SIM tahun ini.");
+      pushLog(next, "Saya memutuskan untuk menunda mengambil ujian SIM tahun ini.");
     }
   }
 

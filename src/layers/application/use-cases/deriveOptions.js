@@ -18,10 +18,16 @@ export function getAvailableAssets(state) {
     return [];
   }
 
+  const hasSIM = state.profile.licenses && state.profile.licenses.includes("SIM A/C");
+
   return assetsCatalog.filter(
-    (asset) =>
-      state.age >= asset.minAge &&
-      !state.assets.some((owned) => owned.id === asset.id)
+    (asset) => {
+      const isAgeValid = state.age >= asset.minAge;
+      const isNotOwned = !state.assets.some((owned) => owned.id === asset.id);
+      const isNotDuplicateSIM = asset.id === "sim_fast_track" ? !hasSIM : true;
+      
+      return isAgeValid && isNotOwned && isNotDuplicateSIM;
+    }
   );
 }
 
@@ -34,7 +40,7 @@ export function getAvailableEducation(state) {
     const isAgeValid = state.age >= item.minAge && (!item.maxAge || state.age <= item.maxAge);
     const isNotCompleted = !state.education.completed.includes(item.id);
     const meetsRequirement = item.requirement ? item.requirement(state) : true;
-    
+
     return isAgeValid && isNotCompleted && meetsRequirement;
   });
 }
@@ -59,39 +65,39 @@ export function getAvailableActivities(state) {
   if (!state.life.isAlive) {
     return [];
   }
-  
+
   const acts = [
-    { 
-      id: "gym", 
-      name: "Pergi ke Gym", 
-      minAge: 14, 
-      cost: 150_000, 
-      description: "Berolahraga di pusat kebugaran untuk mempercantik tubuh.", 
-      effects: "💪 +5 Health, ✨ +2 Looks" 
+    {
+      id: "gym",
+      name: "Pergi ke Gym",
+      minAge: 14,
+      cost: 150_000,
+      description: "Berolahraga di pusat kebugaran untuk mempercantik tubuh.",
+      effects: "💪 +5 Health, ✨ +2 Looks"
     },
-    { 
-      id: "library", 
-      name: "Pergi ke Perpustakaan", 
-      minAge: 6, 
-      cost: 0, 
-      description: "Membaca buku dan belajar mandiri untuk memperluas wawasan.", 
-      effects: "🧠 +5 Smarts, 😊 +2 Happy" 
+    {
+      id: "library",
+      name: "Pergi ke Perpustakaan",
+      minAge: 6,
+      cost: 0,
+      description: "Membaca buku dan belajar mandiri untuk memperluas wawasan.",
+      effects: "🧠 +5 Smarts, 😊 +2 Happy"
     },
-    { 
-      id: "apply_scholarship", 
-      name: "Cari Beasiswa", 
-      minAge: 7, 
-      cost: 0, 
-      description: "Mencoba melamar beasiswa pendidikan untuk meringankan beban orang tua.", 
-      effects: "💰 Biaya Sekolah Gratis (Jika diterima)" 
+    {
+      id: "apply_scholarship",
+      name: "Cari Beasiswa",
+      minAge: 7,
+      cost: 0,
+      description: "Mencoba melamar beasiswa pendidikan untuk meringankan beban orang tua.",
+      effects: "💰 Biaya Sekolah Gratis (Jika diterima)"
     },
-    { 
-      id: "work_part_time", 
-      name: "Kerja Part-time (Siswa)", 
-      minAge: 15, 
-      cost: 0, 
-      description: "Bekerja sampingan sepulang sekolah untuk menambah uang saku.", 
-      effects: "💸 +Uang, ❤️ -5 Health" 
+    {
+      id: "work_part_time",
+      name: "Kerja Part-time (Siswa)",
+      minAge: 15,
+      cost: 0,
+      description: "Bekerja sampingan sepulang sekolah untuk menambah uang saku.",
+      effects: "💸 +Uang, ❤️ -5 Health"
     },
     { 
       id: "join_extracurricular", 
@@ -103,23 +109,41 @@ export function getAvailableActivities(state) {
     },
   ];
 
+  const hasSIM = state.profile.licenses && state.profile.licenses.includes("SIM A/C");
+  if (state.age >= 17 && !hasSIM) {
+    acts.push({
+      id: "driving_test",
+      name: "Ikut Ujian SIM (Resmi)",
+      minAge: 17,
+      cost: 250_000,
+      description: "Mengikuti ujian teori dan praktik di Satpas. Murah tapi ada risiko gagal.",
+      effects: "🪪 Lisensi Mengemudi"
+    });
+  }
+
+  const hasElectronicDevice = state.assets.some(a => a.id === "smartphone_entry" || a.id === "laptop");
+
   if (state.socialMedia.isJoined) {
-    acts.push({ 
-      id: "post_social", 
-      name: "Posting di Sosmed", 
-      minAge: 12, 
-      cost: 0, 
-      description: "Berbagi momen hidupmu di internet.", 
-      effects: "📈 +Followers, 😊 +2 Happy" 
+    acts.push({
+      id: "post_social",
+      name: "Posting di Sosmed",
+      minAge: 12,
+      cost: 0,
+      description: "Berbagi momen hidupmu di internet.",
+      effects: "📈 +Followers, 😊 +2 Happy",
+      disabled: !hasElectronicDevice,
+      disabledReason: "Butuh Smartphone atau Laptop untuk posting."
     });
   } else {
-    acts.push({ 
-      id: "join_social", 
-      name: "Gabung Sosmed", 
-      minAge: 12, 
-      cost: 0, 
-      description: "Mendaftar akun media sosial untuk pertama kalinya.", 
-      effects: "🌐 Akses Fitur Sosmed" 
+    acts.push({
+      id: "join_social",
+      name: "Gabung Sosmed",
+      minAge: 12,
+      cost: 0,
+      description: "Mendaftar akun media sosial untuk pertama kalinya.",
+      effects: "🌐 Akses Fitur Sosmed",
+      disabled: !hasElectronicDevice,
+      disabledReason: "Butuh Smartphone atau Laptop untuk mendaftar."
     });
   }
 

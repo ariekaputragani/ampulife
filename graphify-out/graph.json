@@ -26,7 +26,7 @@
       "source_file": "eslint.config.mjs",
       "source_location": "L1",
       "id": "eslint_config_mjs",
-      "community": 17,
+      "community": 18,
       "norm_label": "eslint.config.mjs"
     },
     {
@@ -35,7 +35,7 @@
       "source_file": "next.config.mjs",
       "source_location": "L1",
       "id": "next_config_mjs",
-      "community": 18,
+      "community": 19,
       "norm_label": "next.config.mjs"
     },
     {
@@ -44,7 +44,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L1",
       "id": "public_legacy_js_jquery_min_js",
-      "community": 0,
+      "community": 1,
       "norm_label": "jquery.min.js"
     },
     {
@@ -53,7 +53,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_m",
-      "community": 0,
+      "community": 1,
       "norm_label": "m()"
     },
     {
@@ -62,7 +62,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_x",
-      "community": 0,
+      "community": 1,
       "norm_label": "x()"
     },
     {
@@ -71,7 +71,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_c",
-      "community": 0,
+      "community": 1,
       "norm_label": "c()"
     },
     {
@@ -80,7 +80,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_fe",
-      "community": 0,
+      "community": 1,
       "norm_label": "fe()"
     },
     {
@@ -89,7 +89,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_p",
-      "community": 0,
+      "community": 1,
       "norm_label": "p()"
     },
     {
@@ -98,7 +98,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_i",
-      "community": 0,
+      "community": 1,
       "norm_label": "i()"
     },
     {
@@ -107,7 +107,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_w",
-      "community": 0,
+      "community": 1,
       "norm_label": "w()"
     },
     {
@@ -116,7 +116,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_f",
-      "community": 0,
+      "community": 1,
       "norm_label": "f()"
     },
     {
@@ -125,7 +125,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min",
-      "community": 0,
+      "community": 1,
       "norm_label": "$()"
     },
     {
@@ -134,7 +134,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_b",
-      "community": 0,
+      "community": 1,
       "norm_label": "b()"
     },
     {
@@ -143,7 +143,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_z",
-      "community": 0,
+      "community": 1,
       "norm_label": "z()"
     },
     {
@@ -152,7 +152,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_u",
-      "community": 0,
+      "community": 1,
       "norm_label": "u()"
     },
     {
@@ -161,7 +161,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_v",
-      "community": 0,
+      "community": 1,
       "norm_label": "v()"
     },
     {
@@ -170,7 +170,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_g",
-      "community": 0,
+      "community": 1,
       "norm_label": "g()"
     },
     {
@@ -179,7 +179,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_y",
-      "community": 0,
+      "community": 1,
       "norm_label": "y()"
     },
     {
@@ -188,7 +188,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_q",
-      "community": 0,
+      "community": 1,
       "norm_label": "q()"
     },
     {
@@ -197,7 +197,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_j",
-      "community": 0,
+      "community": 1,
       "norm_label": "j()"
     },
     {
@@ -206,7 +206,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_k",
-      "community": 0,
+      "community": 1,
       "norm_label": "k()"
     },
     {
@@ -215,7 +215,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_ee",
-      "community": 0,
+      "community": 1,
       "norm_label": "ee()"
     },
     {
@@ -224,7 +224,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_te",
-      "community": 0,
+      "community": 1,
       "norm_label": "te()"
     },
     {
@@ -233,7 +233,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_ne",
-      "community": 0,
+      "community": 1,
       "norm_label": "ne()"
     },
     {
@@ -242,7 +242,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_re",
-      "community": 0,
+      "community": 1,
       "norm_label": "re()"
     },
     {
@@ -251,7 +251,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_t",
-      "community": 0,
+      "community": 1,
       "norm_label": "t()"
     },
     {
@@ -260,7 +260,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_a",
-      "community": 0,
+      "community": 1,
       "norm_label": "a()"
     },
     {
@@ -269,7 +269,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_n",
-      "community": 0,
+      "community": 1,
       "norm_label": "n()"
     },
     {
@@ -278,7 +278,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_l",
-      "community": 0,
+      "community": 1,
       "norm_label": "l()"
     },
     {
@@ -287,7 +287,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_se",
-      "community": 0,
+      "community": 1,
       "norm_label": "se()"
     },
     {
@@ -296,7 +296,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_ae",
-      "community": 0,
+      "community": 1,
       "norm_label": "ae()"
     },
     {
@@ -305,7 +305,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_qe",
-      "community": 0,
+      "community": 1,
       "norm_label": "qe()"
     },
     {
@@ -314,7 +314,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_le",
-      "community": 8,
+      "community": 3,
       "norm_label": "le()"
     },
     {
@@ -323,7 +323,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_he",
-      "community": 0,
+      "community": 1,
       "norm_label": "he()"
     },
     {
@@ -332,7 +332,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_o",
-      "community": 0,
+      "community": 1,
       "norm_label": "o()"
     },
     {
@@ -341,7 +341,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_ie",
-      "community": 0,
+      "community": 1,
       "norm_label": "ie()"
     },
     {
@@ -350,7 +350,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_we",
-      "community": 0,
+      "community": 1,
       "norm_label": "we()"
     },
     {
@@ -359,7 +359,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_e",
-      "community": 0,
+      "community": 1,
       "norm_label": "$e()"
     },
     {
@@ -368,7 +368,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_be",
-      "community": 0,
+      "community": 1,
       "norm_label": "be()"
     },
     {
@@ -377,7 +377,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_ge",
-      "community": 0,
+      "community": 1,
       "norm_label": "ge()"
     },
     {
@@ -386,7 +386,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_ye",
-      "community": 0,
+      "community": 1,
       "norm_label": "ye()"
     },
     {
@@ -395,7 +395,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_ze",
-      "community": 0,
+      "community": 1,
       "norm_label": "ze()"
     },
     {
@@ -404,7 +404,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_rt",
-      "community": 0,
+      "community": 1,
       "norm_label": "rt()"
     },
     {
@@ -413,7 +413,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_it",
-      "community": 0,
+      "community": 1,
       "norm_label": "it()"
     },
     {
@@ -422,7 +422,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_ot",
-      "community": 0,
+      "community": 1,
       "norm_label": "ot()"
     },
     {
@@ -431,7 +431,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_at",
-      "community": 0,
+      "community": 1,
       "norm_label": "at()"
     },
     {
@@ -440,7 +440,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_dt",
-      "community": 0,
+      "community": 1,
       "norm_label": "dt()"
     },
     {
@@ -449,7 +449,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_ht",
-      "community": 0,
+      "community": 1,
       "norm_label": "ht()"
     },
     {
@@ -458,7 +458,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_gt",
-      "community": 0,
+      "community": 1,
       "norm_label": "gt()"
     },
     {
@@ -467,7 +467,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_vt",
-      "community": 0,
+      "community": 1,
       "norm_label": "vt()"
     },
     {
@@ -476,7 +476,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_yt",
-      "community": 0,
+      "community": 1,
       "norm_label": "yt()"
     },
     {
@@ -485,7 +485,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_tt",
-      "community": 0,
+      "community": 1,
       "norm_label": "tt()"
     },
     {
@@ -494,7 +494,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_ct",
-      "community": 0,
+      "community": 1,
       "norm_label": "ct()"
     },
     {
@@ -503,7 +503,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_kt",
-      "community": 0,
+      "community": 1,
       "norm_label": "kt()"
     },
     {
@@ -512,7 +512,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_pt",
-      "community": 0,
+      "community": 1,
       "norm_label": "pt()"
     },
     {
@@ -521,7 +521,7 @@
       "source_file": "public\\legacy\\js\\jquery.min.js",
       "source_location": "L2",
       "id": "js_jquery_min_ut",
-      "community": 0,
+      "community": 1,
       "norm_label": "ut()"
     },
     {
@@ -530,7 +530,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1",
       "id": "public_legacy_js_script_js",
-      "community": 1,
+      "community": 2,
       "norm_label": "script.js"
     },
     {
@@ -539,7 +539,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L53",
       "id": "js_script_getmalefn",
-      "community": 1,
+      "community": 2,
       "norm_label": "getmalefn()"
     },
     {
@@ -548,7 +548,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L58",
       "id": "js_script_getfemalefn",
-      "community": 1,
+      "community": 2,
       "norm_label": "getfemalefn()"
     },
     {
@@ -557,7 +557,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L63",
       "id": "js_script_getln",
-      "community": 1,
+      "community": 2,
       "norm_label": "getln()"
     },
     {
@@ -566,7 +566,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L148",
       "id": "js_script_rand",
-      "community": 1,
+      "community": 2,
       "norm_label": "rand()"
     },
     {
@@ -575,7 +575,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L153",
       "id": "js_script_updateformtgl",
-      "community": 1,
+      "community": 2,
       "norm_label": "updateformtgl()"
     },
     {
@@ -584,7 +584,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L162",
       "id": "js_script_getmaxday",
-      "community": 1,
+      "community": 2,
       "norm_label": "getmaxday()"
     },
     {
@@ -593,7 +593,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L177",
       "id": "js_script_updatedayoptions",
-      "community": 1,
+      "community": 2,
       "norm_label": "updatedayoptions()"
     },
     {
@@ -602,7 +602,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L188",
       "id": "js_script_validmonth",
-      "community": 1,
+      "community": 2,
       "norm_label": "validmonth()"
     },
     {
@@ -611,7 +611,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L248",
       "id": "js_script_newline",
-      "community": 1,
+      "community": 2,
       "norm_label": "newline()"
     },
     {
@@ -620,7 +620,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L253",
       "id": "js_script_uanga",
-      "community": 1,
+      "community": 2,
       "norm_label": "uanga()"
     },
     {
@@ -629,7 +629,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L262",
       "id": "js_script_update",
-      "community": 1,
+      "community": 2,
       "norm_label": "update()"
     },
     {
@@ -638,7 +638,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L379",
       "id": "js_script_updatea",
-      "community": 1,
+      "community": 2,
       "norm_label": "updatea()"
     },
     {
@@ -647,7 +647,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L408",
       "id": "js_script_randomevents",
-      "community": 1,
+      "community": 2,
       "norm_label": "randomevents()"
     },
     {
@@ -656,7 +656,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1133",
       "id": "js_script_penyakit",
-      "community": 1,
+      "community": 2,
       "norm_label": "penyakit()"
     },
     {
@@ -665,7 +665,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1460",
       "id": "js_script_hubmen",
-      "community": 1,
+      "community": 2,
       "norm_label": "hubmen()"
     },
     {
@@ -674,7 +674,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1495",
       "id": "js_script_serangan",
-      "community": 1,
+      "community": 2,
       "norm_label": "serangan()"
     },
     {
@@ -683,7 +683,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1575",
       "id": "js_script_back",
-      "community": 1,
+      "community": 2,
       "norm_label": "back()"
     },
     {
@@ -692,7 +692,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1618",
       "id": "js_script_kriminal",
-      "community": 1,
+      "community": 2,
       "norm_label": "kriminal()"
     },
     {
@@ -701,7 +701,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1727",
       "id": "js_script_masukp",
-      "community": 1,
+      "community": 2,
       "norm_label": "masukp()"
     },
     {
@@ -710,7 +710,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1743",
       "id": "js_script_kabur",
-      "community": 1,
+      "community": 2,
       "norm_label": "kabur()"
     },
     {
@@ -719,7 +719,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1770",
       "id": "js_script_rusuh",
-      "community": 1,
+      "community": 2,
       "norm_label": "rusuh()"
     },
     {
@@ -728,7 +728,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1794",
       "id": "js_script_bebasp",
-      "community": 1,
+      "community": 2,
       "norm_label": "bebasp()"
     },
     {
@@ -737,7 +737,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1804",
       "id": "js_script_ged",
-      "community": 1,
+      "community": 2,
       "norm_label": "ged()"
     },
     {
@@ -746,7 +746,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1818",
       "id": "js_script_univ",
-      "community": 1,
+      "community": 2,
       "norm_label": "univ()"
     },
     {
@@ -755,7 +755,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1833",
       "id": "js_script_univer",
-      "community": 1,
+      "community": 2,
       "norm_label": "univer()"
     },
     {
@@ -764,7 +764,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1838",
       "id": "js_script_universitas",
-      "community": 1,
+      "community": 2,
       "norm_label": "universitas()"
     },
     {
@@ -773,7 +773,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1844",
       "id": "js_script_univers",
-      "community": 1,
+      "community": 2,
       "norm_label": "univers()"
     },
     {
@@ -782,7 +782,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1905",
       "id": "js_script_kerja",
-      "community": 1,
+      "community": 2,
       "norm_label": "kerja()"
     },
     {
@@ -791,7 +791,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1937",
       "id": "js_script_kerjaan",
-      "community": 1,
+      "community": 2,
       "norm_label": "kerjaan()"
     },
     {
@@ -800,7 +800,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L1958",
       "id": "js_script_kerjaa",
-      "community": 1,
+      "community": 2,
       "norm_label": "kerjaa()"
     },
     {
@@ -809,7 +809,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2104",
       "id": "js_script_dapatkerja",
-      "community": 1,
+      "community": 2,
       "norm_label": "dapatkerja()"
     },
     {
@@ -818,7 +818,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2113",
       "id": "js_script_naikgaji",
-      "community": 1,
+      "community": 2,
       "norm_label": "naikgaji()"
     },
     {
@@ -827,7 +827,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2163",
       "id": "js_script_naikpangkat",
-      "community": 1,
+      "community": 2,
       "norm_label": "naikpangkat()"
     },
     {
@@ -836,7 +836,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2171",
       "id": "js_script_pecat",
-      "community": 1,
+      "community": 2,
       "norm_label": "pecat()"
     },
     {
@@ -845,7 +845,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2182",
       "id": "js_script_tolak",
-      "community": 1,
+      "community": 2,
       "norm_label": "tolak()"
     },
     {
@@ -854,7 +854,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2187",
       "id": "js_script_gym",
-      "community": 1,
+      "community": 2,
       "norm_label": "gym()"
     },
     {
@@ -863,7 +863,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2227",
       "id": "js_script_sosmed",
-      "community": 1,
+      "community": 2,
       "norm_label": "sosmed()"
     },
     {
@@ -872,7 +872,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2257",
       "id": "js_script_sima",
-      "community": 1,
+      "community": 2,
       "norm_label": "sima()"
     },
     {
@@ -881,7 +881,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2298",
       "id": "js_script_kecanduan",
-      "community": 1,
+      "community": 2,
       "norm_label": "kecanduan()"
     },
     {
@@ -890,7 +890,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2324",
       "id": "js_script_mobil",
-      "community": 1,
+      "community": 2,
       "norm_label": "mobil()"
     },
     {
@@ -899,7 +899,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2360",
       "id": "js_script_mobilpp",
-      "community": 1,
+      "community": 2,
       "norm_label": "mobilpp()"
     },
     {
@@ -908,7 +908,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2365",
       "id": "js_script_belimobil",
-      "community": 1,
+      "community": 2,
       "norm_label": "belimobil()"
     },
     {
@@ -917,7 +917,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2417",
       "id": "js_script_mobilc",
-      "community": 1,
+      "community": 2,
       "norm_label": "mobilc()"
     },
     {
@@ -926,7 +926,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2442",
       "id": "js_script_mobiln",
-      "community": 1,
+      "community": 2,
       "norm_label": "mobiln()"
     },
     {
@@ -935,7 +935,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2455",
       "id": "js_script_jualmobil",
-      "community": 1,
+      "community": 2,
       "norm_label": "jualmobil()"
     },
     {
@@ -944,7 +944,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2462",
       "id": "js_script_rumah",
-      "community": 1,
+      "community": 2,
       "norm_label": "rumah()"
     },
     {
@@ -953,7 +953,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2527",
       "id": "js_script_belirumah",
-      "community": 1,
+      "community": 2,
       "norm_label": "belirumah()"
     },
     {
@@ -962,7 +962,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2592",
       "id": "js_script_rumahc",
-      "community": 1,
+      "community": 2,
       "norm_label": "rumahc()"
     },
     {
@@ -971,7 +971,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2613",
       "id": "js_script_rumahn",
-      "community": 1,
+      "community": 2,
       "norm_label": "rumahn()"
     },
     {
@@ -980,7 +980,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2627",
       "id": "js_script_jualrumah",
-      "community": 1,
+      "community": 2,
       "norm_label": "jualrumah()"
     },
     {
@@ -989,7 +989,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2634",
       "id": "js_script_renovasi",
-      "community": 1,
+      "community": 2,
       "norm_label": "renovasi()"
     },
     {
@@ -998,7 +998,7 @@
       "source_file": "public\\legacy\\js\\script.js",
       "source_location": "L2679",
       "id": "js_script_meninggal",
-      "community": 1,
+      "community": 2,
       "norm_label": "meninggal()"
     },
     {
@@ -1007,7 +1007,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L1",
       "id": "public_legacy_js_select2_min_js",
-      "community": 9,
+      "community": 8,
       "norm_label": "select2.min.js"
     },
     {
@@ -1016,7 +1016,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L2",
       "id": "js_select2_min_c",
-      "community": 9,
+      "community": 8,
       "norm_label": "c()"
     },
     {
@@ -1025,7 +1025,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L2",
       "id": "js_select2_min_i",
-      "community": 9,
+      "community": 8,
       "norm_label": "i()"
     },
     {
@@ -1034,7 +1034,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L2",
       "id": "js_select2_min_r",
-      "community": 9,
+      "community": 8,
       "norm_label": "r()"
     },
     {
@@ -1043,7 +1043,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L2",
       "id": "js_select2_min_e",
-      "community": 9,
+      "community": 8,
       "norm_label": "e()"
     },
     {
@@ -1052,7 +1052,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L2",
       "id": "js_select2_min_s",
-      "community": 9,
+      "community": 8,
       "norm_label": "s()"
     },
     {
@@ -1061,7 +1061,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L2",
       "id": "js_select2_min_n",
-      "community": 9,
+      "community": 8,
       "norm_label": "n()"
     },
     {
@@ -1070,7 +1070,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L2",
       "id": "js_select2_min_a",
-      "community": 9,
+      "community": 8,
       "norm_label": "a()"
     },
     {
@@ -1079,7 +1079,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L2",
       "id": "js_select2_min_b",
-      "community": 9,
+      "community": 8,
       "norm_label": "b()"
     },
     {
@@ -1088,7 +1088,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L2",
       "id": "js_select2_min_l",
-      "community": 9,
+      "community": 8,
       "norm_label": "l()"
     },
     {
@@ -1097,7 +1097,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L2",
       "id": "js_select2_min_w",
-      "community": 9,
+      "community": 8,
       "norm_label": "w()"
     },
     {
@@ -1106,7 +1106,7 @@
       "source_file": "public\\legacy\\js\\select2.min.js",
       "source_location": "L2",
       "id": "js_select2_min_x",
-      "community": 9,
+      "community": 8,
       "norm_label": "x()"
     },
     {
@@ -1124,7 +1124,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_e",
-      "community": 7,
+      "community": 6,
       "norm_label": "e()"
     },
     {
@@ -1142,7 +1142,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_n",
-      "community": 8,
+      "community": 6,
       "norm_label": "n()"
     },
     {
@@ -1151,7 +1151,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_i",
-      "community": 8,
+      "community": 7,
       "norm_label": "i()"
     },
     {
@@ -1160,7 +1160,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_c",
-      "community": 10,
+      "community": 7,
       "norm_label": "c()"
     },
     {
@@ -1178,7 +1178,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_d",
-      "community": 5,
+      "community": 10,
       "norm_label": "d()"
     },
     {
@@ -1196,7 +1196,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_h",
-      "community": 7,
+      "community": 6,
       "norm_label": "h()"
     },
     {
@@ -1205,7 +1205,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_g",
-      "community": 5,
+      "community": 9,
       "norm_label": "g()"
     },
     {
@@ -1214,7 +1214,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_f",
-      "community": 5,
+      "community": 9,
       "norm_label": "f()"
     },
     {
@@ -1223,7 +1223,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_b",
-      "community": 8,
+      "community": 9,
       "norm_label": "b()"
     },
     {
@@ -1232,7 +1232,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_y",
-      "community": 5,
+      "community": 10,
       "norm_label": "y()"
     },
     {
@@ -1268,7 +1268,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_k",
-      "community": 8,
+      "community": 3,
       "norm_label": "k()"
     },
     {
@@ -1277,7 +1277,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min",
-      "community": 1,
+      "community": 2,
       "norm_label": "$()"
     },
     {
@@ -1340,7 +1340,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_q",
-      "community": 8,
+      "community": 9,
       "norm_label": "q()"
     },
     {
@@ -1349,7 +1349,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_r",
-      "community": 10,
+      "community": 7,
       "norm_label": "r()"
     },
     {
@@ -1394,7 +1394,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_oe",
-      "community": 7,
+      "community": 9,
       "norm_label": "oe()"
     },
     {
@@ -1412,7 +1412,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_re",
-      "community": 5,
+      "community": 10,
       "norm_label": "re()"
     },
     {
@@ -1421,7 +1421,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ae",
-      "community": 8,
+      "community": 9,
       "norm_label": "ae()"
     },
     {
@@ -1430,7 +1430,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_le",
-      "community": 8,
+      "community": 9,
       "norm_label": "le()"
     },
     {
@@ -1439,7 +1439,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ce",
-      "community": 8,
+      "community": 3,
       "norm_label": "ce()"
     },
     {
@@ -1466,7 +1466,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_pe",
-      "community": 10,
+      "community": 9,
       "norm_label": "pe()"
     },
     {
@@ -1475,7 +1475,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_me",
-      "community": 5,
+      "community": 10,
       "norm_label": "me()"
     },
     {
@@ -1484,7 +1484,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_fe",
-      "community": 3,
+      "community": 10,
       "norm_label": "fe()"
     },
     {
@@ -1493,7 +1493,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_be",
-      "community": 10,
+      "community": 7,
       "norm_label": "be()"
     },
     {
@@ -1502,7 +1502,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ye",
-      "community": 8,
+      "community": 3,
       "norm_label": "ye()"
     },
     {
@@ -1511,7 +1511,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ve",
-      "community": 10,
+      "community": 7,
       "norm_label": "ve()"
     },
     {
@@ -1520,7 +1520,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_we",
-      "community": 5,
+      "community": 7,
       "norm_label": "we()"
     },
     {
@@ -1529,7 +1529,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ke",
-      "community": 8,
+      "community": 7,
       "norm_label": "ke()"
     },
     {
@@ -1538,7 +1538,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_xe",
-      "community": 0,
+      "community": 1,
       "norm_label": "xe()"
     },
     {
@@ -1547,7 +1547,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_je",
-      "community": 10,
+      "community": 7,
       "norm_label": "je()"
     },
     {
@@ -1556,7 +1556,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ie",
-      "community": 10,
+      "community": 7,
       "norm_label": "ie()"
     },
     {
@@ -1574,7 +1574,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ze",
-      "community": 8,
+      "community": 6,
       "norm_label": "ze()"
     },
     {
@@ -1583,7 +1583,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ge",
-      "community": 8,
+      "community": 7,
       "norm_label": "ge()"
     },
     {
@@ -1592,7 +1592,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_et",
-      "community": 8,
+      "community": 6,
       "norm_label": "et()"
     },
     {
@@ -1601,7 +1601,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_nt",
-      "community": 5,
+      "community": 7,
       "norm_label": "nt()"
     },
     {
@@ -1610,7 +1610,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_st",
-      "community": 5,
+      "community": 11,
       "norm_label": "st()"
     },
     {
@@ -1646,7 +1646,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ut",
-      "community": 7,
+      "community": 9,
       "norm_label": "ut()"
     },
     {
@@ -1655,7 +1655,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_dt",
-      "community": 5,
+      "community": 7,
       "norm_label": "dt()"
     },
     {
@@ -1664,7 +1664,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_pt",
-      "community": 5,
+      "community": 11,
       "norm_label": "pt()"
     },
     {
@@ -1673,7 +1673,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_mt",
-      "community": 5,
+      "community": 11,
       "norm_label": "mt()"
     },
     {
@@ -1682,7 +1682,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ht",
-      "community": 5,
+      "community": 11,
       "norm_label": "ht()"
     },
     {
@@ -1691,7 +1691,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_gt",
-      "community": 5,
+      "community": 11,
       "norm_label": "gt()"
     },
     {
@@ -1700,7 +1700,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ft",
-      "community": 5,
+      "community": 3,
       "norm_label": "ft()"
     },
     {
@@ -1709,7 +1709,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_bt",
-      "community": 5,
+      "community": 9,
       "norm_label": "bt()"
     },
     {
@@ -1718,7 +1718,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_yt",
-      "community": 5,
+      "community": 9,
       "norm_label": "yt()"
     },
     {
@@ -1727,7 +1727,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_vt",
-      "community": 5,
+      "community": 7,
       "norm_label": "vt()"
     },
     {
@@ -1763,7 +1763,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_xt",
-      "community": 5,
+      "community": 11,
       "norm_label": "xt()"
     },
     {
@@ -1772,7 +1772,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_tt",
-      "community": 5,
+      "community": 11,
       "norm_label": "tt()"
     },
     {
@@ -1781,7 +1781,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_ot",
-      "community": 5,
+      "community": 11,
       "norm_label": "ot()"
     },
     {
@@ -1817,7 +1817,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_zt",
-      "community": 4,
+      "community": 3,
       "norm_label": "zt()"
     },
     {
@@ -1934,7 +1934,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_gn",
-      "community": 7,
+      "community": 6,
       "norm_label": "gn()"
     },
     {
@@ -1970,7 +1970,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_vn",
-      "community": 7,
+      "community": 9,
       "norm_label": "vn()"
     },
     {
@@ -1988,7 +1988,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_gethandlersbyeventname",
-      "community": 3,
+      "community": 10,
       "norm_label": "_gethandlersbyeventname()"
     },
     {
@@ -2006,7 +2006,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_emit",
-      "community": 3,
+      "community": 10,
       "norm_label": "emit()"
     },
     {
@@ -2015,7 +2015,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_removelistener",
-      "community": 3,
+      "community": 10,
       "norm_label": "removelistener()"
     },
     {
@@ -2042,7 +2042,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_main",
-      "community": 7,
+      "community": 6,
       "norm_label": "_main()"
     },
     {
@@ -2051,7 +2051,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_kn",
-      "community": 11,
+      "community": 12,
       "norm_label": "kn"
     },
     {
@@ -2060,7 +2060,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_kn_constructor",
-      "community": 11,
+      "community": 12,
       "norm_label": ".constructor()"
     },
     {
@@ -2069,7 +2069,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_kn_start",
-      "community": 11,
+      "community": 12,
       "norm_label": ".start()"
     },
     {
@@ -2078,7 +2078,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_kn_stop",
-      "community": 11,
+      "community": 12,
       "norm_label": ".stop()"
     },
     {
@@ -2087,7 +2087,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_kn_increase",
-      "community": 11,
+      "community": 12,
       "norm_label": ".increase()"
     },
     {
@@ -2096,7 +2096,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_kn_gettimerleft",
-      "community": 11,
+      "community": 12,
       "norm_label": ".gettimerleft()"
     },
     {
@@ -2105,7 +2105,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_kn_isrunning",
-      "community": 11,
+      "community": 12,
       "norm_label": ".isrunning()"
     },
     {
@@ -2114,7 +2114,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_xn",
-      "community": 7,
+      "community": 6,
       "norm_label": "xn()"
     },
     {
@@ -2132,7 +2132,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_jn",
-      "community": 7,
+      "community": 10,
       "norm_label": "jn()"
     },
     {
@@ -2141,7 +2141,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_in",
-      "community": 5,
+      "community": 10,
       "norm_label": "in()"
     },
     {
@@ -2159,7 +2159,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_zn",
-      "community": 7,
+      "community": 6,
       "norm_label": "zn"
     },
     {
@@ -2168,7 +2168,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_zn_constructor",
-      "community": 7,
+      "community": 6,
       "norm_label": ".constructor()"
     },
     {
@@ -2177,7 +2177,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_zn_main",
-      "community": 7,
+      "community": 6,
       "norm_label": "._main()"
     },
     {
@@ -2186,7 +2186,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_zn_then",
-      "community": 5,
+      "community": 11,
       "norm_label": ".then()"
     },
     {
@@ -2195,7 +2195,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_zn_finally",
-      "community": 7,
+      "community": 6,
       "norm_label": ".finally()"
     },
     {
@@ -2204,7 +2204,7 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "id": "js_sweetalert2_all_min_wn",
-      "community": 7,
+      "community": 6,
       "norm_label": "wn()"
     },
     {
@@ -2213,7 +2213,7 @@
       "source_file": "src\\app\\layout.js",
       "source_location": "L1",
       "id": "src_app_layout_js",
-      "community": 14,
+      "community": 15,
       "norm_label": "layout.js"
     },
     {
@@ -2222,7 +2222,7 @@
       "source_file": "src\\app\\layout.js",
       "source_location": "L19",
       "id": "app_layout_rootlayout",
-      "community": 14,
+      "community": 15,
       "norm_label": "rootlayout()"
     },
     {
@@ -2231,7 +2231,7 @@
       "source_file": "src\\app\\page.js",
       "source_location": "L1",
       "id": "src_app_page_js",
-      "community": 6,
+      "community": 5,
       "norm_label": "page.js"
     },
     {
@@ -2240,7 +2240,7 @@
       "source_file": "src\\app\\page.js",
       "source_location": "L8",
       "id": "app_page_home",
-      "community": 6,
+      "community": 5,
       "norm_label": "home()"
     },
     {
@@ -2249,7 +2249,7 @@
       "source_file": "src\\app\\create\\page.js",
       "source_location": "L1",
       "id": "src_app_create_page_js",
-      "community": 6,
+      "community": 5,
       "norm_label": "page.js"
     },
     {
@@ -2258,7 +2258,7 @@
       "source_file": "src\\app\\create\\page.js",
       "source_location": "L9",
       "id": "create_page_createpage",
-      "community": 6,
+      "community": 5,
       "norm_label": "createpage()"
     },
     {
@@ -2267,7 +2267,7 @@
       "source_file": "src\\app\\game\\page.js",
       "source_location": "L1",
       "id": "src_app_game_page_js",
-      "community": 6,
+      "community": 5,
       "norm_label": "page.js"
     },
     {
@@ -2276,7 +2276,7 @@
       "source_file": "src\\app\\game\\page.js",
       "source_location": "L9",
       "id": "game_page_gamepage",
-      "community": 6,
+      "community": 5,
       "norm_label": "gamepage()"
     },
     {
@@ -2285,16 +2285,16 @@
       "source_file": "src\\layers\\application\\use-cases\\ageUpYear.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_ageupyear_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "ageupyear.js"
     },
     {
       "label": "ageUpYear()",
       "file_type": "code",
       "source_file": "src\\layers\\application\\use-cases\\ageUpYear.js",
-      "source_location": "L12",
+      "source_location": "L13",
       "id": "use_cases_ageupyear_ageupyear",
-      "community": 2,
+      "community": 0,
       "norm_label": "ageupyear()"
     },
     {
@@ -2303,7 +2303,7 @@
       "source_file": "src\\layers\\application\\use-cases\\askParentsAction.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_askparentsaction_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "askparentsaction.js"
     },
     {
@@ -2312,7 +2312,7 @@
       "source_file": "src\\layers\\application\\use-cases\\askParentsAction.js",
       "source_location": "L4",
       "id": "use_cases_askparentsaction_askparentsaction",
-      "community": 2,
+      "community": 0,
       "norm_label": "askparentsaction()"
     },
     {
@@ -2321,7 +2321,7 @@
       "source_file": "src\\layers\\application\\use-cases\\changeLifestyleAction.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_changelifestyleaction_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "changelifestyleaction.js"
     },
     {
@@ -2330,7 +2330,7 @@
       "source_file": "src\\layers\\application\\use-cases\\changeLifestyleAction.js",
       "source_location": "L3",
       "id": "use_cases_changelifestyleaction_changelifestyleaction",
-      "community": 2,
+      "community": 0,
       "norm_label": "changelifestyleaction()"
     },
     {
@@ -2339,7 +2339,7 @@
       "source_file": "src\\layers\\application\\use-cases\\deriveOptions.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_deriveoptions_js",
-      "community": 12,
+      "community": 13,
       "norm_label": "deriveoptions.js"
     },
     {
@@ -2348,7 +2348,7 @@
       "source_file": "src\\layers\\application\\use-cases\\deriveOptions.js",
       "source_location": "L8",
       "id": "use_cases_deriveoptions_getavailablejobs",
-      "community": 12,
+      "community": 13,
       "norm_label": "getavailablejobs()"
     },
     {
@@ -2357,7 +2357,7 @@
       "source_file": "src\\layers\\application\\use-cases\\deriveOptions.js",
       "source_location": "L16",
       "id": "use_cases_deriveoptions_getavailableassets",
-      "community": 12,
+      "community": 13,
       "norm_label": "getavailableassets()"
     },
     {
@@ -2366,7 +2366,7 @@
       "source_file": "src\\layers\\application\\use-cases\\deriveOptions.js",
       "source_location": "L28",
       "id": "use_cases_deriveoptions_getavailableeducation",
-      "community": 12,
+      "community": 13,
       "norm_label": "getavailableeducation()"
     },
     {
@@ -2375,7 +2375,7 @@
       "source_file": "src\\layers\\application\\use-cases\\deriveOptions.js",
       "source_location": "L42",
       "id": "use_cases_deriveoptions_getavailablecrimes",
-      "community": 12,
+      "community": 13,
       "norm_label": "getavailablecrimes()"
     },
     {
@@ -2384,7 +2384,7 @@
       "source_file": "src\\layers\\application\\use-cases\\deriveOptions.js",
       "source_location": "L58",
       "id": "use_cases_deriveoptions_getavailableactivities",
-      "community": 12,
+      "community": 13,
       "norm_label": "getavailableactivities()"
     },
     {
@@ -2393,8 +2393,26 @@
       "source_file": "src\\layers\\application\\use-cases\\deriveOptions.js",
       "source_location": "L129",
       "id": "use_cases_deriveoptions_getavailabletreatments",
-      "community": 12,
+      "community": 13,
       "norm_label": "getavailabletreatments()"
+    },
+    {
+      "label": "dropOutAction.js",
+      "file_type": "code",
+      "source_file": "src\\layers\\application\\use-cases\\dropOutAction.js",
+      "source_location": "L1",
+      "id": "src_layers_application_use_cases_dropoutaction_js",
+      "community": 0,
+      "norm_label": "dropoutaction.js"
+    },
+    {
+      "label": "dropOutAction()",
+      "file_type": "code",
+      "source_file": "src\\layers\\application\\use-cases\\dropOutAction.js",
+      "source_location": "L9",
+      "id": "use_cases_dropoutaction_dropoutaction",
+      "community": 0,
+      "norm_label": "dropoutaction()"
     },
     {
       "label": "handleEventChoice.js",
@@ -2402,7 +2420,7 @@
       "source_file": "src\\layers\\application\\use-cases\\handleEventChoice.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_handleeventchoice_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "handleeventchoice.js"
     },
     {
@@ -2411,7 +2429,7 @@
       "source_file": "src\\layers\\application\\use-cases\\handleEventChoice.js",
       "source_location": "L5",
       "id": "use_cases_handleeventchoice_handleeventchoice",
-      "community": 2,
+      "community": 0,
       "norm_label": "handleeventchoice()"
     },
     {
@@ -2420,7 +2438,7 @@
       "source_file": "src\\layers\\application\\use-cases\\resolveChoice.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_resolvechoice_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "resolvechoice.js"
     },
     {
@@ -2429,7 +2447,7 @@
       "source_file": "src\\layers\\application\\use-cases\\resolveChoice.js",
       "source_location": "L3",
       "id": "use_cases_resolvechoice_resolvechoice",
-      "community": 2,
+      "community": 0,
       "norm_label": "resolvechoice()"
     },
     {
@@ -2438,7 +2456,7 @@
       "source_file": "src\\layers\\application\\use-cases\\setupCharacter.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_setupcharacter_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "setupcharacter.js"
     },
     {
@@ -2447,7 +2465,7 @@
       "source_file": "src\\layers\\application\\use-cases\\setupCharacter.js",
       "source_location": "L3",
       "id": "use_cases_setupcharacter_setupcharacter",
-      "community": 2,
+      "community": 0,
       "norm_label": "setupcharacter()"
     },
     {
@@ -2456,7 +2474,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeActivityAction.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_takeactivityaction_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "takeactivityaction.js"
     },
     {
@@ -2465,7 +2483,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeActivityAction.js",
       "source_location": "L3",
       "id": "use_cases_takeactivityaction_takeactivityaction",
-      "community": 2,
+      "community": 0,
       "norm_label": "takeactivityaction()"
     },
     {
@@ -2474,7 +2492,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeAssetAction.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_takeassetaction_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "takeassetaction.js"
     },
     {
@@ -2483,7 +2501,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeAssetAction.js",
       "source_location": "L4",
       "id": "use_cases_takeassetaction_takeassetaction",
-      "community": 2,
+      "community": 0,
       "norm_label": "takeassetaction()"
     },
     {
@@ -2492,7 +2510,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeCrimeAction.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_takecrimeaction_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "takecrimeaction.js"
     },
     {
@@ -2501,7 +2519,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeCrimeAction.js",
       "source_location": "L4",
       "id": "use_cases_takecrimeaction_randint",
-      "community": 2,
+      "community": 0,
       "norm_label": "randint()"
     },
     {
@@ -2510,7 +2528,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeCrimeAction.js",
       "source_location": "L8",
       "id": "use_cases_takecrimeaction_takecrimeaction",
-      "community": 2,
+      "community": 0,
       "norm_label": "takecrimeaction()"
     },
     {
@@ -2519,7 +2537,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeEducationAction.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_takeeducationaction_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "takeeducationaction.js"
     },
     {
@@ -2528,7 +2546,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeEducationAction.js",
       "source_location": "L4",
       "id": "use_cases_takeeducationaction_takeeducationaction",
-      "community": 2,
+      "community": 0,
       "norm_label": "takeeducationaction()"
     },
     {
@@ -2537,7 +2555,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeJobAction.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_takejobaction_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "takejobaction.js"
     },
     {
@@ -2546,7 +2564,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeJobAction.js",
       "source_location": "L5",
       "id": "use_cases_takejobaction_takejobaction",
-      "community": 2,
+      "community": 0,
       "norm_label": "takejobaction()"
     },
     {
@@ -2555,7 +2573,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takePromotionAction.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_takepromotionaction_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "takepromotionaction.js"
     },
     {
@@ -2564,7 +2582,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takePromotionAction.js",
       "source_location": "L4",
       "id": "use_cases_takepromotionaction_takepromotionaction",
-      "community": 2,
+      "community": 0,
       "norm_label": "takepromotionaction()"
     },
     {
@@ -2573,7 +2591,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeRelationAction.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_takerelationaction_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "takerelationaction.js"
     },
     {
@@ -2582,7 +2600,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeRelationAction.js",
       "source_location": "L3",
       "id": "use_cases_takerelationaction_takerelationaction",
-      "community": 2,
+      "community": 0,
       "norm_label": "takerelationaction()"
     },
     {
@@ -2591,7 +2609,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeTreatmentAction.js",
       "source_location": "L1",
       "id": "src_layers_application_use_cases_taketreatmentaction_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "taketreatmentaction.js"
     },
     {
@@ -2600,7 +2618,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeTreatmentAction.js",
       "source_location": "L4",
       "id": "use_cases_taketreatmentaction_downgradeseverity",
-      "community": 2,
+      "community": 0,
       "norm_label": "downgradeseverity()"
     },
     {
@@ -2609,7 +2627,7 @@
       "source_file": "src\\layers\\application\\use-cases\\takeTreatmentAction.js",
       "source_location": "L14",
       "id": "use_cases_taketreatmentaction_taketreatmentaction",
-      "community": 2,
+      "community": 0,
       "norm_label": "taketreatmentaction()"
     },
     {
@@ -2618,7 +2636,7 @@
       "source_file": "src\\layers\\domain\\entities\\gameState.js",
       "source_location": "L1",
       "id": "src_layers_domain_entities_gamestate_js",
-      "community": 13,
+      "community": 14,
       "norm_label": "gamestate.js"
     },
     {
@@ -2627,7 +2645,7 @@
       "source_file": "src\\layers\\domain\\entities\\gameState.js",
       "source_location": "L3",
       "id": "entities_gamestate_createinitialgamestate",
-      "community": 13,
+      "community": 14,
       "norm_label": "createinitialgamestate()"
     },
     {
@@ -2636,7 +2654,7 @@
       "source_file": "src\\layers\\domain\\entities\\stateUtils.js",
       "source_location": "L1",
       "id": "src_layers_domain_entities_stateutils_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "stateutils.js"
     },
     {
@@ -2645,7 +2663,7 @@
       "source_file": "src\\layers\\domain\\entities\\stateUtils.js",
       "source_location": "L1",
       "id": "entities_stateutils_clamp",
-      "community": 2,
+      "community": 0,
       "norm_label": "clamp()"
     },
     {
@@ -2654,7 +2672,7 @@
       "source_file": "src\\layers\\domain\\entities\\stateUtils.js",
       "source_location": "L4",
       "id": "entities_stateutils_clampstatus",
-      "community": 2,
+      "community": 0,
       "norm_label": "clampstatus()"
     },
     {
@@ -2663,7 +2681,7 @@
       "source_file": "src\\layers\\domain\\entities\\stateUtils.js",
       "source_location": "L8",
       "id": "entities_stateutils_clonestate",
-      "community": 2,
+      "community": 0,
       "norm_label": "clonestate()"
     },
     {
@@ -2672,7 +2690,7 @@
       "source_file": "src\\layers\\domain\\entities\\stateUtils.js",
       "source_location": "L15",
       "id": "entities_stateutils_applystatdelta",
-      "community": 2,
+      "community": 0,
       "norm_label": "applystatdelta()"
     },
     {
@@ -2681,7 +2699,7 @@
       "source_file": "src\\layers\\domain\\entities\\stateUtils.js",
       "source_location": "L24",
       "id": "entities_stateutils_pushlog",
-      "community": 2,
+      "community": 0,
       "norm_label": "pushlog()"
     },
     {
@@ -2690,7 +2708,7 @@
       "source_file": "src\\layers\\domain\\entities\\stateUtils.js",
       "source_location": "L33",
       "id": "entities_stateutils_pushnotification",
-      "community": 2,
+      "community": 0,
       "norm_label": "pushnotification()"
     },
     {
@@ -2699,7 +2717,7 @@
       "source_file": "src\\layers\\domain\\entities\\stateUtils.js",
       "source_location": "L90",
       "id": "entities_stateutils_generaterandomname",
-      "community": 2,
+      "community": 0,
       "norm_label": "generaterandomname()"
     },
     {
@@ -2708,7 +2726,7 @@
       "source_file": "src\\layers\\domain\\services\\careerEngine.js",
       "source_location": "L1",
       "id": "src_layers_domain_services_careerengine_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "careerengine.js"
     },
     {
@@ -2717,7 +2735,7 @@
       "source_file": "src\\layers\\domain\\services\\careerEngine.js",
       "source_location": "L3",
       "id": "services_careerengine_getjobbyid",
-      "community": 2,
+      "community": 0,
       "norm_label": "getjobbyid()"
     },
     {
@@ -2726,7 +2744,7 @@
       "source_file": "src\\layers\\domain\\services\\careerEngine.js",
       "source_location": "L7",
       "id": "services_careerengine_geteffectivesmarts",
-      "community": 2,
+      "community": 0,
       "norm_label": "geteffectivesmarts()"
     },
     {
@@ -2735,7 +2753,7 @@
       "source_file": "src\\layers\\domain\\services\\careerEngine.js",
       "source_location": "L12",
       "id": "services_careerengine_cantakejob",
-      "community": 2,
+      "community": 0,
       "norm_label": "cantakejob()"
     },
     {
@@ -2744,7 +2762,7 @@
       "source_file": "src\\layers\\domain\\services\\careerEngine.js",
       "source_location": "L36",
       "id": "services_careerengine_computeyearlysalary",
-      "community": 2,
+      "community": 0,
       "norm_label": "computeyearlysalary()"
     },
     {
@@ -2753,7 +2771,7 @@
       "source_file": "src\\layers\\domain\\services\\careerEngine.js",
       "source_location": "L42",
       "id": "services_careerengine_getpromotiontarget",
-      "community": 2,
+      "community": 0,
       "norm_label": "getpromotiontarget()"
     },
     {
@@ -2762,7 +2780,7 @@
       "source_file": "src\\layers\\domain\\services\\eventEngine.js",
       "source_location": "L1",
       "id": "src_layers_domain_services_eventengine_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "eventengine.js"
     },
     {
@@ -2771,7 +2789,7 @@
       "source_file": "src\\layers\\domain\\services\\eventEngine.js",
       "source_location": "L4",
       "id": "services_eventengine_pickweighted",
-      "community": 2,
+      "community": 0,
       "norm_label": "pickweighted()"
     },
     {
@@ -2780,7 +2798,7 @@
       "source_file": "src\\layers\\domain\\services\\eventEngine.js",
       "source_location": "L21",
       "id": "services_eventengine_triggerrandomevent",
-      "community": 2,
+      "community": 0,
       "norm_label": "triggerrandomevent()"
     },
     {
@@ -2789,7 +2807,7 @@
       "source_file": "src\\layers\\domain\\services\\healthEngine.js",
       "source_location": "L1",
       "id": "src_layers_domain_services_healthengine_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "healthengine.js"
     },
     {
@@ -2798,7 +2816,7 @@
       "source_file": "src\\layers\\domain\\services\\healthEngine.js",
       "source_location": "L6",
       "id": "services_healthengine_nextseverity",
-      "community": 2,
+      "community": 0,
       "norm_label": "nextseverity()"
     },
     {
@@ -2807,7 +2825,7 @@
       "source_file": "src\\layers\\domain\\services\\healthEngine.js",
       "source_location": "L14",
       "id": "services_healthengine_getseverityfactor",
-      "community": 2,
+      "community": 0,
       "norm_label": "getseverityfactor()"
     },
     {
@@ -2816,7 +2834,7 @@
       "source_file": "src\\layers\\domain\\services\\healthEngine.js",
       "source_location": "L24",
       "id": "services_healthengine_applyillnessprogression",
-      "community": 2,
+      "community": 0,
       "norm_label": "applyillnessprogression()"
     },
     {
@@ -2825,7 +2843,7 @@
       "source_file": "src\\layers\\infrastructure\\catalogs\\assetsCatalog.js",
       "source_location": "L1",
       "id": "src_layers_infrastructure_catalogs_assetscatalog_js",
-      "community": 19,
+      "community": 20,
       "norm_label": "assetscatalog.js"
     },
     {
@@ -2834,7 +2852,7 @@
       "source_file": "src\\layers\\infrastructure\\catalogs\\crimeCatalog.js",
       "source_location": "L1",
       "id": "src_layers_infrastructure_catalogs_crimecatalog_js",
-      "community": 20,
+      "community": 21,
       "norm_label": "crimecatalog.js"
     },
     {
@@ -2843,7 +2861,7 @@
       "source_file": "src\\layers\\infrastructure\\catalogs\\educationCatalog.js",
       "source_location": "L1",
       "id": "src_layers_infrastructure_catalogs_educationcatalog_js",
-      "community": 21,
+      "community": 22,
       "norm_label": "educationcatalog.js"
     },
     {
@@ -2852,7 +2870,7 @@
       "source_file": "src\\layers\\infrastructure\\catalogs\\eventsCatalog.js",
       "source_location": "L1",
       "id": "src_layers_infrastructure_catalogs_eventscatalog_js",
-      "community": 22,
+      "community": 23,
       "norm_label": "eventscatalog.js"
     },
     {
@@ -2861,7 +2879,7 @@
       "source_file": "src\\layers\\infrastructure\\catalogs\\illnessCatalog.js",
       "source_location": "L1",
       "id": "src_layers_infrastructure_catalogs_illnesscatalog_js",
-      "community": 2,
+      "community": 0,
       "norm_label": "illnesscatalog.js"
     },
     {
@@ -2870,7 +2888,7 @@
       "source_file": "src\\layers\\infrastructure\\catalogs\\illnessCatalog.js",
       "source_location": "L124",
       "id": "catalogs_illnesscatalog_getillnessbyid",
-      "community": 2,
+      "community": 0,
       "norm_label": "getillnessbyid()"
     },
     {
@@ -2879,7 +2897,7 @@
       "source_file": "src\\layers\\infrastructure\\catalogs\\illnessCatalog.js",
       "source_location": "L128",
       "id": "catalogs_illnesscatalog_pickillnessbyage",
-      "community": 2,
+      "community": 0,
       "norm_label": "pickillnessbyage()"
     },
     {
@@ -2888,7 +2906,7 @@
       "source_file": "src\\layers\\infrastructure\\catalogs\\jobsCatalog.js",
       "source_location": "L1",
       "id": "src_layers_infrastructure_catalogs_jobscatalog_js",
-      "community": 23,
+      "community": 24,
       "norm_label": "jobscatalog.js"
     },
     {
@@ -2897,7 +2915,7 @@
       "source_file": "src\\layers\\infrastructure\\catalogs\\treatmentCatalog.js",
       "source_location": "L1",
       "id": "src_layers_infrastructure_catalogs_treatmentcatalog_js",
-      "community": 24,
+      "community": 25,
       "norm_label": "treatmentcatalog.js"
     },
     {
@@ -2906,7 +2924,7 @@
       "source_file": "src\\layers\\infrastructure\\persistence\\gameRepository.js",
       "source_location": "L1",
       "id": "src_layers_infrastructure_persistence_gamerepository_js",
-      "community": 13,
+      "community": 14,
       "norm_label": "gamerepository.js"
     },
     {
@@ -2915,7 +2933,7 @@
       "source_file": "src\\layers\\infrastructure\\persistence\\gameRepository.js",
       "source_location": "L5",
       "id": "persistence_gamerepository_parsesave",
-      "community": 13,
+      "community": 14,
       "norm_label": "parsesave()"
     },
     {
@@ -2924,7 +2942,7 @@
       "source_file": "src\\layers\\infrastructure\\persistence\\gameRepository.js",
       "source_location": "L22",
       "id": "persistence_gamerepository_loadgamestate",
-      "community": 13,
+      "community": 14,
       "norm_label": "loadgamestate()"
     },
     {
@@ -2933,7 +2951,7 @@
       "source_file": "src\\layers\\infrastructure\\persistence\\gameRepository.js",
       "source_location": "L35",
       "id": "persistence_gamerepository_savegamestate",
-      "community": 13,
+      "community": 14,
       "norm_label": "savegamestate()"
     },
     {
@@ -2942,7 +2960,7 @@
       "source_file": "src\\layers\\infrastructure\\persistence\\gameRepository.js",
       "source_location": "L43",
       "id": "persistence_gamerepository_cleargamestate",
-      "community": 13,
+      "community": 14,
       "norm_label": "cleargamestate()"
     },
     {
@@ -2951,7 +2969,7 @@
       "source_file": "src\\layers\\presentation\\game\\CharacterCreation.jsx",
       "source_location": "L1",
       "id": "src_layers_presentation_game_charactercreation_jsx",
-      "community": 15,
+      "community": 16,
       "norm_label": "charactercreation.jsx"
     },
     {
@@ -2960,7 +2978,7 @@
       "source_file": "src\\layers\\presentation\\game\\CharacterCreation.jsx",
       "source_location": "L8",
       "id": "game_charactercreation_charactercreation",
-      "community": 15,
+      "community": 16,
       "norm_label": "charactercreation()"
     },
     {
@@ -2969,70 +2987,79 @@
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
       "source_location": "L1",
       "id": "src_layers_presentation_game_layeredgameview_jsx",
-      "community": 6,
+      "community": 5,
       "norm_label": "layeredgameview.jsx"
     },
     {
       "label": "LayeredGameView()",
       "file_type": "code",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "id": "game_layeredgameview_layeredgameview",
-      "community": 6,
+      "community": 5,
       "norm_label": "layeredgameview()"
     },
     {
       "label": "AssetsTab()",
       "file_type": "code",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L338",
+      "source_location": "L335",
       "id": "game_layeredgameview_assetstab",
-      "community": 6,
+      "community": 5,
       "norm_label": "assetstab()"
     },
     {
       "label": "RelationsTab()",
       "file_type": "code",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L458",
+      "source_location": "L455",
       "id": "game_layeredgameview_relationstab",
-      "community": 6,
+      "community": 5,
       "norm_label": "relationstab()"
     },
     {
       "label": "ActivitiesTab()",
       "file_type": "code",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L605",
+      "source_location": "L640",
       "id": "game_layeredgameview_activitiestab",
-      "community": 6,
+      "community": 5,
       "norm_label": "activitiestab()"
     },
     {
       "label": "HealthTab()",
       "file_type": "code",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L666",
+      "source_location": "L701",
       "id": "game_layeredgameview_healthtab",
-      "community": 6,
+      "community": 5,
       "norm_label": "healthtab()"
     },
     {
-      "label": "JobsTab()",
+      "label": "EducationTab()",
       "file_type": "code",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L693",
-      "id": "game_layeredgameview_jobstab",
-      "community": 6,
-      "norm_label": "jobstab()"
+      "source_location": "L728",
+      "id": "game_layeredgameview_educationtab",
+      "community": 5,
+      "norm_label": "educationtab()"
+    },
+    {
+      "label": "CareerTab()",
+      "file_type": "code",
+      "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
+      "source_location": "L819",
+      "id": "game_layeredgameview_careertab",
+      "community": 5,
+      "norm_label": "careertab()"
     },
     {
       "label": "FinanceTab()",
       "file_type": "code",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L751",
+      "source_location": "L870",
       "id": "game_layeredgameview_financetab",
-      "community": 6,
+      "community": 5,
       "norm_label": "financetab()"
     },
     {
@@ -3041,81 +3068,81 @@
       "source_file": "src\\layers\\presentation\\game\\useLayeredGame.js",
       "source_location": "L1",
       "id": "src_layers_presentation_game_uselayeredgame_js",
-      "community": 6,
+      "community": 5,
       "norm_label": "uselayeredgame.js"
     },
     {
       "label": "useLayeredGame()",
       "file_type": "code",
       "source_file": "src\\layers\\presentation\\game\\useLayeredGame.js",
-      "source_location": "L34",
+      "source_location": "L35",
       "id": "game_uselayeredgame_uselayeredgame",
-      "community": 6,
+      "community": 5,
       "norm_label": "uselayeredgame()"
     },
     {
       "label": "AmpuLife Project",
       "file_type": "document",
       "source_file": "README.md",
-      "id": "readme_ampulife",
-      "community": 16,
-      "norm_label": "ampulife project"
+      "community": 17,
+      "norm_label": "ampulife project",
+      "id": "readme_ampulife"
     },
     {
       "label": "Migration Plan",
       "file_type": "document",
       "source_file": "README.md",
-      "id": "readme_migration",
-      "community": 25,
-      "norm_label": "migration plan"
+      "community": 26,
+      "norm_label": "migration plan",
+      "id": "readme_migration"
     },
     {
       "label": "Layered Architecture Pattern",
       "file_type": "document",
       "source_file": "README.md",
-      "id": "readme_layered_architecture",
-      "community": 16,
-      "norm_label": "layered architecture pattern"
+      "community": 17,
+      "norm_label": "layered architecture pattern",
+      "id": "readme_layered_architecture"
     },
     {
       "label": "Legacy Game Entry",
       "file_type": "document",
       "source_file": "public/legacy/index.html",
-      "id": "legacy_index",
-      "community": 26,
-      "norm_label": "legacy game entry"
+      "community": 27,
+      "norm_label": "legacy game entry",
+      "id": "legacy_index"
     },
     {
       "label": "Agent Rules",
       "file_type": "document",
       "source_file": "AGENTS.md",
-      "id": "agents_rules",
-      "community": 27,
-      "norm_label": "agent rules"
+      "community": 28,
+      "norm_label": "agent rules",
+      "id": "agents_rules"
     },
     {
       "label": "AmpuLife Logo",
       "file_type": "image",
       "source_file": "public/legacy/images/logo.png",
-      "id": "logo_image",
-      "community": 28,
-      "norm_label": "ampulife logo"
+      "community": 29,
+      "norm_label": "ampulife logo",
+      "id": "logo_image"
     },
     {
       "label": "Drug Icon",
       "file_type": "image",
       "source_file": "public/legacy/images/drug.png",
-      "id": "drug_image",
-      "community": 29,
-      "norm_label": "drug icon"
+      "community": 30,
+      "norm_label": "drug icon",
+      "id": "drug_image"
     },
     {
       "label": "Docker Infrastructure",
       "file_type": "document",
       "source_file": "docker-compose.yml",
-      "id": "docker_infra",
-      "community": 30,
-      "norm_label": "docker infrastructure"
+      "community": 31,
+      "norm_label": "docker infrastructure",
+      "id": "docker_infra"
     }
   ],
   "links": [
@@ -4662,8 +4689,8 @@
       "source_file": "public\\legacy\\js\\sweetalert2.all.min.js",
       "source_location": "L5",
       "weight": 1.0,
-      "_src": "js_sweetalert2_all_min_be",
-      "_tgt": "js_jquery_min_e",
+      "_src": "js_jquery_min_e",
+      "_tgt": "js_sweetalert2_all_min_be",
       "source": "js_jquery_min_e",
       "target": "js_sweetalert2_all_min_be"
     },
@@ -11955,7 +11982,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src\\layers\\application\\use-cases\\ageUpYear.js",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0,
       "_src": "src_layers_application_use_cases_ageupyear_js",
       "_tgt": "use_cases_ageupyear_ageupyear",
@@ -11998,6 +12025,18 @@
       "_tgt": "entities_stateutils_pushlog",
       "source": "use_cases_ageupyear_ageupyear",
       "target": "entities_stateutils_pushlog"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src\\layers\\application\\use-cases\\ageUpYear.js",
+      "source_location": "L222",
+      "weight": 1.0,
+      "_src": "use_cases_ageupyear_ageupyear",
+      "_tgt": "use_cases_dropoutaction_dropoutaction",
+      "source": "use_cases_ageupyear_ageupyear",
+      "target": "use_cases_dropoutaction_dropoutaction"
     },
     {
       "relation": "calls",
@@ -12262,6 +12301,54 @@
       "source": "src_layers_application_use_cases_deriveoptions_js",
       "target": "use_cases_deriveoptions_getavailabletreatments",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src\\layers\\application\\use-cases\\dropOutAction.js",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_src": "src_layers_application_use_cases_dropoutaction_js",
+      "_tgt": "use_cases_dropoutaction_dropoutaction",
+      "source": "src_layers_application_use_cases_dropoutaction_js",
+      "target": "use_cases_dropoutaction_dropoutaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src\\layers\\application\\use-cases\\dropOutAction.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_src": "use_cases_dropoutaction_dropoutaction",
+      "_tgt": "entities_stateutils_clonestate",
+      "source": "use_cases_dropoutaction_dropoutaction",
+      "target": "entities_stateutils_clonestate"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src\\layers\\application\\use-cases\\dropOutAction.js",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_src": "use_cases_dropoutaction_dropoutaction",
+      "_tgt": "entities_stateutils_pushlog",
+      "source": "use_cases_dropoutaction_dropoutaction",
+      "target": "entities_stateutils_pushlog"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src\\layers\\application\\use-cases\\dropOutAction.js",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_src": "use_cases_dropoutaction_dropoutaction",
+      "_tgt": "entities_stateutils_pushnotification",
+      "source": "use_cases_dropoutaction_dropoutaction",
+      "target": "entities_stateutils_pushnotification"
     },
     {
       "relation": "contains",
@@ -12870,8 +12957,8 @@
       "source_file": "src\\layers\\infrastructure\\persistence\\gameRepository.js",
       "source_location": "L24",
       "weight": 1.0,
-      "_src": "persistence_gamerepository_loadgamestate",
-      "_tgt": "entities_gamestate_createinitialgamestate",
+      "_src": "entities_gamestate_createinitialgamestate",
+      "_tgt": "persistence_gamerepository_loadgamestate",
       "source": "entities_gamestate_createinitialgamestate",
       "target": "persistence_gamerepository_loadgamestate"
     },
@@ -12978,8 +13065,8 @@
       "source_file": "src\\layers\\domain\\services\\healthEngine.js",
       "source_location": "L53",
       "weight": 1.0,
-      "_src": "services_healthengine_applyillnessprogression",
-      "_tgt": "entities_stateutils_clamp",
+      "_src": "entities_stateutils_clamp",
+      "_tgt": "services_healthengine_applyillnessprogression",
       "source": "entities_stateutils_clamp",
       "target": "services_healthengine_applyillnessprogression"
     },
@@ -12990,8 +13077,8 @@
       "source_file": "src\\layers\\domain\\services\\eventEngine.js",
       "source_location": "L56",
       "weight": 1.0,
-      "_src": "services_eventengine_triggerrandomevent",
-      "_tgt": "entities_stateutils_pushlog",
+      "_src": "entities_stateutils_pushlog",
+      "_tgt": "services_eventengine_triggerrandomevent",
       "source": "entities_stateutils_pushlog",
       "target": "services_eventengine_triggerrandomevent"
     },
@@ -13002,8 +13089,8 @@
       "source_file": "src\\layers\\domain\\services\\healthEngine.js",
       "source_location": "L56",
       "weight": 1.0,
-      "_src": "services_healthengine_applyillnessprogression",
-      "_tgt": "entities_stateutils_pushlog",
+      "_src": "entities_stateutils_pushlog",
+      "_tgt": "services_healthengine_applyillnessprogression",
       "source": "entities_stateutils_pushlog",
       "target": "services_healthengine_applyillnessprogression"
     },
@@ -13311,7 +13398,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "_src": "src_layers_presentation_game_layeredgameview_jsx",
       "_tgt": "game_layeredgameview_layeredgameview",
@@ -13323,7 +13410,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L338",
+      "source_location": "L335",
       "weight": 1.0,
       "_src": "src_layers_presentation_game_layeredgameview_jsx",
       "_tgt": "game_layeredgameview_assetstab",
@@ -13335,7 +13422,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L458",
+      "source_location": "L455",
       "weight": 1.0,
       "_src": "src_layers_presentation_game_layeredgameview_jsx",
       "_tgt": "game_layeredgameview_relationstab",
@@ -13347,7 +13434,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L605",
+      "source_location": "L640",
       "weight": 1.0,
       "_src": "src_layers_presentation_game_layeredgameview_jsx",
       "_tgt": "game_layeredgameview_activitiestab",
@@ -13359,7 +13446,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L666",
+      "source_location": "L701",
       "weight": 1.0,
       "_src": "src_layers_presentation_game_layeredgameview_jsx",
       "_tgt": "game_layeredgameview_healthtab",
@@ -13371,19 +13458,31 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L693",
+      "source_location": "L728",
       "weight": 1.0,
       "_src": "src_layers_presentation_game_layeredgameview_jsx",
-      "_tgt": "game_layeredgameview_jobstab",
+      "_tgt": "game_layeredgameview_educationtab",
       "source": "src_layers_presentation_game_layeredgameview_jsx",
-      "target": "game_layeredgameview_jobstab",
+      "target": "game_layeredgameview_educationtab",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
-      "source_location": "L751",
+      "source_location": "L819",
+      "weight": 1.0,
+      "_src": "src_layers_presentation_game_layeredgameview_jsx",
+      "_tgt": "game_layeredgameview_careertab",
+      "source": "src_layers_presentation_game_layeredgameview_jsx",
+      "target": "game_layeredgameview_careertab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src\\layers\\presentation\\game\\LayeredGameView.jsx",
+      "source_location": "L870",
       "weight": 1.0,
       "_src": "src_layers_presentation_game_layeredgameview_jsx",
       "_tgt": "game_layeredgameview_financetab",
@@ -13407,7 +13506,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src\\layers\\presentation\\game\\useLayeredGame.js",
-      "source_location": "L34",
+      "source_location": "L35",
       "weight": 1.0,
       "_src": "src_layers_presentation_game_uselayeredgame_js",
       "_tgt": "game_uselayeredgame_uselayeredgame",

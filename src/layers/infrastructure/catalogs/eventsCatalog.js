@@ -485,4 +485,29 @@ export const eventsCatalog = [
       ],
     }),
   },
+  {
+    id: "driving_test",
+    label: "Lisensi",
+    minAge: 17,
+    maxAge: 18,
+    weight: (state) => {
+      const hasSIM = state.profile.licenses && state.profile.licenses.includes("SIM A/C");
+      return !hasSIM ? 0.8 : 0;
+    },
+    isInteractive: false,
+    apply: (state) => {
+      pushNotification(state, {
+        title: "Ujian SIM",
+        message: "Kamu sudah cukup umur untuk mendapatkan SIM. Apakah kamu ingin mengambil ujian resmi sekarang? (Biaya: Rp250.000)",
+        icon: "question",
+        type: "confirm",
+        eventId: "driving_test",
+        options: [
+          { id: "yes", label: "Ya, saya siap ujian!" },
+          { id: "no", label: "Nanti saja" }
+        ]
+      });
+      return { summary: "Tawaran untuk mengambil ujian SIM resmi." };
+    },
+  },
 ];

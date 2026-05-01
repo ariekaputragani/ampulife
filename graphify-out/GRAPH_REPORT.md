@@ -1,34 +1,36 @@
-# Graph Report - .  (2026-05-01)
+# Graph Report - ampulife  (2026-05-01)
 
 ## Corpus Check
-- Corpus is ~43,603 words - fits in a single context window. You may not need a graph.
+- 42 files · ~45,333 words
+- Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 345 nodes · 859 edges · 20 communities detected
-- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 91 edges (avg confidence: 0.8)
-- Token cost: 1,500 input · 800 output
+- 348 nodes · 865 edges · 21 communities detected
+- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 95 edges (avg confidence: 0.8)
+- Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_jQuery Core Utilities|jQuery Core Utilities]]
-- [[_COMMUNITY_Legacy Game Logic|Legacy Game Logic]]
-- [[_COMMUNITY_Modern Layered Services|Modern Layered Services]]
-- [[_COMMUNITY_SweetAlert UI Handlers|SweetAlert UI Handlers]]
-- [[_COMMUNITY_SweetAlert Utilities A|SweetAlert Utilities A]]
-- [[_COMMUNITY_SweetAlert Utilities B|SweetAlert Utilities B]]
-- [[_COMMUNITY_Next.js Presentation|Next.js Presentation]]
-- [[_COMMUNITY_SweetAlert Lifecycle|SweetAlert Lifecycle]]
-- [[_COMMUNITY_SweetAlert Animation|SweetAlert Animation]]
-- [[_COMMUNITY_Select2 Integration|Select2 Integration]]
-- [[_COMMUNITY_SweetAlert Event Bus|SweetAlert Event Bus]]
-- [[_COMMUNITY_SweetAlert Timer|SweetAlert Timer]]
-- [[_COMMUNITY_State & Persistence|State & Persistence]]
-- [[_COMMUNITY_Project Documentation|Project Documentation]]
-- [[_COMMUNITY_Migration Strategy|Migration Strategy]]
-- [[_COMMUNITY_Legacy Entry Point|Legacy Entry Point]]
-- [[_COMMUNITY_Workspace Rules|Workspace Rules]]
-- [[_COMMUNITY_Brand Assets|Brand Assets]]
-- [[_COMMUNITY_Game Icons|Game Icons]]
-- [[_COMMUNITY_Docker Infrastructure|Docker Infrastructure]]
+- [[_COMMUNITY_Community 0|Community 0]]
+- [[_COMMUNITY_Community 1|Community 1]]
+- [[_COMMUNITY_Community 2|Community 2]]
+- [[_COMMUNITY_Community 3|Community 3]]
+- [[_COMMUNITY_Community 4|Community 4]]
+- [[_COMMUNITY_Community 5|Community 5]]
+- [[_COMMUNITY_Community 6|Community 6]]
+- [[_COMMUNITY_Community 7|Community 7]]
+- [[_COMMUNITY_Community 8|Community 8]]
+- [[_COMMUNITY_Community 9|Community 9]]
+- [[_COMMUNITY_Community 10|Community 10]]
+- [[_COMMUNITY_Community 11|Community 11]]
+- [[_COMMUNITY_Community 12|Community 12]]
+- [[_COMMUNITY_Community 14|Community 14]]
+- [[_COMMUNITY_Community 17|Community 17]]
+- [[_COMMUNITY_Community 26|Community 26]]
+- [[_COMMUNITY_Community 27|Community 27]]
+- [[_COMMUNITY_Community 28|Community 28]]
+- [[_COMMUNITY_Community 29|Community 29]]
+- [[_COMMUNITY_Community 30|Community 30]]
+- [[_COMMUNITY_Community 31|Community 31]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `update()` - 25 edges
@@ -36,11 +38,11 @@
 3. `c()` - 23 edges
 4. `w()` - 23 edges
 5. `$()` - 23 edges
-6. `updatea()` - 17 edges
-7. `pushLog()` - 17 edges
+6. `pushLog()` - 18 edges
+7. `updatea()` - 17 edges
 8. `qe()` - 16 edges
 9. `bt()` - 16 edges
-10. `t()` - 15 edges
+10. `cloneState()` - 16 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Ye()` --calls--> `e()`  [INFERRED]
@@ -59,120 +61,124 @@
 
 ## Communities
 
-### Community 0 - "jQuery Core Utilities"
+### Community 0 - "Community 0"
+Cohesion: 0.07
+Nodes (34): getIllnessById(), applyStatDelta(), clamp(), cloneState(), generateRandomName(), pushLog(), pushNotification(), canTakeJob() (+26 more)
+
+### Community 1 - "Community 1"
 Cohesion: 0.09
 Nodes (39): $(), A(), Ae(), B(), Be(), c(), $e(), ee() (+31 more)
 
-### Community 1 - "Legacy Game Logic"
+### Community 2 - "Community 2"
 Cohesion: 0.11
 Nodes (51): back(), bebasp(), beliMobil(), beliRumah(), dapatKerja(), ged(), getFemaleFN(), getLN() (+43 more)
 
-### Community 2 - "Modern Layered Services"
-Cohesion: 0.07
-Nodes (33): getIllnessById(), applyStatDelta(), clamp(), cloneState(), generateRandomName(), pushLog(), pushNotification(), canTakeJob() (+25 more)
+### Community 3 - "Community 3"
+Cohesion: 0.11
+Nodes (25): Le(), an(), at(), ce(), cn(), dn(), en(), ft() (+17 more)
 
-### Community 3 - "SweetAlert UI Handlers"
-Cohesion: 0.12
-Nodes (23): an(), at(), cn(), dn(), emit(), en(), fe(), _getHandlersByEventName() (+15 more)
+### Community 4 - "Community 4"
+Cohesion: 0.28
+Nodes (22): A(), Ct(), de(), ee(), It(), j(), jt(), L() (+14 more)
 
-### Community 4 - "SweetAlert Utilities A"
-Cohesion: 0.26
-Nodes (23): A(), Ct(), de(), ee(), It(), j(), jt(), L() (+15 more)
-
-### Community 5 - "SweetAlert Utilities B"
-Cohesion: 0.13
-Nodes (22): bt(), d(), dt(), f(), ft(), g(), gt(), ht() (+14 more)
-
-### Community 6 - "Next.js Presentation"
+### Community 5 - "Community 5"
 Cohesion: 0.12
 Nodes (5): Home(), CreatePage(), LayeredGameView(), GamePage(), useLayeredGame()
 
-### Community 7 - "SweetAlert Lifecycle"
-Cohesion: 0.19
-Nodes (11): e(), gn(), h(), jn(), _main(), oe(), ut(), vn() (+3 more)
+### Community 6 - "Community 6"
+Cohesion: 0.21
+Nodes (10): e(), et(), gn(), h(), _main(), n(), Wn(), xn() (+2 more)
 
-### Community 8 - "SweetAlert Animation"
-Cohesion: 0.19
-Nodes (14): Le(), ae(), b(), ce(), et(), Ge(), i(), k() (+6 more)
+### Community 7 - "Community 7"
+Cohesion: 0.23
+Nodes (13): be(), c(), dt(), Ge(), i(), Ie(), je(), ke() (+5 more)
 
-### Community 9 - "Select2 Integration"
+### Community 8 - "Community 8"
 Cohesion: 0.21
 Nodes (6): a(), b(), c(), e(), n(), x()
 
-### Community 10 - "SweetAlert Event Bus"
-Cohesion: 0.43
-Nodes (7): be(), c(), Ie(), je(), pe(), R(), ve()
+### Community 9 - "Community 9"
+Cohesion: 0.23
+Nodes (12): ae(), b(), bt(), f(), g(), le(), oe(), pe() (+4 more)
 
-### Community 11 - "SweetAlert Timer"
+### Community 10 - "Community 10"
+Cohesion: 0.27
+Nodes (10): d(), emit(), fe(), _getHandlersByEventName(), In(), jn(), me(), re() (+2 more)
+
+### Community 11 - "Community 11"
+Cohesion: 0.28
+Nodes (8): gt(), ht(), mt(), Ot(), pt(), st(), Tt(), xt()
+
+### Community 12 - "Community 12"
 Cohesion: 0.52
 Nodes (1): kn
 
-### Community 13 - "State & Persistence"
+### Community 14 - "Community 14"
 Cohesion: 0.33
 Nodes (3): createInitialGameState(), loadGameState(), parseSave()
 
-### Community 16 - "Project Documentation"
+### Community 17 - "Community 17"
 Cohesion: 1.0
 Nodes (2): AmpuLife Project, Layered Architecture Pattern
 
-### Community 25 - "Migration Strategy"
+### Community 26 - "Community 26"
 Cohesion: 1.0
 Nodes (1): Migration Plan
 
-### Community 26 - "Legacy Entry Point"
+### Community 27 - "Community 27"
 Cohesion: 1.0
 Nodes (1): Legacy Game Entry
 
-### Community 27 - "Workspace Rules"
+### Community 28 - "Community 28"
 Cohesion: 1.0
 Nodes (1): Agent Rules
 
-### Community 28 - "Brand Assets"
+### Community 29 - "Community 29"
 Cohesion: 1.0
 Nodes (1): AmpuLife Logo
 
-### Community 29 - "Game Icons"
+### Community 30 - "Community 30"
 Cohesion: 1.0
 Nodes (1): Drug Icon
 
-### Community 30 - "Docker Infrastructure"
+### Community 31 - "Community 31"
 Cohesion: 1.0
 Nodes (1): Docker Infrastructure
 
 ## Knowledge Gaps
 - **8 isolated node(s):** `AmpuLife Project`, `Migration Plan`, `Layered Architecture Pattern`, `Legacy Game Entry`, `Agent Rules` (+3 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **Thin community `SweetAlert Timer`** (7 nodes): `kn`, `.constructor()`, `.getTimerLeft()`, `.increase()`, `.isRunning()`, `.start()`, `.stop()`
+- **Thin community `Community 12`** (7 nodes): `kn`, `.constructor()`, `.getTimerLeft()`, `.increase()`, `.isRunning()`, `.start()`, `.stop()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Project Documentation`** (2 nodes): `AmpuLife Project`, `Layered Architecture Pattern`
+- **Thin community `Community 17`** (2 nodes): `AmpuLife Project`, `Layered Architecture Pattern`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Migration Strategy`** (1 nodes): `Migration Plan`
+- **Thin community `Community 26`** (1 nodes): `Migration Plan`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Legacy Entry Point`** (1 nodes): `Legacy Game Entry`
+- **Thin community `Community 27`** (1 nodes): `Legacy Game Entry`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Workspace Rules`** (1 nodes): `Agent Rules`
+- **Thin community `Community 28`** (1 nodes): `Agent Rules`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Brand Assets`** (1 nodes): `AmpuLife Logo`
+- **Thin community `Community 29`** (1 nodes): `AmpuLife Logo`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Game Icons`** (1 nodes): `Drug Icon`
+- **Thin community `Community 30`** (1 nodes): `Drug Icon`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Docker Infrastructure`** (1 nodes): `Docker Infrastructure`
+- **Thin community `Community 31`** (1 nodes): `Docker Infrastructure`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `$()` connect `Legacy Game Logic` to `SweetAlert UI Handlers`, `SweetAlert Utilities A`?**
-  _High betweenness centrality (0.169) - this node is a cross-community bridge._
-- **Why does `u()` connect `SweetAlert UI Handlers` to `Legacy Game Logic`, `SweetAlert Utilities A`, `SweetAlert Utilities B`, `SweetAlert Animation`, `Select2 Integration`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
-- **Why does `e()` connect `SweetAlert Lifecycle` to `jQuery Core Utilities`, `SweetAlert UI Handlers`, `SweetAlert Utilities A`, `SweetAlert Animation`, `SweetAlert Event Bus`?**
-  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+- **Why does `$()` connect `Community 2` to `Community 3`, `Community 4`?**
+  _High betweenness centrality (0.166) - this node is a cross-community bridge._
+- **Why does `u()` connect `Community 3` to `Community 2`, `Community 4`, `Community 8`, `Community 9`, `Community 10`?**
+  _High betweenness centrality (0.049) - this node is a cross-community bridge._
+- **Why does `e()` connect `Community 6` to `Community 1`, `Community 3`, `Community 4`, `Community 7`, `Community 9`?**
+  _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Are the 18 inferred relationships involving `$()` (e.g. with `updateFormTgl()` and `updateDayOptions()`) actually correct?**
   _`$()` has 18 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `AmpuLife Project`, `Migration Plan`, `Layered Architecture Pattern` to the rest of the system?**
   _8 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `jQuery Core Utilities` be split into smaller, more focused modules?**
+- **Should `Community 0` be split into smaller, more focused modules?**
+  _Cohesion score 0.07 - nodes in this community are weakly interconnected._
+- **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.09 - nodes in this community are weakly interconnected._
-- **Should `Legacy Game Logic` be split into smaller, more focused modules?**
-  _Cohesion score 0.11 - nodes in this community are weakly interconnected._

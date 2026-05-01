@@ -77,7 +77,7 @@ export function takeActivityAction(state, activityId) {
       } else {
         const smarts = newState.stats.smarts;
         const roll = Math.random();
-        
+
         if (smarts < 75) {
           message = "Nilai akademikmu belum cukup memuaskan untuk mendapatkan beasiswa.";
         } else if (roll < 0.7) { // 30% success chance if smart
@@ -116,16 +116,11 @@ export function takeActivityAction(state, activityId) {
       if (newState.age < 15) {
         message = "Kamu terlalu muda untuk bekerja part-time.";
       } else {
-        const salary = 1_500_000 + Math.floor(Math.random() * 1_000_000);
-        if (newState.profile?.isIndependent) {
-          newState.money += salary;
-          message = `Kamu bekerja part-time dan mendapat bayaran Rp${salary.toLocaleString("id-ID")}.`;
-        } else {
-          newState.family.savings += salary;
-          message = `Kamu bekerja part-time dan menyumbang Rp${salary.toLocaleString("id-ID")} ke tabungan keluarga.`;
-        }
+        const salary = 500_000 + Math.floor(Math.random() * 500_000); // Gaji harian/mingguan yang dikumpulkan setahun
+        newState.money += salary;
         newState.stats.health = Math.max(0, newState.stats.health - 5);
         newState.stats.happy = Math.max(0, newState.stats.happy - 3);
+        message = `Kamu bekerja sampingan setelah sekolah dan mendapatkan Rp${salary.toLocaleString("id-ID")} untuk uang sakumu.`;
       }
       break;
 
@@ -144,6 +139,34 @@ export function takeActivityAction(state, activityId) {
         message = "Kamu aktif mengikuti kegiatan ekstrakurikuler sekolah. Teman-teman barumu sangat seru!";
       } else {
         message = "Tidak ada cukup uang untuk membayar uang kas ekstrakurikuler.";
+      }
+      break;
+
+    case "driving_test":
+      const simCost = 250_000;
+      const canAfford = newState.profile?.isIndependent ? newState.money >= simCost : (newState.money >= simCost || newState.family.savings >= simCost);
+      
+      if (canAfford) {
+        if (newState.profile?.isIndependent || newState.money >= simCost) {
+          newState.money -= simCost;
+        } else {
+          newState.family.savings -= simCost;
+        }
+
+        const passChance = 0.5 + (newState.stats.smarts / 200);
+        if (Math.random() < passChance) {
+          if (!newState.profile.licenses) newState.profile.licenses = [];
+          if (!newState.profile.licenses.includes("SIM A/C")) {
+            newState.profile.licenses.push("SIM A/C");
+          }
+          newState.stats.happy = Math.min(100, newState.stats.happy + 10);
+          message = "LULUS! Kamu berhasil melewati ujian teori dan praktik di Satpas. Sekarang kamu resmi memiliki SIM A/C.";
+        } else {
+          newState.stats.happy = Math.max(0, newState.stats.happy - 5);
+          message = "GAGAL! Kamu melakukan kesalahan fatal saat ujian praktik. Silakan coba lagi tahun depan.";
+        }
+      } else {
+        message = "Uangmu tidak cukup untuk membayar biaya administrasi ujian SIM.";
       }
       break;
 

@@ -34,7 +34,14 @@ export function takeAssetAction(state, assetId) {
     next.family.savings -= asset.price;
   }
 
-  next.assets.push({ id: asset.id, name: asset.name, boughtAtAge: next.age });
+  if (asset.id === "sim_fast_track") {
+    if (!next.profile.licenses) next.profile.licenses = [];
+    if (!next.profile.licenses.includes("SIM A/C")) {
+      next.profile.licenses.push("SIM A/C");
+    }
+  } else {
+    next.assets.push({ id: asset.id, name: asset.name, boughtAtAge: next.age });
+  }
   next.stats = applyStatDelta(next.stats, asset.delta);
 
   // Determine the buyer based on whose money was deducted
