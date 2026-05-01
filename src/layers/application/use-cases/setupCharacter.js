@@ -46,14 +46,14 @@ export function setupCharacter(state, { name, city, gender, birthDate }) {
   next.hasBPJS = familyWealth === "poor" ? "PBI" : false; // Poor gets free BPJS PBI
 
   // Generate Initial Stats
-  const baseHealth = familyWealth === "rich" ? 80 : familyWealth === "poor" ? 40 : 60;
-  const baseSmarts = familyWealth === "rich" ? 60 : familyWealth === "poor" ? 30 : 40;
+  const baseHealth = familyWealth === "rich" ? 90 : familyWealth === "poor" ? 70 : 80;
+  const baseSmarts = familyWealth === "rich" ? 30 : familyWealth === "poor" ? 0 : 0;
 
   next.stats = {
-    happy: Math.floor(Math.random() * 50) + 50,
-    health: Math.floor(Math.random() * (100 - baseHealth)) + baseHealth,
-    smarts: Math.floor(Math.random() * (100 - baseSmarts)) + baseSmarts,
-    looks: Math.floor(Math.random() * 70) + 30,
+    happy: Math.floor(Math.random() * 51) + 50,
+    health: Math.floor(Math.random() * (101 - baseHealth)) + baseHealth,
+    smarts: Math.floor(Math.random() * (101 - baseSmarts)) + baseSmarts,
+    looks: Math.floor(Math.random() * 101),
   };
 
   const fatherName = generateRandomName("male");
@@ -116,14 +116,14 @@ export function setupCharacter(state, { name, city, gender, birthDate }) {
   };
   const zodiac = getZodiac(birthDate.day, birthDate.month);
 
-  pushLog(next, `Kehidupan baru dimulai!`);
-  pushLog(next, `Perkenalkan nama saya ${next.profile.name}. Saya terlahir sebagai ${gender === 'male' ? 'laki-laki' : 'perempuan'}. Saya lahir di ${next.profile.city} pada tanggal ${birthDate.day} ${birthDate.month} ${birthDate.year}. Saya adalah ${pregnancyStatus}. Saya seorang ${zodiac}.`);
+  let initialLog = `Perkenalkan nama saya ${next.profile.name}. Saya terlahir sebagai ${gender === 'male' ? 'laki-laki' : 'perempuan'}. Saya lahir di ${next.profile.city}, Indonesia pada tanggal ${birthDate.day} ${birthDate.month} ${birthDate.year}. Saya adalah ${pregnancyStatus}. Saya seorang ${zodiac}.<br><br>Bapak saya ${fatherName} (umur ${fatherAge}), Ibu saya ${motherName} (umur ${motherAge}). Kami berasal dari keluarga yang ${familyWealth === "rich" ? "sangat kaya" : familyWealth === "poor" ? "miskin" : "sederhana"}.`;
 
-  const wealthText = familyWealth === "rich" ? "sangat kaya" : familyWealth === "poor" ? "miskin" : "sederhana";
-  pushLog(next, `Bapak saya ${fatherName} (umur ${fatherAge}), Ibu saya ${motherName} (umur ${motherAge}). Kami berasal dari keluarga yang ${wealthText}.`);
   if (next.hasBPJS === "PBI") {
-    pushLog(next, `Pemerintah memberikan bantuan kesehatan gratis (BPJS PBI) untuk keluargamu.`);
+    initialLog += `<br>Pemerintah memberikan bantuan kesehatan gratis (BPJS PBI) untuk keluargamu.`;
   }
+
+  initialLog += `<br><br>`;
+  pushLog(next, initialLog);
 
   return next;
 }

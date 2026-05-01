@@ -39,6 +39,12 @@ export default function Home() {
           }} className={styles.primaryButton}>Mainkan!</button>
         </div>
 
+        <div className={styles.tombol2Button} style={{ padding: 0 }}>
+          <button onClick={() => {
+            actions.setupRandomCharacter();
+            router.push("/game");
+          }} className={styles.tombol2Button}><i className="fa-solid fa-shuffle"></i> Mainkan Acak</button>
+        </div>
         <div className={styles.tombol1Button} style={{ padding: 0 }}>
           <button onClick={() => {
             import('sweetalert2').then((Swal) => {

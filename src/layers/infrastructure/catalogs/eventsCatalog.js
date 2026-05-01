@@ -1,13 +1,25 @@
-import { pickIllnessByAge } from "@/layers/infrastructure/catalogs/illnessCatalog";
-import { pushLog } from "@/layers/domain/entities/stateUtils";
+import { pushLog, pushNotification } from "@/layers/domain/entities/stateUtils";
 
 export const eventsCatalog = [
+  {
+    id: "medan_peril",
+    label: "Korban",
+    minAge: 1,
+    maxAge: 999,
+    weight: (state) => (state.profile.city === "Medan" ? 0.001 : 0),
+    isInteractive: false,
+    apply: (state) => {
+      state.life.isAlive = false;
+      state.life.causeOfDeath = "meninggal karena pembunuhan";
+      return { summary: "Kamu menjadi korban kriminalitas di Medan. Kamu meninggal dunia." };
+    },
+  },
   {
     id: "school_award",
     label: "Prestasi sekolah",
     minAge: 7,
-    maxAge: 18,
-    weight: (state) => (state.stats.smarts > 55 ? 1.2 : 0.6),
+    maxAge: 16,
+    weight: (state) => (state.stats.smarts > 55 ? 0.1 : 0.02),
     apply: (state) => {
       state.stats.happy = Math.min(100, state.stats.happy + 6);
       state.stats.smarts = Math.min(100, state.stats.smarts + 3);
@@ -15,86 +27,168 @@ export const eventsCatalog = [
     },
   },
   {
-    id: "illness",
-    label: "Sakit musiman",
-    minAge: 0,
-    maxAge: 90,
-    weight: (state) => {
-      if (state.healthStatus.condition !== "healthy") {
-        return 0.1;
-      }
-      if (state.stats.health > 80) return 0.1; // Sehat banget, jarang sakit
-      return state.stats.health < 45 ? 1.5 : 0.6;
-    },
+    id: "illness_flu",
+    label: "Sakit Flu",
+    minAge: 1,
+    maxAge: 999,
+    weight: (state) => (state.healthStatus.condition === "healthy" ? 0.03 : 0),
+    isInteractive: false,
     apply: (state) => {
-      const illness = pickIllnessByAge(state.age);
-      state.stats.health = Math.max(0, state.stats.health - 8);
-      state.stats.happy = Math.max(0, state.stats.happy - 4);
       state.healthStatus.condition = "ill";
-      state.healthStatus.illnessId = illness?.id ?? "flu";
-      state.healthStatus.severity = illness?.baseSeverity ?? "mild";
+      state.healthStatus.illnessId = "flu";
+      state.healthStatus.severity = "mild";
       state.healthStatus.untreatedYears = 0;
-      return { summary: `Kamu terkena ${illness?.name ?? "penyakit musiman"}.` };
+      const msg = "Saya terkena Flu. Tubuh Saya terasa lemas.";
+      pushNotification(state, { title: "Penyakit", message: msg, icon: "warning" });
+      return { summary: msg };
+    },
+  },
+  {
+    id: "illness_diare",
+    label: "Sakit Diare",
+    minAge: 1,
+    maxAge: 999,
+    weight: (state) => (state.healthStatus.condition === "healthy" ? 0.02 : 0),
+    isInteractive: false,
+    apply: (state) => {
+      state.healthStatus.condition = "ill";
+      state.healthStatus.illnessId = "diarrhea";
+      state.healthStatus.severity = "mild";
+      state.healthStatus.untreatedYears = 0;
+      const msg = "Saya terkena Diare. Perut Saya terasa tidak enak.";
+      pushNotification(state, { title: "Penyakit", message: msg, icon: "warning" });
+      return { summary: msg };
+    },
+  },
+  {
+    id: "illness_infant",
+    label: "Penyakit Bayi",
+    minAge: 1,
+    maxAge: 5,
+    weight: (state) => (state.healthStatus.condition === "healthy" ? 0.05 : 0),
+    isInteractive: false,
+    apply: (state) => {
+      const illness = pickIllnessByAge(state.age) || { name: "Penyakit", id: "flu" };
+      state.healthStatus.condition = "ill";
+      state.healthStatus.illnessId = illness.id;
+      state.healthStatus.severity = "mild";
+      state.healthStatus.untreatedYears = 0;
+      const msg = `Saya didiagnosis menderita ${illness.name}.`;
+      pushNotification(state, { title: "Penyakit", message: msg, icon: "warning" });
+      return { summary: msg };
     },
   },
   {
     id: "lightning_strike",
-    label: "Tersambar Petir",
-    minAge: 5,
-    weight: 0.01,
+    label: "Kesamber Gledek",
+    minAge: 19,
+    maxAge: 999,
+    weight: (state) => 0.0001,
     isInteractive: false,
     apply: (state) => {
       const isMiracle = Math.random() < 0.5;
       if (isMiracle) {
         state.stats = { happy: 100, health: 100, smarts: 100, looks: 100 };
-        return { summary: "⚡ KEJADIAN LUAR BIASA: Kamu tersambar petir! AJAIB, tubuhmu justru terasa sangat bertenaga dan jenius!" };
+        const msg = "Aku tersambar petir!";
+        pushNotification(state, { title: "Korban", message: "Kamu tersambar gledek!", icon: "warning" });
+        return { summary: msg };
       } else {
+        const msg = "Aku tersambar gledek!";
+        pushNotification(state, { title: "Korban", message: "Kamu tersambar gledek!", icon: "warning" });
         state.life.isAlive = false;
         state.life.causeOfDeath = "meninggal setelah tersambar petir";
-        return { summary: "⚡ KEJADIAN LUAR BIASA: Kamu tersambar petir! Tragis, sambaran itu langsung mengakhiri hidupmu." };
+        return { summary: msg };
       }
     },
   },
   {
+    id: "illness_tbc",
+    label: "Penyakit TBC",
+    minAge: 19,
+    maxAge: 999,
+    weight: (state) => (state.healthStatus.condition === "healthy" ? 0.0049 : 0),
+    isInteractive: false,
+    apply: (state) => {
+      state.healthStatus.condition = "ill";
+      state.healthStatus.illnessId = "tuberculosis";
+      state.healthStatus.severity = "moderate";
+      state.healthStatus.untreatedYears = 0;
+      const msg = "Saya didiagnosis menderita TBC.";
+      pushNotification(state, { title: "Penyakit", message: msg, icon: "warning" });
+      return { summary: msg };
+    },
+  },
+  {
     id: "animal_encounter",
-    label: "Pertemuan Hewan",
-    minAge: 5,
-    weight: 0.1,
+    label: "Pertemuan",
+    minAge: 19,
+    maxAge: 999,
+    weight: (state) => 0.05,
     isInteractive: true,
     apply: (state) => {
-      const animals = ["anjing", "babi hutan", "badak", "buaya", "gajah", "harimau", "ular", "tawon"];
+      const animals = ["anjing", "babi hutan", "badak", "buaya", "gajah", "harimau", "ular", "tawon", "kalajengking", "kuda nil", "tokek"];
       const animal = animals[Math.floor(Math.random() * animals.length)];
       return {
-        summary: `🌲 Saat sedang jalan-jalan, kamu berpapasan dengan seekor ${animal}! Apa yang akan kamu lakukan?`,
+        summary: `Kamu menemui seekor ${animal}. Apa yang kamu lakukan?`,
         options: [
-          {
-            id: "run_away",
-            label: "Lari Sekencang-kencangnya",
-            resolve: (s) => "Kamu langsung lari sekencang mungkin dan berhasil selamat.",
-          },
-          {
-            id: "pet_animal",
-            label: "Mencoba Mendekat/Mengelus",
-            resolve: (s) => {
-              const friendly = Math.random() > 0.7;
-              if (friendly) {
-                s.stats.happy = Math.min(100, s.stats.happy + 20);
-                return `Ajaib! Hewan itu ternyata jinak dan sangat ramah.`;
-              } else {
-                s.stats.health = Math.max(0, s.stats.health - 25);
-                return `Aduh! Hewan itu menyerangmu saat kamu mencoba mendekat.`;
-              }
-            },
-          },
+          { id: "retreat", label: "Mundur Perlahan", resolve: () => `Saya bertemu seekor ${animal}. Saya mundur perlahan.` },
+          { id: "pet", label: "Peliharalah", resolve: () => `Saya bertemu seekor ${animal}. Saya mencoba memeliharanya.` },
+          { id: "run", label: "Lari!", resolve: () => `Saya bertemu seekor ${animal}. Saya menghindarinya.` }
         ],
       };
     },
   },
   {
+    id: "illness_diabetes",
+    label: "Penyakit Diabetes",
+    minAge: 40,
+    maxAge: 999,
+    weight: (state) => (state.healthStatus.condition === "healthy" ? 0.01 : 0),
+    isInteractive: false,
+    apply: (state) => {
+      state.healthStatus.condition = "ill";
+      state.healthStatus.illnessId = "diabetes";
+      state.healthStatus.severity = "moderate";
+      state.healthStatus.untreatedYears = 0;
+      const msg = "Saya didiagnosis menderita Diabetes.";
+      pushNotification(state, { title: "Penyakit", message: msg, icon: "warning" });
+      return { summary: msg };
+    },
+  },
+  {
+    id: "illness_old_age",
+    label: "Penyakit Tua",
+    minAge: 60,
+    maxAge: 999,
+    weight: (state) => (state.healthStatus.condition === "healthy" ? 0.09 : 0),
+    isInteractive: false,
+    apply: (state) => {
+      const r = Math.random();
+      let id, name;
+      if (r < 0.1) {
+        id = "alzheimer";
+        name = "Alzheimer";
+      } else if (r < 0.5) {
+        id = "cancer";
+        name = "Kanker";
+      } else {
+        id = "heart_disease";
+        name = "Sakit Jantung";
+      }
+      state.healthStatus.condition = "ill";
+      state.healthStatus.illnessId = id;
+      state.healthStatus.severity = "moderate";
+      state.healthStatus.untreatedYears = 0;
+      const msg = `Saya didiagnosis menderita ${name}.`;
+      pushNotification(state, { title: "Penyakit", message: msg, icon: "warning" });
+      return { summary: msg };
+    },
+  },
+  {
     id: "drop_out_school",
     label: "Ancaman Putus Sekolah",
-    minAge: 12,
-    maxAge: 17,
+    minAge: 13,
+    maxAge: 16,
     weight: (state) => {
       // Hanya muncul jika miskin dan masih sekolah (belum drop out)
       if (state.familyWealth !== "poor") return 0;
@@ -132,8 +226,8 @@ export const eventsCatalog = [
     id: "bully",
     label: "Dibully di sekolah",
     minAge: 7,
-    maxAge: 18,
-    weight: (state) => (state.stats.looks < 40 || state.stats.smarts > 70 ? 1.1 : 0.5),
+    maxAge: 16,
+    weight: (state) => (state.education.level !== "none" ? 0.25 : 0),
     isInteractive: true,
     apply: (state) => ({
       summary: "Seseorang mengejekmu di koridor sekolah. Apa yang kamu lakukan?",
@@ -169,7 +263,7 @@ export const eventsCatalog = [
   {
     id: "drug_offer",
     label: "Tawaran Narkoba",
-    minAge: 16,
+    minAge: 19,
     maxAge: 40,
     weight: (state) => (state.stats.happy < 40 ? 1.2 : 0.4),
     isInteractive: true,
@@ -188,6 +282,8 @@ export const eventsCatalog = [
           id: "accept",
           label: "Coba saja",
           resolve: (s) => {
+            if (!s.flags) s.flags = {};
+            s.flags.isDrugAttempted = true;
             s.stats.health = Math.max(0, s.stats.health - 40);
             s.stats.happy = Math.min(100, s.stats.happy + 20);
             return "Kamu mencobanya dan merasa melayang, tapi tubuhmu hancur.";
@@ -210,8 +306,8 @@ export const eventsCatalog = [
   {
     id: "family_support",
     label: "Dukungan keluarga",
-    minAge: 6,
-    maxAge: 90,
+    minAge: 7,
+    maxAge: 999,
     weight: (state) => {
       const avgSupport =
         state.relations.reduce((acc, item) => acc + item.support, 0) /
@@ -227,41 +323,32 @@ export const eventsCatalog = [
   {
     id: "scholarship_offer",
     label: "Tawaran Beasiswa",
-    minAge: 12,
+    minAge: 13,
     maxAge: 22,
     weight: (state) => {
       if (state.education.level === "none" || state.family.isScholarshipActive) return 0;
       return state.stats.smarts > 75 ? 0.8 : 0.2;
     },
-    isInteractive: true,
-    apply: (state) => ({
-      summary: "Sekolahmu menawarkan program beasiswa bagi siswa terpilih. Apakah kamu ingin mendaftar?",
-      options: [
-        {
-          id: "apply",
-          label: "Daftar Sekarang",
-          resolve: (s) => {
-            const chance = 0.35 + (s.stats.smarts - 75) * 0.02; // higher chance than manual
-            if (Math.random() < chance) {
-              s.family.isScholarshipActive = true;
-              s.stats.happy += 10;
-              return "Luar biasa! Kamu memenangkan beasiswa tersebut.";
-            }
-            return "Sayang sekali, kamu belum berhasil mendapatkan beasiswa kali ini.";
-          },
-        },
-        {
-          id: "ignore",
-          label: "Tidak Tertarik",
-          resolve: (s) => "Kamu melewatkan kesempatan tersebut.",
-        },
-      ],
-    }),
+    isInteractive: false,
+    apply: (state) => {
+      pushNotification(state, {
+        title: "Tawaran Beasiswa",
+        message: "Sekolahmu menawarkan program beasiswa bagi siswa terpilih. Apakah kamu ingin mendaftar?",
+        icon: "question",
+        type: "confirm",
+        eventId: "scholarship_offer",
+        options: [
+          { id: "yes", label: "Gass daftar sekarang!" },
+          { id: "no", label: "Maaf, saya tidak tertarik" }
+        ]
+      });
+      return { summary: "Sekolah menawarkan program beasiswa." };
+    },
   },
   {
     id: "financial_crisis",
     label: "Krisis Keuangan Keluarga",
-    minAge: 6,
+    minAge: 7,
     maxAge: 22,
     weight: (state) => {
       if (state.family.savings > 0 || state.education.level === "none" || state.family.isScholarshipActive) return 0;
@@ -307,119 +394,5 @@ export const eventsCatalog = [
       state.stats.smarts += 5;
       return { summary: `Kamu menjuarai lomba tingkat nasional dan mendapat hadiah Rp${prize.toLocaleString("id-ID")}!` };
     },
-  },
-  {
-    id: "household_crisis",
-    label: "Masalah Rumah Tangga",
-    minAge: 5,
-    maxAge: 18,
-    weight: (state) => (state.family.savings > 5_000_000 ? 0.6 : 0.2),
-    apply: (state) => {
-      const repairs = [
-        { msg: "Atap rumah kami bocor dan Ayah harus memanggil tukang untuk memperbaikinya.", cost: 2_500_000 },
-        { msg: "Motor Bapak tiba-tiba mogok dan butuh servis besar agar bisa dipakai kerja lagi.", cost: 1_500_000 },
-        { msg: "Pipa air di rumah kami pecah, Ibu sibuk membersihkan air yang menggenang.", cost: 800_000 },
-      ];
-      const picked = repairs[Math.floor(Math.random() * repairs.length)];
-      state.family.savings -= picked.cost;
-      return { summary: picked.msg };
-    },
-  },
-  {
-    id: "parent_sick",
-    label: "Orang Tua Sakit",
-    minAge: 0,
-    maxAge: 25,
-    weight: (state) => (state.family.wealthStatus === "poor" ? 0.8 : 0.4),
-    apply: (state) => {
-      let cost = 5_000_000;
-      if (state.family.wealthStatus === "rich") cost = 35_000_000;
-      if (state.family.wealthStatus === "poor") cost = 500_000; // Diasumsikan pakai BPJS PBI, hanya bayar obat luar/admin
-      
-      state.family.savings -= cost;
-      state.stats.happy -= 10;
-      const person = Math.random() > 0.5 ? "Ibu" : "Bapak";
-      return { summary: `${person} ku jatuh sakit dan harus dirawat di rumah sakit. Beruntung ada BPJS sehingga biaya tidak terlalu mencekik.` };
-    },
-  },
-  {
-    id: "parent_phk",
-    label: "Krisis Ekonomi (PHK)",
-    minAge: 0,
-    maxAge: 30,
-    weight: (state) => {
-      // Only for middle/rich who are not already bankrupt
-      if (state.family.wealthStatus === "poor" || state.family.isBankrupt || state.profile.isIndependent) return 0;
-      return 0.4; // Small chance every year
-    },
-    apply: (state) => {
-      state.family.isBankrupt = true;
-      state.family.monthlyIncome = 1_500_000; // Survival mode
-      state.stats.happy = Math.max(0, state.stats.happy - 25);
-      return { summary: "Ayahmu terkena PHK mendadak akibat perusahaannya bangkrut. Ekonomi keluargamu kini dalam krisis besar." };
-    },
-  },
-  {
-    id: "parent_job_recovery",
-    label: "Pemulihan Karier",
-    minAge: 0,
-    maxAge: 30,
-    weight: (state) => {
-      if (!state.family.isBankrupt || state.profile.isIndependent) return 0;
-      return 0.6; // Higher chance to recover each year
-    },
-    apply: (state) => {
-      state.family.isBankrupt = false;
-      const isSerabutan = Math.random() > 0.4;
-      
-      if (isSerabutan) {
-        state.family.monthlyIncome = 3_500_000;
-        state.stats.happy += 10;
-        return { summary: "Ayahmu akhirnya mendapat pekerjaan baru, meski gajinya lebih kecil dari sebelumnya. Paling tidak keluarga kita bisa bernapas lega." };
-      } else {
-        state.family.monthlyIncome = 8_000_000 + Math.floor(Math.random() * 5_000_000);
-        state.stats.happy += 20;
-        return { summary: "Kabar gembira! Ayahmu diterima bekerja di perusahaan besar dengan gaji yang mapan. Masa krisis telah berlalu." };
-      }
-    },
-  },
-  {
-    id: "adult_transition",
-    label: "Fase Kedewasaan",
-    minAge: 18,
-    maxAge: 18,
-    weight: (state) => {
-      if (state.profile.isIndependent) return 0;
-      return 100; // Guaranteed to trigger at age 18
-    },
-    isInteractive: true,
-    apply: (state) => ({
-      summary: "Kamu telah lulus SMA dan beranjak dewasa. Apa rencanamu selanjutnya?",
-      options: [
-        {
-          id: "college",
-          label: "Lanjut Kuliah (Tanggungan Ortu)",
-          resolve: (s) => {
-            if (s.family.savings < 50_000_000) {
-              s.profile.isIndependent = true;
-              s.stats.happy -= 10;
-              return "Orang tuamu tidak memiliki cukup tabungan untuk membiayai kuliah. Kamu terpaksa mencari kerja dan hidup mandiri.";
-            }
-            s.education.level = "university";
-            s.education.yearsStudied = 0;
-            return "Kamu memutuskan untuk melanjutkan kuliah. Orang tua masih akan menanggung biaya hidupmu.";
-          },
-        },
-        {
-          id: "work",
-          label: "Langsung Kerja (Mandiri)",
-          resolve: (s) => {
-            s.profile.isIndependent = true;
-            s.stats.happy += 5;
-            return "Kamu memutuskan untuk hidup mandiri, mencari kos-kosan, dan mengelola keuanganmu sendiri mulai sekarang.";
-          },
-        },
-      ],
-    }),
   },
 ];

@@ -1,13 +1,21 @@
 import { cloneState, clamp, pushLog } from "@/layers/domain/entities/stateUtils";
 
-export function takeRelationAction(state, relationId, actionKey) {
+export function takeRelationAction(state, relationId, actionKey, payload) {
   const next = cloneState(state);
   const relation = next.relations.find((item) => item.id === relationId);
 
   if (!relation) return next;
 
-  // Prevent multiple interactions in the same year
-  if (relation.lastInteractionAge === next.age && actionKey !== "ask_out" && actionKey !== "propose") {
+  // Compatibility fix: ensure we use 'relationship' property
+  if (relation.relationship === undefined && relation.relationship !== 0) {
+    relation.relationship = relation.bond || 0;
+  }
+
+  // Bypass interaction check for "give_money"
+  const isGiveMoney = actionKey === "give_money";
+
+  // Prevent multiple interactions in the same year (except for giving money)
+  if (!isGiveMoney && relation.lastInteractionAge === next.age && actionKey !== "ask_out" && actionKey !== "propose") {
     return next;
   }
 
@@ -75,6 +83,41 @@ export function takeRelationAction(state, relationId, actionKey) {
     relation.lastInteractionAge = next.age;
     pushLog(next, `Kamu memberikan hadiah spesial kepada ${relation.name}. Dia terlihat sangat senang!`);
   } 
+
+  else if (actionKey === "give_money") {
+    const amount = Number(payload);
+    if (isNaN(amount) || amount <= 0) return next;
+    
+    if (next.money < amount) {
+      pushLog(next, "Uangmu tidak cukup untuk memberikan jumlah tersebut.");
+      return next;
+    }
+
+    next.money -= amount;
+    
+    // Only gain relationship once per year per person
+    if (relation.lastMoneyInteractionAge !== next.age) {
+      // Calculation from legacy script.js lines 1207-1299
+      let gain = 0;
+      if (amount < 1_000_000) {
+        gain = 1;
+      } else if (amount < 10_000_000) {
+        gain = 2;
+      } else if (amount < 100_000_000) {
+        gain = 5;
+      } else if (amount < 500_000_000) {
+        gain = 10;
+      } else {
+        gain = 15;
+      }
+      
+      relation.relationship = clamp(relation.relationship + gain);
+      relation.lastMoneyInteractionAge = next.age;
+    }
+    
+    // We do NOT update relation.lastInteractionAge here, so social actions remain open!
+    pushLog(next, `Saya memberi uang ke ${relation.label} sebesar Rp${amount.toLocaleString("id-ID")}`);
+  }
 
   else if (actionKey === "ask_out") {
     if (next.age < 14) {

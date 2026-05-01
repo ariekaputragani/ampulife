@@ -25,10 +25,19 @@ export function pushLog(state, message) {
     message,
     at: new Date().toISOString(),
   });
+}
 
-  if (state.history.length > 120) {
-    state.history = state.history.slice(-120);
-  }
+export function pushNotification(state, { title, message, icon = "info", type = "message", eventId = null, options = [] }) {
+  if (!state.notificationQueue) state.notificationQueue = [];
+  state.notificationQueue.push({
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    title,
+    message,
+    icon,
+    type,
+    eventId,
+    options
+  });
 }
 
 const MALE_FIRST_NAMES = [

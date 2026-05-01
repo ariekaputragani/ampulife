@@ -19,6 +19,48 @@ export default function LayeredGameView() {
     }
   }, [state?.history, activeTab]);
 
+  useEffect(() => {
+    if (state.notificationQueue && state.notificationQueue.length > 0) {
+      const notif = state.notificationQueue[0];
+
+      if (notif.type === "confirm") {
+        Swal.fire({
+          title: notif.title,
+          text: notif.message,
+          icon: notif.icon,
+          showCancelButton: true,
+          showDenyButton: notif.options.length > 2,
+          confirmButtonText: notif.options[0]?.label || "Ya",
+          denyButtonText: notif.options[1]?.label || "Tidak",
+          cancelButtonText: notif.options[notif.options.length - 1]?.label || "Batal",
+        }).then((result) => {
+          let choiceId = null;
+          if (result.isConfirmed) {
+            choiceId = notif.options[0].id;
+          } else if (result.isDenied) {
+            choiceId = notif.options[1].id;
+          } else if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
+            choiceId = notif.options[notif.options.length - 1].id;
+          }
+
+          if (choiceId) {
+            actions.resolveChoice(notif.eventId, choiceId);
+          }
+          actions.popNotification();
+        });
+      } else {
+        Swal.fire({
+          title: notif.title,
+          text: notif.message,
+          icon: notif.icon,
+          confirmButtonText: "OK",
+        }).then(() => {
+          actions.popNotification();
+        });
+      }
+    }
+  }, [state.notificationQueue, actions]);
+
   if (!ready) {
     return <div className={styles.loading}>Memuat Kehidupan...</div>;
   }
@@ -44,14 +86,16 @@ export default function LayeredGameView() {
       <main className={styles.mainContent}>
         {/* Log Window (Messages) */}
         {activeTab === "journal" && (
-          <div className={styles.logWindow}>
+          <div className={styles.logWindow} id="log-window">
             {groupedHistory.map((group) => (
               <div key={group.age} className={styles.ageGroup}>
                 <div className={styles.ageHeader}>Umur: {group.age} tahun ({Number(state.profile.birthDate.year) + group.age})</div>
                 {group.logs.map((log) => (
-                  <div key={log.id} className={styles.logItemText}>
-                    {log.message}
-                  </div>
+                  <div
+                    key={log.id}
+                    className={styles.logItemText}
+                    dangerouslySetInnerHTML={{ __html: log.message }}
+                  />
                 ))}
               </div>
             ))}
@@ -67,70 +111,165 @@ export default function LayeredGameView() {
         {activeTab === "health" && <HealthTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
         {activeTab === "finance" && <FinanceTab state={state} actions={actions} onBack={() => setActiveTab("journal")} />}
 
+
+
         {/* Status Bars */}
         <section className={styles.statusBars}>
+          {/* Kebahagiaan */}
           <div className={styles.statusRow}>
             <span className={styles.statusLabel}>Kebahagiaan:</span>
-            <span className={styles.statusPercent}>{state.stats.happy}%</span>
+            <span className={styles.statusPercent}>
+              <i className={state.stats.happy <= 15 ? "fa-solid fa-face-frown" : state.stats.happy <= 80 ? "fa-solid fa-face-meh" : "fa-solid fa-face-smile"}></i>
+            </span>
             <progress value={state.stats.happy} max="100" />
           </div>
+
+          {/* Kesehatan */}
           <div className={styles.statusRow}>
             <span className={styles.statusLabel}>Kesehatan:</span>
-            <span className={styles.statusPercent}>{state.stats.health}%</span>
+            <span className={styles.statusPercent}>
+              <i className={state.stats.health <= 15 ? "fa-solid fa-heart-crack" : "fa-solid fa-heart"}></i>
+            </span>
             <progress value={state.stats.health} max="100" />
           </div>
+
+          {/* Kecerdasan */}
           <div className={styles.statusRow}>
             <span className={styles.statusLabel}>Kecerdasan:</span>
-            <span className={styles.statusPercent}>{state.stats.smarts}%</span>
+            <span className={styles.statusPercent}>
+              <i className={state.stats.smarts <= 15 ? "fa-solid fa-face-grin-tongue" : state.stats.smarts <= 80 ? "fa-solid fa-brain" : "fa-solid fa-lightbulb"}></i>
+            </span>
             <progress value={state.stats.smarts} max="100" />
           </div>
+
+          {/* Penampilan */}
           <div className={styles.statusRow}>
             <span className={styles.statusLabel}>Penampilan:</span>
-            <span className={styles.statusPercent}>{state.stats.looks}%</span>
+            <span className={styles.statusPercent}>
+              <i className={state.stats.looks <= 15 ? "fa-solid fa-skull" : state.stats.looks <= 80 ? "fa-solid fa-user" : "fa-solid fa-user-tie"}></i>
+            </span>
             <progress value={state.stats.looks} max="100" />
           </div>
         </section>
 
         {/* Age Up Button */}
         <div className={styles.ageUpSection}>
-          <button onClick={actions.ageUp} className={styles.ageUpButton}>+ Umur</button>
+          <button onClick={actions.ageUp} className={styles.ageUpButton}><i className="fa fa-plus"></i> Umur</button>
         </div>
 
         {/* Navigation Grid (Buttons) */}
         {activeTab === "journal" && (
           <>
-            <div className={styles.navGrid}>
-              {state.age >= 15 && <button style={{ width: "33.33%" }} onClick={() => setActiveTab("jobs")}>Karir</button>}
-              {state.age >= 10 && <button style={{ width: "33.33%" }} onClick={() => setActiveTab("assets")}>Aset</button>}
-              {state.age >= 5 && <button style={{ width: "33.33%" }} onClick={() => setActiveTab("relations")}>Hubungan</button>}
-              {state.age >= 6 && <button style={{ width: "33.33%" }} onClick={() => setActiveTab("activities")}>Aktivitas</button>}
-              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("health")}>Medis</button>
-              <button style={{ width: "33.33%" }} onClick={() => setActiveTab("finance")}>Keuangan</button>
+            {(() => {
+              // Dynamic Occupancy Status
+              let occStatus = "Okupansi";
+              let occIcon = "fa-briefcase";
+
+              if (state.age < 6) {
+                occStatus = "Infant";
+                occIcon = "fa-baby";
+              } else if (state.education && state.education.level && state.education.level !== "none") {
+                occStatus = "Sekolah";
+                occIcon = "fa-school";
+              } else if (state.legal && state.legal.inJail) {
+                occStatus = "Di penjara";
+                occIcon = "fa-xmarks-lines";
+              } else if (state.career && state.career.jobId) {
+                occStatus = "Pekerjaan";
+                occIcon = "fa-briefcase";
+              }
+
+              const handleOccClick = () => {
+                if (state.age < 6) {
+                  Swal.fire({
+                    title: "Informasi",
+                    html: `<div style="text-align: left;"><strong>Nama:</strong> ${state.profile.name}<br><strong>Alamat:</strong> ${state.profile.city}, Indonesia</div>`,
+                    icon: "info"
+                  });
+                } else {
+                  setActiveTab("jobs");
+                }
+              };
+
+              return (
+                <div className={styles.navGrid}>
+                  {/* Row 1 */}
+                  <button
+                    className={styles.navButton2}
+                    onClick={handleOccClick}
+                  >
+                    <i className={`fa-solid ${occIcon}`}></i> {occStatus}
+                  </button>
+
+                  <button
+                    className={styles.navButton1}
+                    onClick={() => setActiveTab("assets")}
+                    disabled={state.age < 10}
+                  >
+                    <i className="fa-solid fa-house-chimney-user"></i> Aset
+                  </button>
+
+                  <button
+                    className={styles.navButton1}
+                    onClick={() => setActiveTab("relations")}
+                    disabled={state.age < 6}
+                  >
+                    <i className="fa-solid fa-user-group"></i> Hubungan
+                  </button>
+
+                  <button
+                    className={styles.navButton1}
+                    onClick={() => setActiveTab("activities")}
+                    disabled={state.age < 6}
+                  >
+                    <i className="fa-solid fa-book-open"></i> Aktivitas
+                  </button>
+
+                  {/* Row 2 */}
+                  <button
+                    className={styles.navButton1}
+                    onClick={() => setActiveTab("health")}
+                  >
+                    <i className="fa-solid fa-stethoscope"></i> Medis
+                  </button>
+
+                  <button
+                    className={styles.navButton1}
+                    onClick={() => setActiveTab("finance")}
+                  >
+                    <i className="fa-solid fa-wallet"></i> Keuangan
+                  </button>
+                </div>
+              );
+            })()}
+            <div className={styles.ageUpSection}>
+              <button
+                className={styles.tombol2Button}
+                style={{ margin: "0 0 12px 0" }} // Removing top margin because it's now in a section
+                onClick={() => {
+                  Swal.fire({
+                    title: 'Akhiri Hidup?',
+                    text: "Semua progres akan hilang dan kamu akan mulai dari awal.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    customClass: {
+                      confirmButton: styles.swalDrugButton
+                    },
+                    cancelButtonColor: "#7066e0",
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    focusCancel: true
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      actions.reset();
+                      window.location.reload();
+                    }
+                  });
+                }}
+              >
+                <i className="fa fa-shuffle"></i> Ulangi Hidup (Reset)
+              </button>
             </div>
-            <button
-              className={styles.secondaryButton}
-              style={{ width: "100%", marginTop: "10px", color: "#e03131", borderColor: "#ffa8a8" }}
-              onClick={() => {
-                Swal.fire({
-                  title: 'Akhiri Hidup?',
-                  text: "Semua progres akan hilang dan kamu akan mulai dari awal.",
-                  icon: 'warning',
-                  showCancelButton: true,
-                  confirmButtonColor: '#dc3741',
-                  cancelButtonColor: '#7066e0',
-                  confirmButtonText: 'Ya',
-                  cancelButtonText: 'Tidak',
-                  focusCancel: true
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    actions.reset();
-                    window.location.reload();
-                  }
-                });
-              }}
-            >
-              🔄 Ulangi Hidup (Reset)
-            </button>
           </>
         )}
       </main>
@@ -184,7 +323,7 @@ export default function LayeredGameView() {
           <div className={styles.modalContent}>
             <h1>Kematian</h1>
             <p>Penyebab: {state.life.causeOfDeath}</p>
-            <p>Usia: {state.age} tahun.</p>
+            <p>Umur: {state.age} tahun.</p>
             <button onClick={() => {
               actions.reset();
               router.push("/");
@@ -321,10 +460,62 @@ function RelationsTab({ state, actions, onBack }) {
     { id: "chat", name: "💬 Ngobrol", desc: "Berbagi cerita santai.", effect: "📈 +5%" },
     { id: "rant", name: "🗣️ Curhat", desc: "Menceritakan keluh kesah.", effect: "📈 +8%, 😊 +5" },
     { id: "ask_money", name: "💰 Minta Uang", desc: "Minta uang saku.", effect: "💸 +Uang, 📉 -5%", familyOnly: true },
+    { id: "give_money", name: "💸 Memberi Uang", desc: "Beri uang saku.", effect: "📈 +Kedekatan, 💸 -Uang" },
     { id: "gift", name: "🎁 Hadiah", desc: "Memberi kado (Rp1jt).", effect: "📈 +15%" },
-    { id: "ask_out", name: "❤️ Pacaran", desc: "Ajak pacaran.", effect: "Status: Pacar", oppositeOnly: true, minAge: 14, hideIfPartner: true },
+    { id: "ask_out", name: "❤️ Pacaran", desc: "Ajak pacaran.", effect: "Status: Pacar", oppositeOnly: true, minAge: 12, hideIfPartner: true },
     { id: "propose", name: "💍 Lamar", desc: "Ajak menikah (Rp50jt).", effect: "Status: Pasangan", partnerOnly: true }
   ];
+
+  const handleAction = (rel, action) => {
+    if (action.id === "give_money") {
+      const uang = state.money;
+      let minR, maxR;
+      if (uang < 200000) {
+        minR = 500;
+      } else if (uang < 800000) {
+        minR = 1000;
+      } else if (uang < 5000000) {
+        minR = 5000;
+      } else if (uang < 10000000) {
+        minR = 10000;
+      } else if (uang < 100000000) {
+        minR = 50000;
+      } else if (uang < 750000000) {
+        minR = 100000;
+      } else {
+        minR = 500000;
+      }
+
+      if (uang < 100000) {
+        maxR = 100000;
+      } else if (uang < 1000000000) {
+        maxR = uang - (uang % minR);
+      } else {
+        maxR = 1000000000;
+      }
+
+      import("sweetalert2").then((Swal) => {
+        Swal.default.fire({
+          title: rel.label,
+          icon: "question",
+          input: "range",
+          inputLabel: "Memberi uang",
+          inputAttributes: {
+            min: minR,
+            max: maxR,
+            step: minR
+          },
+          inputValue: 0.2 * maxR - ((0.2 * maxR) % minR)
+        }).then((result) => {
+          if (result.isConfirmed && result.value) {
+            actions.interact(rel.id, action.id, Number(result.value));
+          }
+        });
+      });
+      return;
+    }
+    actions.interact(rel.id, action.id);
+  };
 
   const statusLabels = {
     family: "Keluarga",
@@ -347,12 +538,12 @@ function RelationsTab({ state, actions, onBack }) {
           const isDead = rel.isDead;
 
           return (
-            <div 
-              key={rel.id} 
-              className={styles.itemCard} 
-              style={{ 
-                padding: "12px", 
-                borderLeft: isDead ? "4px solid #adb5bd" : (rel.status === "partner" || rel.status === "spouse" ? "4px solid #f06595" : "4px solid #ced4da"), 
+            <div
+              key={rel.id}
+              className={styles.itemCard}
+              style={{
+                padding: "12px",
+                borderLeft: isDead ? "4px solid #adb5bd" : (rel.status === "partner" || rel.status === "spouse" ? "4px solid #f06595" : "4px solid #ced4da"),
                 marginBottom: "10px",
                 opacity: isDead ? 0.6 : 1,
                 background: isDead ? "#f8f9fa" : "#fff"
@@ -384,11 +575,13 @@ function RelationsTab({ state, actions, onBack }) {
                       if (action.partnerOnly && rel.status !== "partner") return null;
                       if (action.hideIfPartner && (rel.status === "partner" || rel.status === "spouse")) return null;
 
+                      const isDisabled = isInteracted && action.id !== "ask_out" && action.id !== "propose" && action.id !== "give_money";
+
                       return (
                         <button
                           key={action.id}
-                          disabled={isInteracted && action.id !== "ask_out" && action.id !== "propose"}
-                          onClick={() => actions.interact(rel.id, action.id)}
+                          disabled={isDisabled}
+                          onClick={() => handleAction(rel, action)}
                           style={{ textAlign: "left", padding: "8px", height: "auto", display: "flex", flexDirection: "column" }}
                         >
                           <span style={{ fontWeight: "bold", fontSize: "12px" }}>{action.name}</span>
@@ -509,7 +702,7 @@ function JobsTab({ state, options, actions, onBack }) {
       <div className={styles.itemCard} style={{ borderLeft: "4px solid #4dabf7", marginBottom: "15px" }}>
         <h4>Pendidikan Saat Ini</h4>
         {state.education.level !== "none" ? (
-          <p>Sedang menempuh: <strong>{currentEdu?.name}</strong> (Tahun {state.education.yearsStudied}/{currentEdu?.yearsToComplete})</p>
+          <p>Sedang menempuh: <strong>{currentEdu?.name || (state.education.level === "university" ? "Universitas" : state.education.level)}</strong> (Tahun {state.education.yearsStudied}/{currentEdu?.yearsToComplete || 4})</p>
         ) : (
           <p>Tidak sedang menempuh pendidikan.</p>
         )}

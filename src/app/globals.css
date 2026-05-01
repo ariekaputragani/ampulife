@@ -19,7 +19,7 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -35,3 +35,26 @@ a {
   text-decoration: none;
 }
 
+/* SweetAlert2 Standard (CDNJS Default) */
+.swal2-popup {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+.swal2-confirm,
+.swal2-cancel,
+.swal2-deny {
+  font-weight: 700 !important;
+  text-transform: none !important;
+  padding: .625em 1.1em !important;
+  border-radius: .25em !important;
+  font-size: 1.0625em !important;
+}
+
+.swal2-confirm {
+  background-color: #7066e0 !important;
+  color: #fff !important;
+}
+
+.swal2-confirm:hover {
+  background-color: #5c54c7 !important;
+}

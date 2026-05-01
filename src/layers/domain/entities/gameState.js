@@ -89,10 +89,11 @@ export function createInitialGameState() {
       promotions: 0,
     },
     education: {
-      level: "none",
+      level: "none", // elementary, junior_high, high_school, university
       major: null,
       yearsStudied: 0,
       completed: [],
+      schoolName: "", // Nama sekolah acak
     },
     socialMedia: {
       isJoined: false,
@@ -118,25 +119,25 @@ export function createInitialGameState() {
     },
     assets: [],
     relations: [
-      { 
-        id: "father", 
-        label: "Bapak", 
-        name: "Rahmat", 
-        relationship: 68, 
-        support: 72, 
-        gender: "male", 
-        status: "family", 
-        lastInteractionAge: -1 
+      {
+        id: "father",
+        label: "Bapak",
+        name: "Rahmat",
+        relationship: 68,
+        support: 72,
+        gender: "male",
+        status: "family",
+        lastInteractionAge: -1
       },
-      { 
-        id: "mother", 
-        label: "Ibu", 
-        name: "Anisa", 
-        relationship: 72, 
-        support: 70, 
-        gender: "female", 
-        status: "family", 
-        lastInteractionAge: -1 
+      {
+        id: "mother",
+        label: "Ibu",
+        name: "Anisa",
+        relationship: 72,
+        support: 70,
+        gender: "female",
+        status: "family",
+        lastInteractionAge: -1
       },
     ],
     currentEvent: null, // Used for interactive events
@@ -145,13 +146,7 @@ export function createInitialGameState() {
       hasAttemptedEscape: false,
     },
     lastActivityAges: {}, // Melacak umur terakhir setiap aktivitas dilakukan
-    history: [
-      {
-        id: "boot",
-        age: 0,
-        at: new Date().toISOString(),
-        message: "Kehidupan baru dimulai.",
-      },
-    ],
+    notificationQueue: [], // Antrean untuk SweetAlert2 non-interaktif
+    history: [],
   };
 }
