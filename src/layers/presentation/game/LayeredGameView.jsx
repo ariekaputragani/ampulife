@@ -44,7 +44,7 @@ export default function LayeredGameView() {
           }
 
           if (choiceId) {
-            actions.resolveChoice(notif.eventId, choiceId);
+            actions.resolveChoice(notif.eventId, choiceId, notif.payload);
           }
           actions.popNotification();
         });
@@ -797,7 +797,7 @@ function FinanceTab({ state, actions, onBack }) {
           style={{ background: lifestyle === "hemat" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "hemat" ? "bold" : "normal", textAlign: "left", padding: "12px" }}
         >
           <div>{lifestyle === "hemat" ? "✓ " : ""}Gaya Hidup: <strong>HEMAT</strong></div>
-          <div style={{ fontSize: "11px", color: "#2b8a3e", marginTop: "4px" }}>📉 Biaya Hidup -20% | 📉 Kebahagiaan -4/thn</div>
+          <div style={{ fontSize: "11px", color: "#2b8a3e", marginTop: "4px" }}>📉 Biaya Hidup -20% | 📉 Kebahagiaan -2/thn</div>
         </button>
 
         <button
@@ -813,7 +813,7 @@ function FinanceTab({ state, actions, onBack }) {
           style={{ background: lifestyle === "mewah" ? "#e9ecef" : "#fff", fontWeight: lifestyle === "mewah" ? "bold" : "normal", textAlign: "left", padding: "12px" }}
         >
           <div>{lifestyle === "mewah" ? "✓ " : ""}Gaya Hidup: <strong>MEWAH</strong></div>
-          <div style={{ fontSize: "11px", color: "#e03131", marginTop: "4px" }}>📈 Biaya Hidup +60% | 📈 Kebahagiaan +8/thn</div>
+          <div style={{ fontSize: "11px", color: "#e03131", marginTop: "4px" }}>📈 Biaya Hidup +60% | 📈 Kebahagiaan +3/thn</div>
         </button>
       </div>
       <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "15px" }}>Kembali</button>

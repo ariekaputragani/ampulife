@@ -1,6 +1,9 @@
 export function clamp(value, min = 0, max = 100) {
   return Math.max(min, Math.min(max, value));
 }
+export function clampStatus(value) {
+  return Math.max(0, Math.min(100, value));
+}
 
 export function cloneState(state) {
   if (typeof structuredClone === "function") {

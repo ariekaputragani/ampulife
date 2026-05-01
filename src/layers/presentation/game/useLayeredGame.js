@@ -66,7 +66,7 @@ export function useLayeredGame() {
   const actions = {
     setupCharacter: (formData) => setState((current) => setupCharacter(current, formData)),
     handleEventChoice: (optionId) => setState((current) => handleEventChoice(current, optionId)),
-    resolveChoice: (eventId, choiceId) => setState((current) => resolveChoice(current, eventId, choiceId)),
+    resolveChoice: (eventId, choiceId, payload) => setState((current) => resolveChoice(current, eventId, choiceId, payload)),
     ageUp: () => setState((current) => ageUpYear(current)),
     takeJob: (jobId) => setState((current) => takeJobAction(current, jobId)),
     buyAsset: (assetId) =>

@@ -4,7 +4,7 @@ export function changeLifestyleAction(state, lifestyleId) {
   const next = cloneState(state);
 
   const lifestyleNames = { hemat: "Hemat", normal: "Normal", mewah: "Mewah" };
-  
+
   if (!next.financial) {
     next.financial = { lifestyle: "normal" };
   }
@@ -14,7 +14,7 @@ export function changeLifestyleAction(state, lifestyleId) {
   }
 
   next.financial.lifestyle = lifestyleId;
-  pushLog(next, `Kamu mengubah gaya hidupmu menjadi [${lifestyleNames[lifestyleId]}].`);
+  pushLog(next, `Kamu mengubah gaya hidupmu menjadi ${lifestyleNames[lifestyleId]}.`);
 
   return next;
 }

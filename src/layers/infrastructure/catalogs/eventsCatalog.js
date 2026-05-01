@@ -16,7 +16,7 @@ export const eventsCatalog = [
   },
   {
     id: "school_award",
-    label: "Prestasi sekolah",
+    label: "Sekolah",
     minAge: 7,
     maxAge: 16,
     weight: (state) => (state.stats.smarts > 55 ? 0.1 : 0.02),
@@ -28,7 +28,7 @@ export const eventsCatalog = [
   },
   {
     id: "illness_flu",
-    label: "Sakit Flu",
+    label: "Penyakit",
     minAge: 1,
     maxAge: 999,
     weight: (state) => (state.healthStatus.condition === "healthy" ? 0.03 : 0),
@@ -45,7 +45,7 @@ export const eventsCatalog = [
   },
   {
     id: "illness_diare",
-    label: "Sakit Diare",
+    label: "Penyakit",
     minAge: 1,
     maxAge: 999,
     weight: (state) => (state.healthStatus.condition === "healthy" ? 0.02 : 0),
@@ -62,7 +62,7 @@ export const eventsCatalog = [
   },
   {
     id: "illness_infant",
-    label: "Penyakit Bayi",
+    label: "Penyakit",
     minAge: 1,
     maxAge: 5,
     weight: (state) => (state.healthStatus.condition === "healthy" ? 0.05 : 0),
@@ -80,7 +80,7 @@ export const eventsCatalog = [
   },
   {
     id: "lightning_strike",
-    label: "Kesamber Gledek",
+    label: "Korban",
     minAge: 19,
     maxAge: 999,
     weight: (state) => 0.0001,
@@ -103,7 +103,7 @@ export const eventsCatalog = [
   },
   {
     id: "illness_tbc",
-    label: "Penyakit TBC",
+    label: "Penyakit",
     minAge: 19,
     maxAge: 999,
     weight: (state) => (state.healthStatus.condition === "healthy" ? 0.0049 : 0),
@@ -127,12 +127,19 @@ export const eventsCatalog = [
     isInteractive: true,
     apply: (state) => {
       const animals = ["anjing", "babi hutan", "badak", "buaya", "gajah", "harimau", "ular", "tawon", "kalajengking", "kuda nil", "tokek"];
-      const animal = animals[Math.floor(Math.random() * animals.length)];
+
+      // Get from existing payload if we're resolving, otherwise pick new
+      let animal = state.currentEvent?.payload?.animal;
+      if (!animal) {
+        animal = animals[Math.floor(Math.random() * animals.length)];
+      }
+
       return {
-        summary: `Kamu menemui seekor ${animal}. Apa yang kamu lakukan?`,
+        summary: `Kamu menemui ${animal}.`,
+        payload: { animal }, // Send payload back to be saved in state
         options: [
           { id: "retreat", label: "Mundur Perlahan", resolve: () => `Saya bertemu seekor ${animal}. Saya mundur perlahan.` },
-          { id: "pet", label: "Peliharalah", resolve: () => `Saya bertemu seekor ${animal}. Saya mencoba memeliharanya.` },
+          { id: "pet", label: "Peliharalah", resolve: () => `Saya bertemu seekor ${animal}. Saya memeliharanya.` },
           { id: "run", label: "Lari!", resolve: () => `Saya bertemu seekor ${animal}. Saya menghindarinya.` }
         ],
       };
@@ -140,7 +147,7 @@ export const eventsCatalog = [
   },
   {
     id: "illness_diabetes",
-    label: "Penyakit Diabetes",
+    label: "Penyakit",
     minAge: 40,
     maxAge: 999,
     weight: (state) => (state.healthStatus.condition === "healthy" ? 0.01 : 0),
@@ -157,7 +164,7 @@ export const eventsCatalog = [
   },
   {
     id: "illness_old_age",
-    label: "Penyakit Tua",
+    label: "Penyakit",
     minAge: 60,
     maxAge: 999,
     weight: (state) => (state.healthStatus.condition === "healthy" ? 0.09 : 0),
@@ -224,7 +231,7 @@ export const eventsCatalog = [
   },
   {
     id: "bully",
-    label: "Dibully di sekolah",
+    label: "Sekolah",
     minAge: 7,
     maxAge: 16,
     weight: (state) => (state.education.level !== "none" ? 0.25 : 0),
@@ -264,8 +271,8 @@ export const eventsCatalog = [
     id: "drug_offer",
     label: "Tawaran Narkoba",
     minAge: 19,
-    maxAge: 40,
-    weight: (state) => (state.stats.happy < 40 ? 1.2 : 0.4),
+    maxAge: 999,
+    weight: (state) => 0.05,
     isInteractive: true,
     apply: (state) => ({
       summary: "Seorang asing menawarimu obat terlarang di pesta.",

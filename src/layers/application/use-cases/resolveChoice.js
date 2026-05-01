@@ -1,13 +1,13 @@
-import { cloneState, pushLog } from "@/layers/domain/entities/stateUtils";
+import { cloneState, pushLog, clamp, clampStatus } from "@/layers/domain/entities/stateUtils";
 
-export function resolveChoice(state, eventId, choiceId) {
+export function resolveChoice(state, eventId, choiceId, payload = {}) {
   const next = cloneState(state);
 
   if (eventId === "graduation_sma") {
     if (choiceId === "college") {
       if (next.family.savings < 50_000_000) {
         next.profile.isIndependent = true;
-        next.stats.happy -= 10;
+        next.stats.happy = clamp(next.stats.happy - 10);
         pushLog(next, "Orang tua Saya tidak memiliki cukup tabungan untuk membiayai kuliah. Saya terpaksa mencari kerja dan hidup mandiri.");
       } else {
         next.education.level = "university";
@@ -16,15 +16,15 @@ export function resolveChoice(state, eventId, choiceId) {
       }
     } else if (choiceId === "job") {
       next.profile.isIndependent = true;
-      next.stats.happy += 5;
+      next.stats.happy = clamp(next.stats.happy + 5);
       pushLog(next, "Saya memutuskan untuk hidup mandiri, mencari kos-kosan, dan mengelola keuangan Saya sendiri mulai sekarang.");
     } else if (choiceId === "gap_year") {
       next.profile.isIndependent = true;
-      next.stats.happy += 10;
+      next.stats.happy = clamp(next.stats.happy + 10);
       pushLog(next, "Saya memutuskan untuk mengambil cuti panjang (Gap Year) sebelum menentukan langkah hidup selanjutnya.");
     }
-  } 
-  
+  }
+
   else if (eventId === "sim_test") {
     if (choiceId === "yes") {
       // 80% chance to pass
@@ -32,12 +32,12 @@ export function resolveChoice(state, eventId, choiceId) {
       if (Math.random() < passChance) {
         if (!next.profile.licenses) next.profile.licenses = [];
         if (!next.profile.licenses.includes("SIM A/C")) {
-            next.profile.licenses.push("SIM A/C");
+          next.profile.licenses.push("SIM A/C");
         }
-        next.stats.happy += 15;
+        next.stats.happy = clamp(next.stats.happy + 15);
         pushLog(next, "Selamat! Saya berhasil lulus ujian SIM dan sekarang resmi bisa berkendara.");
       } else {
-        next.stats.happy -= 10;
+        next.stats.happy = clamp(next.stats.happy - 10);
         pushLog(next, "Sayang sekali, Saya gagal dalam ujian SIM tahun ini. Saya harus mencobanya lagi nanti.");
       }
     } else {
@@ -50,7 +50,7 @@ export function resolveChoice(state, eventId, choiceId) {
       const chance = 0.35 + (next.stats.smarts - 75) * 0.02;
       if (Math.random() < chance) {
         next.family.isScholarshipActive = true;
-        next.stats.happy = Math.min(100, next.stats.happy + 10);
+        next.stats.happy = clamp(next.stats.happy + 10);
         pushLog(next, "Luar biasa! Saya memenangkan beasiswa tersebut.");
       } else {
         pushLog(next, "Sayang sekali, Saya belum berhasil mendapatkan beasiswa kali ini.");
@@ -62,8 +62,22 @@ export function resolveChoice(state, eventId, choiceId) {
 
   else if (eventId === "funeral_decision") {
     if (choiceId === "ignore") {
+      // next.stats.happy = clamp(next.stats.happy - 30);
+      // next.relations = next.relations.map(r => {
+      //   if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
+      //     r.relationship = clampStatus(r.relationship - 20);
+      //   }
+      //   return r;
+      // });
       pushLog(next, "Saya tidak bisa menghadiri pemakamannya.");
     } else {
+      // next.stats.happy = clamp(next.stats.happy + 5);
+      // next.relations = next.relations.map(r => {
+      //   if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
+      //     r.relationship = clampStatus(r.relationship + 10);
+      //   }
+      //   return r;
+      // });
       pushLog(next, "Saya menghadiri pemakaman tersebut.");
     }
   }

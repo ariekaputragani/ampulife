@@ -1,4 +1,4 @@
-import { cloneState, applyStatDelta, clamp, pushLog, pushNotification, generateRandomName } from "@/layers/domain/entities/stateUtils";
+import { cloneState, applyStatDelta, clamp, clampStatus, pushLog, pushNotification, generateRandomName } from "@/layers/domain/entities/stateUtils";
 import { jobsCatalog } from "@/layers/infrastructure/catalogs/jobsCatalog";
 import { triggerRandomEvent } from "@/layers/domain/services/eventEngine";
 import { educationCatalog } from "@/layers/infrastructure/catalogs/educationCatalog";
@@ -70,10 +70,10 @@ export function ageUpYear(state, rng = Math.random) {
   const lifestyle = next.financial.lifestyle || "normal";
   if (lifestyle === "hemat") {
     lifestyleMult = 0.8;
-    next.stats.happy = clamp(next.stats.happy - 4);
+    next.stats.happy = clamp(next.stats.happy - 2);
   } else if (lifestyle === "mewah") {
     lifestyleMult = 1.6;
-    next.stats.happy = clamp(next.stats.happy + 8);
+    next.stats.happy = clamp(next.stats.happy + 3);
   }
 
   const expenseRatio = next.family.wealthStatus === "poor" ? 0.75 : next.family.wealthStatus === "middle" ? 0.6 : 0.35;
@@ -207,9 +207,9 @@ export function ageUpYear(state, rng = Math.random) {
 
     next.family.savings -= yearlyFee;
     if (yearlyFee > 0) {
-      pushLog(next, `Keluargamu membayar biaya sekolah ${next.education.level} sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
+      pushLog(next, `Keluargamu membayar biaya sekolah sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
     } else {
-      pushLog(next, `Kamu bersekolah ${next.education.level} secara gratis tahun ini.`);
+      pushLog(next, `Kamu bersekolah secara gratis tahun ini.`);
     }
 
     // Financial Crisis check
@@ -236,7 +236,7 @@ export function ageUpYear(state, rng = Math.random) {
   }
 
   // --- STATS BRACKETED DELTA (Legacy script.js lines 703-713) ---
-  const randRange = (min, max) => Math.floor(rng() * (max - min + 1)) + min;
+  const randRange = (min, max) => Math.floor(rng() * max) + min;
 
   if (next.age <= 18) {
     next.stats = applyStatDelta(next.stats, {
@@ -278,9 +278,9 @@ export function ageUpYear(state, rng = Math.random) {
   if (next.legal.inJail) {
     // EXPULSION LOGIC: If jailed while in school, they get expelled
     if (next.education.level !== "none") {
-      const msgExpel = `Kamu DIKELUARKAN dari sekolah ${next.education.level} karena harus menjalani masa hukuman di penjara.`;
+      const msgExpel = `Kamu dikeluarkan dari ${next.education.schoolName} karena harus menjalani masa hukuman di penjara.`;
       pushLog(next, msgExpel);
-      pushNotification(next, { title: "Dikeluarkan", message: msgExpel, icon: "error" });
+      pushNotification(next, { title: "Sekolah", message: msgExpel, icon: "error" });
       next.education.level = "none";
       next.education.yearsStudied = 0;
 
@@ -289,7 +289,7 @@ export function ageUpYear(state, rng = Math.random) {
         next.family.activeScholarships = [];
         const msg = "Semua beasiswa aktifmu telah dicabut karena pelanggaran perilaku.";
         pushLog(next, msg);
-        pushNotification(next, { title: "Beasiswa Dicabut", message: msg, icon: "warning" });
+        pushNotification(next, { title: "Beasiswa", message: msg, icon: "warning" });
       }
     }
 
@@ -357,7 +357,7 @@ export function ageUpYear(state, rng = Math.random) {
           next.career.yearsInRole = 0;
           next.career.promotions += 1;
           pushLog(next, msg);
-          pushNotification(next, { title: "Promosi", message: msg, icon: "success" });
+          pushNotification(next, { title: "Pekerjaan", message: msg, icon: "success" });
         }
       }
     }
@@ -371,17 +371,15 @@ export function ageUpYear(state, rng = Math.random) {
 
     if (lifestyle === "hemat") {
       expensesRatio = 0.2;
-      next.stats = applyStatDelta(next.stats, { happy: -2 });
     } else if (lifestyle === "mewah") {
       expensesRatio = 0.9;
-      next.stats = applyStatDelta(next.stats, { happy: 3 });
     }
 
     const expenses = Math.floor(grossIncome * expensesRatio);
     const netIncome = grossIncome - expenses;
     next.money += netIncome;
 
-    pushLog(next, `Dengan gaya hidup [${lifestyleNames[lifestyle]}], biaya hidupmu Rp${expenses.toLocaleString("id-ID")}. Sisa uang bersih yang ditabung: Rp${netIncome.toLocaleString("id-ID")}.`);
+    pushLog(next, `Dengan gaya hidup ${lifestyleNames[lifestyle]}, biaya hidupmu Rp${expenses.toLocaleString("id-ID")}. Sisa uang bersih yang ditabung: Rp${netIncome.toLocaleString("id-ID")}.`);
   } else if (next.age > 18 && next.money > 0 && !next.legal.inJail) {
     let expenses = 2000000;
     if (lifestyle === "mewah") expenses = 10000000;
@@ -397,7 +395,7 @@ export function ageUpYear(state, rng = Math.random) {
   if (next.healthStatus.condition !== "healthy") {
     // Spontaneous recovery for specific illnesses after 1 year (as per user request)
     const autoHeal = ["flu", "diarrhea", "cold", "coronavirus"];
-    if (autoHeal.includes(next.healthStatus.illnessId) && next.healthStatus.untreatedYears >= 1) {
+    if (autoHeal.includes(next.healthStatus.illnessId) && next.healthStatus.untreatedYears >= 0) {
       const illness = getIllnessById(next.healthStatus.illnessId);
       const illnessName = illness ? illness.name : "penyakit";
       next.healthStatus.condition = "healthy";
@@ -421,9 +419,11 @@ export function ageUpYear(state, rng = Math.random) {
     support: clamp(relation.support + (rng() > 0.5 ? 1 : -1)),
   }));
 
+  const isFatherAlive = next.relations.find(r => r.id === "father")?.isDead === false;
+  const isMotherAlive = next.relations.find(r => r.id === "mother")?.isDead === false;
+  const isAnyParentAlive = isFatherAlive || isMotherAlive;
 
   // --- PLAYER DEATH CHANCE (OLD AGE) ---
-  // Normalizing life expectancy as per legacy script.js (lines 715-738)
   if (next.life.isAlive && next.age >= 60) {
     const deathRoll = rng();
     let deathChance = 0;
@@ -524,7 +524,8 @@ export function ageUpYear(state, rng = Math.random) {
           { id: "college", label: "Pergi ke universitas" },
           { id: "job", label: "Cari kerja" },
           { id: "gap_year", label: "Ambil cuti" }
-        ]
+        ],
+        payload: {}
       });
     }
     // Age 17: SIM Test
@@ -538,7 +539,8 @@ export function ageUpYear(state, rng = Math.random) {
         options: [
           { id: "yes", label: "Ya" },
           { id: "no", label: "Tidak" }
-        ]
+        ],
+        payload: {}
       });
     }
 
@@ -547,11 +549,12 @@ export function ageUpYear(state, rng = Math.random) {
     if (isInUni) {
       const eduEntry = educationCatalog.find(e => e.id === next.education.level);
       const univCost = eduEntry ? eduEntry.costPerYear : 45_000_000;
-      const yr = next.education.yearsStudied;
+      // const yr = next.education.yearsStudied;
 
-      if (!next.profile.isIndependent) {
+      if (!next.profile.isIndependent && isAnyParentAlive) {
         next.family.savings -= univCost;
-        pushLog(next, `Orang tua ku membayar biaya kuliah tahunan ku sebesar Rp${univCost.toLocaleString("id-ID")}.`);
+        const payer = isFatherAlive ? "Orang tua" : "Ibu";
+        pushLog(next, `${payer} ku membayar biaya kuliah tahunan ku sebesar Rp${univCost.toLocaleString("id-ID")}.`);
       } else {
         next.money -= univCost;
         pushLog(next, `Saya membayar biaya kuliah tahunan Saya sebesar Rp${univCost.toLocaleString("id-ID")}.`);
@@ -570,7 +573,7 @@ export function ageUpYear(state, rng = Math.random) {
   }
 
   // --- 5. ASSET PURCHASES BY PARENTS ---
-  if (!next.profile.isIndependent && !next.legal.inJail && next.life.isAlive) {
+  if (!next.profile.isIndependent && !next.legal.inJail && next.life.isAlive && isAnyParentAlive) {
     if (!next.family.assets) next.family.assets = { motor: false, car: false };
     const { assets: famAssets, savings } = next.family;
     const rngVal = rng();
@@ -599,7 +602,8 @@ export function ageUpYear(state, rng = Math.random) {
         const cost = next.family.wealthStatus === "rich" ? 750_000_000 : 280_000_000;
         next.family.savings -= cost;
         next.family.assets.car = true;
-        const msg = `Keluargaku baru saja membeli mobil baru! Impian Ayah akhirnya tercapai. (Rp${cost.toLocaleString("id-ID")}).`;
+        const dreamMsg = isFatherAlive ? "Impian Ayah akhirnya tercapai." : "Alhamdulillah, akhirnya kita punya mobil.";
+        const msg = `Keluargaku baru saja membeli mobil baru! ${dreamMsg} (Rp${cost.toLocaleString("id-ID")}).`;
         pushLog(next, msg);
         pushNotification(next, { title: "Kabar Baik", message: msg, icon: "success" });
       }
@@ -624,33 +628,42 @@ export function ageUpYear(state, rng = Math.random) {
 
         // Stats penalty for death
         next.stats.happy = clamp(next.stats.happy - 50);
-        pushLog(next, `${rel.label} saya meninggal.`);
 
-        let inheritanceMsg = `${rel.label}mu, ${rel.name} sudah meninggal!`;
+        let inheritanceMsg;
         const canInherit = ["father", "mother"].includes(rel.id) || ["spouse", "husband", "wife"].includes(rel.status);
 
+        const firstName = rel.name ? rel.name.split(" ")[0] : "Keluarga";
         if (canInherit && rel.relationship > 30) {
           const mult = next.family.wealthStatus === "rich" ? 10 : next.family.wealthStatus === "poor" ? 0.2 : 1;
           const amount = Math.floor((rng() * 90_000_000 + 10_000_000) * mult);
           next.money += amount;
           next.stats.happy = clamp(next.stats.happy + 10);
-          inheritanceMsg = `${rel.label}mu, ${rel.name} sudah meninggal! Kamu diwariskan Rp${amount.toLocaleString("id-ID")}.`;
+          inheritanceMsg = `${rel.label}mu, ${firstName} sudah meninggal! Kamu diwariskan Rp${amount.toLocaleString("id-ID")}.`;
         }
+        else {
+          inheritanceMsg = `${rel.label}mu, ${firstName} sudah meninggal!`
+        }
+        pushLog(next, inheritanceMsg);
 
-        pushNotification(next, {
-          title: "Kematian",
-          message: inheritanceMsg,
-          icon: "warning",
-          type: "confirm",
-          eventId: "funeral_decision",
-          confirmButtonColor: "#dc3741",
-          cancelButtonColor: "#7066e0",
-          focusCancel: true,
+
+        next.currentEvent = {
+          id: "funeral_decision",
+          label: "Kematian",
+          summary: inheritanceMsg,
+          isInteractive: true,
           options: [
-            { id: "ignore", label: "Abaikan pemakaman" },
-            { id: "attend", label: "Hadiri pemakaman" }
-          ]
-        });
+            {
+              id: "attend",
+              label: "Hadiri Pemakaman",
+              color: "blue"
+            },
+            {
+              id: "ignore",
+              label: "Abaikan Pemakaman"
+            }
+          ],
+          payload: { relationId: rel.id, relationName: rel.name }
+        };
       }
       return rel;
     });
@@ -706,23 +719,28 @@ export function ageUpYear(state, rng = Math.random) {
 
   if (!otherEvents && next.life.isAlive) {
     triggerRandomEvent(next, rng);
+    if (next.currentEvent && !next.currentEvent.payload) {
+      next.currentEvent.payload = {};
+    }
   }
 
   // --- 11. FAMILY EVENTS (Independent of otherEvents) ---
-  if (!next.profile.isIndependent && next.life.isAlive) {
+  if (!next.profile.isIndependent && next.life.isAlive && isAnyParentAlive) {
     // A. Masalah Rumah Tangga (Household Crisis)
     if (next.age >= 5 && next.age <= 18) {
       if (rng() < 0.08) {
-        const repairs = [
-          { msg: "Atap rumah kami bocor dan Ayah harus memanggil tukang untuk memperbaikinya.", cost: 2_500_000 },
-          { msg: "Motor Bapak tiba-tiba mogok dan butuh servis besar agar bisa dipakai kerja lagi.", cost: 1_500_000 },
-          { msg: "Pipa air di rumah kami pecah, Ibu sibuk membersihkan air yang menggenang.", cost: 800_000 },
-          { msg: "Pompa air di rumah mati, Bapak harus menggantinya dengan yang baru.", cost: 1_200_000 },
-        ];
+        const repairs = [];
+        if (isFatherAlive) {
+          repairs.push({ msg: "Atap rumah kami bocor dan Ayah harus memanggil tukang untuk memperbaikinya.", cost: 2_500_000 });
+          repairs.push({ msg: "Motor Bapak tiba-tiba mogok dan butuh servis besar agar bisa dipakai kerja lagi.", cost: 1_500_000 });
+          repairs.push({ msg: "Pompa air di rumah mati, Bapak harus menggantinya dengan yang baru.", cost: 1_200_000 });
+        }
+        if (isMotherAlive) {
+          repairs.push({ msg: "Pipa air di rumah kami pecah, Ibu sibuk membersihkan air yang menggenang.", cost: 800_000 });
+        }
         // Possible double crisis (must be different events)
         const count = rng() < 0.2 ? 2 : 1;
         const availableRepairs = [...repairs];
-
         for (let i = 0; i < count; i++) {
           if (availableRepairs.length === 0) break;
           const idx = Math.floor(rng() * availableRepairs.length);
@@ -736,7 +754,8 @@ export function ageUpYear(state, rng = Math.random) {
     // B. Orang Tua Sakit (Parent Sick)
     const sicknessChance = next.family.wealthStatus === "poor" ? 0.08 : 0.04;
     ["Bapak", "Ibu"].forEach(person => {
-      if (rng() < sicknessChance) {
+      const isAlive = person === "Bapak" ? isFatherAlive : isMotherAlive;
+      if (isAlive && rng() < sicknessChance) {
         let cost = 5_000_000;
         if (next.family.wealthStatus === "rich") cost = 35_000_000;
         if (next.family.wealthStatus === "poor") cost = 500_000;
@@ -752,29 +771,40 @@ export function ageUpYear(state, rng = Math.random) {
     // PHK
     if (!next.family.isBankrupt && next.family.wealthStatus !== "poor") {
       if (rng() < 0.03) {
-        careerTriggered = true;
-        next.family.isBankrupt = true;
-        next.family.monthlyIncome = 1_500_000;
-        next.stats.happy = clamp(next.stats.happy - 25);
-        const person = rng() < 0.5 ? "Ayah" : "Ibu";
-        pushLog(next, `${person} mu terkena PHK mendadak akibat perusahaannya bangkrut. Ekonomi keluargamu kini dalam krisis besar.`);
+        const availableParents = [];
+        if (isFatherAlive) availableParents.push("Ayah");
+        if (isMotherAlive) availableParents.push("Ibu");
+
+        if (availableParents.length > 0) {
+          careerTriggered = true;
+          next.family.isBankrupt = true;
+          next.family.monthlyIncome = 1_500_000;
+          next.stats.happy = clamp(next.stats.happy - 25);
+          const person = availableParents[Math.floor(rng() * availableParents.length)];
+          pushLog(next, `${person} mu terkena PHK mendadak akibat perusahaannya bangkrut. Ekonomi keluargamu kini dalam krisis besar.`);
+        }
       }
     }
     // Recovery (Only if PHK didn't happen this year)
     if (!careerTriggered && next.family.isBankrupt) {
       if (rng() < 0.15) {
-        next.family.isBankrupt = false;
-        const isSerabutan = rng() > 0.4;
-        const person = rng() < 0.5 ? "Ayah" : "Ibu";
+        const availableParents = [];
+        if (isFatherAlive) availableParents.push("Ayah");
+        if (isMotherAlive) availableParents.push("Ibu");
 
-        if (isSerabutan) {
-          next.family.monthlyIncome = 3_500_000;
-          next.stats.happy = clamp(next.stats.happy + 10);
-          pushLog(next, `${person} mu akhirnya mendapat pekerjaan baru, meski gajinya lebih kecil dari sebelumnya. Paling tidak keluarga kita bisa bernapas lega.`);
-        } else {
-          next.family.monthlyIncome = 8_000_000 + Math.floor(rng() * 5_000_000);
-          next.stats.happy = clamp(next.stats.happy + 20);
-          pushLog(next, `Kabar gembira! ${person} mu diterima bekerja di perusahaan besar dengan gaji yang mapan. Masa krisis telah berlalu.`);
+        if (availableParents.length > 0) {
+          next.family.isBankrupt = false;
+          const isSerabutan = rng() > 0.4;
+          const person = availableParents[Math.floor(rng() * availableParents.length)];
+          if (isSerabutan) {
+            next.family.monthlyIncome = 3_500_000;
+            next.stats.happy = clamp(next.stats.happy + 10);
+            pushLog(next, `${person} mu akhirnya mendapat pekerjaan baru, meski gajinya lebih kecil dari sebelumnya. Paling tidak keluarga kita bisa bernapas lega.`);
+          } else {
+            next.family.monthlyIncome = 8_000_000 + Math.floor(rng() * 5_000_000);
+            next.stats.happy = clamp(next.stats.happy + 20);
+            pushLog(next, `Kabar gembira! ${person} mu diterima bekerja di perusahaan besar dengan gaji yang mapan. Masa krisis telah berlalu.`);
+          }
         }
       }
     }
