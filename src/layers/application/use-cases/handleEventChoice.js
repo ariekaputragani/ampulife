@@ -17,8 +17,13 @@ export function handleEventChoice(state, optionId) {
     const option = eventData.options.find((o) => o.id === optionId);
 
     if (option) {
-      const resultMessage = option.resolve(next);
-      pushLog(next, resultMessage);
+      if (typeof option.resolve === "function") {
+        const resultMessage = option.resolve(next);
+        pushLog(next, resultMessage);
+      } else {
+        // Fallback to resolveChoice for centralized logic
+        next = resolveChoice(next, catalogEvent.id, optionId, next.currentEvent.payload || {});
+      }
     }
   } 
   // Support inline events defined directly in currentEvent

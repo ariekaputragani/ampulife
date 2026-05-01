@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { educationCatalog } from "@/layers/infrastructure/catalogs/educationCatalog";
+import { jobsCatalog } from "@/layers/infrastructure/catalogs/jobsCatalog";
 
 export default function LayeredGameView() {
   const { state, options, actions, ready } = useLayeredGame();
@@ -107,7 +108,8 @@ export default function LayeredGameView() {
         {activeTab === "assets" && <AssetsTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
         {activeTab === "relations" && <RelationsTab state={state} actions={actions} onBack={() => setActiveTab("journal")} />}
         {activeTab === "activities" && <ActivitiesTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
-        {activeTab === "jobs" && <JobsTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
+        {activeTab === "education" && <EducationTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
+        {activeTab === "jobs" && <CareerTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
         {activeTab === "health" && <HealthTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
         {activeTab === "finance" && <FinanceTab state={state} actions={actions} onBack={() => setActiveTab("journal")} />}
 
@@ -178,27 +180,22 @@ export default function LayeredGameView() {
                 occStatus = "Pekerjaan";
                 occIcon = "fa-briefcase";
               }
-
-              const handleOccClick = () => {
-                if (state.age < 6) {
-                  Swal.fire({
-                    title: "Informasi",
-                    html: `<div style="text-align: left;"><strong>Nama:</strong> ${state.profile.name}<br><strong>Alamat:</strong> ${state.profile.city}, Indonesia</div>`,
-                    icon: "info"
-                  });
-                } else {
-                  setActiveTab("jobs");
-                }
-              };
-
               return (
                 <div className={styles.navGrid}>
-                  {/* Row 1 */}
                   <button
                     className={styles.navButton2}
-                    onClick={handleOccClick}
+                    onClick={() => setActiveTab("education")}
+                    disabled={state.age < 6}
                   >
-                    <i className={`fa-solid ${occIcon}`}></i> {occStatus}
+                    <i className="fa-solid fa-school"></i> Sekolah
+                  </button>
+
+                  <button
+                    className={styles.navButton2}
+                    onClick={() => setActiveTab("jobs")}
+                    disabled={state.age < 15}
+                  >
+                    <i className="fa-solid fa-briefcase"></i> Karir
                   </button>
 
                   <button
@@ -469,46 +466,84 @@ function RelationsTab({ state, actions, onBack }) {
   const handleAction = (rel, action) => {
     if (action.id === "give_money") {
       const uang = state.money;
-      let minR, maxR;
-      if (uang < 200000) {
-        minR = 500;
-      } else if (uang < 800000) {
-        minR = 1000;
-      } else if (uang < 5000000) {
-        minR = 5000;
-      } else if (uang < 10000000) {
-        minR = 10000;
-      } else if (uang < 100000000) {
-        minR = 50000;
-      } else if (uang < 750000000) {
-        minR = 100000;
-      } else {
-        minR = 500000;
+      if (uang <= 0) {
+        Swal.fire("Info", "Kamu tidak punya uang untuk diberikan.", "info");
+        return;
       }
 
-      if (uang < 100000) {
-        maxR = 100000;
-      } else if (uang < 1000000000) {
-        maxR = uang - (uang % minR);
-      } else {
-        maxR = 1000000000;
-      }
+      let stepR = 1000;
+      if (uang > 100_000_000) stepR = 1_000_000;
+      else if (uang > 10_000_000) stepR = 100_000;
+      else if (uang > 1_000_000) stepR = 10_000;
+
+      const maxR = uang;
 
       import("sweetalert2").then((Swal) => {
-        Swal.default.fire({
-          title: rel.label,
+        const swal = Swal.default;
+        swal.fire({
+          title: `Beri uang ke ${rel.name}`,
           icon: "question",
+          html: `
+            <div style="margin-bottom: 10px; font-weight: bold; color: #2f9e44;">
+              Maksimal: Rp${uang.toLocaleString("id-ID")}
+            </div>
+            <div style="font-size: 12px; color: #666;">Tentukan jumlah yang ingin diberikan:</div>
+          `,
           input: "range",
-          inputLabel: "Memberi uang",
           inputAttributes: {
-            min: minR,
+            min: 0,
             max: maxR,
-            step: minR
+            step: stepR
           },
-          inputValue: 0.2 * maxR - ((0.2 * maxR) % minR)
+          inputValue: Math.floor(uang * 0.05),
+          didOpen: () => {
+            const input = swal.getInput();
+            const parent = input.parentNode;
+            
+            // Container utama harus bersih
+            parent.style.display = 'flex';
+            parent.style.flexDirection = 'column';
+            parent.style.alignItems = 'center';
+            parent.style.justifyContent = 'center';
+            parent.style.width = '100%';
+            parent.style.margin = '0';
+            parent.style.padding = '0';
+            
+            // Slider (Input)
+            input.style.width = 'calc(100% - 20px)';
+            input.style.margin = '20px 0';
+
+            // Sembunyikan output bawaan
+            const defaultOutput = parent.querySelector('output');
+            if (defaultOutput) defaultOutput.style.display = 'none';
+
+            // Box angka Rupiah yang proporsional
+            const output = document.createElement('div');
+            output.id = 'custom-range-value';
+            output.style.fontWeight = 'bold';
+            output.style.fontSize = '22px';
+            output.style.color = '#228be6';
+            output.style.textAlign = 'center';
+            output.style.padding = '12px';
+            output.style.background = '#f8f9fa';
+            output.style.borderRadius = '8px';
+            output.style.border = '1px solid #e9ecef';
+            output.style.width = 'calc(100% - 20px)';
+            output.style.boxSizing = 'border-box';
+            
+            output.innerText = `Rp${Number(input.value).toLocaleString("id-ID")}`;
+            parent.appendChild(output);
+            
+            input.addEventListener('input', () => {
+              output.innerText = `Rp${Number(input.value).toLocaleString("id-ID")}`;
+            });
+          }
         }).then((result) => {
           if (result.isConfirmed && result.value) {
-            actions.interact(rel.id, action.id, Number(result.value));
+            const finalAmount = Number(result.value);
+            if (finalAmount > 0) {
+              actions.interact(rel.id, action.id, finalAmount);
+            }
           }
         });
       });
@@ -690,17 +725,15 @@ function HealthTab({ state, options, actions, onBack }) {
   );
 }
 
-function JobsTab({ state, options, actions, onBack }) {
-  const currentJob = options.jobs.find(j => j.id === state.career.jobId);
+function EducationTab({ state, options, actions, onBack }) {
   const currentEdu = educationCatalog.find(e => e.id === state.education.level);
 
   return (
     <div className={styles.tabPane}>
-      <h3>Karir & Pendidikan</h3>
+      <h3>Pendidikan</h3>
 
-      {/* Education Section */}
       <div className={styles.itemCard} style={{ borderLeft: "4px solid #4dabf7", marginBottom: "15px" }}>
-        <h4>Pendidikan Saat Ini</h4>
+        <h4>Status Pendidikan Saat Ini</h4>
         {state.education.level !== "none" ? (
           <p>Sedang menempuh: <strong>{currentEdu?.name || (state.education.level === "university" ? "Universitas" : state.education.level)}</strong> (Tahun {state.education.yearsStudied}/{currentEdu?.yearsToComplete || 4})</p>
         ) : (
@@ -708,42 +741,128 @@ function JobsTab({ state, options, actions, onBack }) {
         )}
 
         {state.education.completed.length > 0 && (
-          <p style={{ fontSize: "12px", color: "#666" }}>
-            Gelar/Lulus: {state.education.completed.map(id => educationCatalog.find(e => e.id === id)?.name).join(", ")}
-          </p>
+          <div style={{ marginTop: "10px" }}>
+            <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057" }}>Riwayat Kelulusan:</div>
+            <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginTop: "5px" }}>
+              {state.education.completed.map(id => (
+                <span key={id} style={{ fontSize: "10px", background: "#e7f5ff", color: "#228be6", padding: "2px 8px", borderRadius: "10px", border: "1px solid #a5d8ff" }}>
+                  {educationCatalog.find(e => e.id === id)?.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {state.education.level !== "none" && (
+          <button
+            onClick={() => {
+              Swal.fire({
+                title: 'Berhenti Sekolah?',
+                text: "Kamu akan kehilangan progres tahun akademik saat ini.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Berhenti',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#e03131',
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  actions.dropOut();
+                }
+              });
+            }}
+            style={{
+              marginTop: "15px",
+              padding: "8px 12px",
+              fontSize: "12px",
+              background: "#fff5f5",
+              color: "#e03131",
+              border: "1px solid #ffa8a8",
+              borderRadius: "5px",
+              cursor: "pointer",
+              width: "100%",
+              fontWeight: "600"
+            }}
+          >
+            ❌ Berhenti Sekolah / Putus Kuliah
+          </button>
         )}
       </div>
 
       <div className={styles.divider} />
 
-      {/* Career Section */}
-      <h4>Pekerjaan</h4>
-      {state.career.jobId ? (
-        <div className={styles.currentJobCard}>
-          <p>Bekerja sebagai: <strong>{currentJob?.name || state.career.jobId}</strong></p>
-          <button onClick={() => actions.promote()} className={styles.primaryButton}>Cek Promosi</button>
-        </div>
-      ) : (
-        <div className={styles.optionsList}>
-          {options.jobs.map((job) => (
-            <button key={job.id} onClick={() => actions.takeJob(job.id)}>
-              Lamar: {job.name} (Rp{job.salaryPerYear.toLocaleString("id-ID")}/thn)
+      <h4>Daftar Sekolah / Kursus Tersedia</h4>
+      <div className={styles.optionsList}>
+        {options.education.length > 0 ? (
+          options.education.map((edu) => (
+            <button
+              key={edu.id}
+              onClick={() => actions.study(edu.id)}
+              disabled={state.money < edu.costPerYear}
+              style={{ textAlign: "left", padding: "12px" }}
+            >
+              <div style={{ fontWeight: "bold" }}>{edu.name}</div>
+              <div style={{ fontSize: "11px", color: "#666" }}>Durasi: {edu.yearsToComplete} Tahun</div>
+              <div style={{ fontSize: "12px", color: state.money < edu.costPerYear ? "#e03131" : "#2f9e44", fontWeight: "bold", marginTop: "4px" }}>
+                Biaya: {edu.costPerYear === 0 ? "GRATIS" : `Rp${edu.costPerYear.toLocaleString("id-ID")}/thn`}
+              </div>
             </button>
-          ))}
-        </div>
-      )}
+          ))
+        ) : (
+          <p style={{ fontSize: "12px", color: "#adb5bd", fontStyle: "italic" }}>Tidak ada program pendidikan yang tersedia saat ini.</p>
+        )}
+      </div>
+      <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "15px" }}>Kembali</button>
+    </div>
+  );
+}
+
+function CareerTab({ state, options, actions, onBack }) {
+  const currentJob = jobsCatalog.find(j => j.id === state.career.jobId);
+
+  return (
+    <div className={styles.tabPane}>
+      <h3>Karir & Pekerjaan</h3>
+
+      <div className={styles.itemCard} style={{ borderLeft: "4px solid #fcc419", marginBottom: "15px" }}>
+        <h4>Pekerjaan Saat Ini</h4>
+        {state.career.jobId ? (
+          <div className={styles.currentJobCard}>
+            <p>Bekerja sebagai: <strong>{currentJob?.name || state.career.jobId}</strong></p>
+            <div style={{ fontSize: "11px", color: "#666", marginBottom: "10px" }}>Masa kerja: {state.career.yearsInRole} tahun</div>
+            <button onClick={() => actions.promote()} className={styles.primaryButton}>Cek Promosi</button>
+          </div>
+        ) : (
+          <p>Belum memiliki pekerjaan.</p>
+        )}
+      </div>
 
       <div className={styles.divider} />
 
-      <h4>Daftar Universitas / Kursus</h4>
+      <h4>Lowongan Kerja</h4>
       <div className={styles.optionsList}>
-        {options.education.filter(e => e.minAge >= 18 || e.id === "ged").map((edu) => (
-          <button key={edu.id} onClick={() => actions.study(edu.id)} disabled={state.money < edu.costPerYear}>
-            Daftar: {edu.name} (Rp{edu.costPerYear.toLocaleString("id-ID")}/thn)
-          </button>
-        ))}
+        {options.jobs.length > 0 ? (
+          options.jobs.map((job) => (
+            <button
+              key={job.id}
+              onClick={() => actions.takeJob(job.id)}
+              style={{ textAlign: "left", padding: "12px" }}
+            >
+              <div style={{ fontWeight: "bold" }}>{job.name}</div>
+              <div style={{ fontSize: "12px", color: "#2f9e44", fontWeight: "bold", marginTop: "2px" }}>
+                Gaji: Rp{job.salaryPerYear.toLocaleString("id-ID")}/thn
+              </div>
+              <div style={{ fontSize: "10px", color: "#868e96", marginTop: "4px" }}>
+                Efek: {job.delta.happy > 0 ? `😊+${job.delta.happy} ` : ""}{job.delta.smarts > 0 ? `🧠+${job.delta.smarts} ` : ""}{job.delta.looks > 0 ? `✨+${job.delta.looks} ` : ""}
+              </div>
+            </button>
+          ))
+        ) : (
+          <p style={{ fontSize: "12px", color: "#adb5bd", fontStyle: "italic" }}>
+            {state.age < 15 ? "Kamu masih terlalu muda untuk bekerja secara formal." : "Tidak ada lowongan kerja yang sesuai kualifikasimu saat ini."}
+          </p>
+        )}
       </div>
-      <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "10px" }}>Kembali</button>
+      <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "15px" }}>Kembali</button>
     </div>
   );
 }

@@ -20,14 +20,15 @@ export function takeAssetAction(state, assetId) {
   }
 
   const isIndependent = next.profile?.isIndependent;
-  const availableFunds = isIndependent ? next.money : next.family.savings;
+  const canAfford = next.money >= asset.price || (!isIndependent && next.family.savings >= asset.price);
 
-  if (availableFunds < asset.price) {
+  if (!canAfford) {
     pushLog(next, `Dana tidak cukup untuk membeli ${asset.name}.`);
     return next;
   }
 
-  if (isIndependent) {
+  // Prioritize using personal money if it's enough
+  if (next.money >= asset.price) {
     next.money -= asset.price;
   } else {
     next.family.savings -= asset.price;
@@ -36,7 +37,10 @@ export function takeAssetAction(state, assetId) {
   next.assets.push({ id: asset.id, name: asset.name, boughtAtAge: next.age });
   next.stats = applyStatDelta(next.stats, asset.delta);
 
-  const buyer = isIndependent ? "Kamu membeli" : "Orang tuamu membelikan";
+  // Determine the buyer based on whose money was deducted
+  const wasPaidBySelf = next.money < state.money;
+  const buyer = wasPaidBySelf ? "Kamu membeli" : "Orang tuamu membelikan";
+  
   pushLog(next, `${buyer} ${asset.name} seharga Rp${asset.price.toLocaleString("id-ID")}.`);
   return next;
 }

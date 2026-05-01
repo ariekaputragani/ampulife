@@ -402,4 +402,87 @@ export const eventsCatalog = [
       return { summary: `Kamu menjuarai lomba tingkat nasional dan mendapat hadiah Rp${prize.toLocaleString("id-ID")}!` };
     },
   },
+  {
+    id: "osis_election",
+    label: "Organisasi",
+    minAge: 13,
+    maxAge: 17,
+    weight: (state) => (state.education.level !== "none" ? 0.3 : 0),
+    isInteractive: true,
+    apply: (state) => ({
+      summary: "Pendaftaran pengurus OSIS baru telah dibuka. Teman-temanmu menyarankanmu untuk ikut. Apa posisimu?",
+      options: [
+        { id: "chairman", label: "Calon Ketua" },
+        { id: "member", label: "Anggota Biasa" },
+        { id: "none", label: "Tidak Ikut" }
+      ],
+    }),
+  },
+  {
+    id: "national_competition_invite",
+    label: "Prestasi",
+    minAge: 10,
+    maxAge: 18,
+    weight: (state) => (state.stats.smarts > 70 && state.education.level !== "none" ? 0.4 : 0),
+    isInteractive: true,
+    apply: (state) => ({
+      summary: "Guru melihat potensi besarmu dan menawarimu untuk mewakili sekolah di Lomba Sains Nasional.",
+      options: [
+        { id: "accept", label: "Terima & Belajar Keras" },
+        { id: "refuse", label: "Tolak (Terlalu Sibuk)" }
+      ],
+    }),
+  },
+  {
+    id: "first_crush",
+    label: "Dinamika Sosial",
+    minAge: 12,
+    maxAge: 16,
+    weight: (state) => (state.relations.some(r => !r.isDead && r.status === "friend") ? 0.25 : 0),
+    isInteractive: true,
+    apply: (state) => {
+      const friends = state.relations.filter(r => !r.isDead && r.status === "friend");
+      const crush = friends[Math.floor(Math.random() * friends.length)];
+      return {
+        summary: `Kamu mulai menyukai teman sekolahmu yang bernama ${crush.name}. Jantungmu berdegup kencang saat di dekatnya.`,
+        payload: { crushId: crush.id, crushName: crush.name },
+        options: [
+          { id: "confess", label: "Ungkapkan Perasaan" },
+          { id: "wait", label: "Tunggu Waktu yang Pas" },
+          { id: "ignore", label: "Kubur Perasaan Ini" }
+        ],
+      };
+    },
+  },
+  {
+    id: "truancy_invitation",
+    label: "Pergaulan",
+    minAge: 14,
+    maxAge: 17,
+    weight: (state) => (state.education.level !== "none" ? 0.2 : 0),
+    isInteractive: true,
+    apply: (state) => ({
+      summary: "Sekelompok teman mengajakmu bolos sekolah saat jam pelajaran kosong untuk nongkrong di kantin belakang.",
+      options: [
+        { id: "join", label: "Ikut Bolos" },
+        { id: "refuse", label: "Tetap di Kelas" }
+      ],
+    }),
+  },
+  {
+    id: "bullying_intervention",
+    label: "Moralitas",
+    minAge: 8,
+    maxAge: 16,
+    weight: (state) => (state.education.level !== "none" ? 0.15 : 0),
+    isInteractive: true,
+    apply: (state) => ({
+      summary: "Kamu melihat seorang siswa kelas bawah sedang di-bully oleh kakak kelas di kantin. Apa yang kamu lakukan?",
+      options: [
+        { id: "help", label: "Bela Siswa Tersebut" },
+        { id: "report", label: "Laporkan ke Guru" },
+        { id: "ignore", label: "Pura-pura Tidak Lihat" }
+      ],
+    }),
+  },
 ];

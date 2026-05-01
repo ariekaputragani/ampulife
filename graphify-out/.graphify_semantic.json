@@ -1,0 +1,120 @@
+{
+  "nodes": [
+    {
+      "id": "readme_ampulife",
+      "label": "AmpuLife Project",
+      "file_type": "document",
+      "source_file": "README.md"
+    },
+    {
+      "id": "readme_migration",
+      "label": "Migration Plan",
+      "file_type": "document",
+      "source_file": "README.md"
+    },
+    {
+      "id": "readme_layered_architecture",
+      "label": "Layered Architecture Pattern",
+      "file_type": "document",
+      "source_file": "README.md"
+    },
+    {
+      "id": "legacy_index",
+      "label": "Legacy Game Entry",
+      "file_type": "document",
+      "source_file": "public/legacy/index.html"
+    },
+    {
+      "id": "agents_rules",
+      "label": "Agent Rules",
+      "file_type": "document",
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "logo_image",
+      "label": "AmpuLife Logo",
+      "file_type": "image",
+      "source_file": "public/legacy/images/logo.png"
+    },
+    {
+      "id": "drug_image",
+      "label": "Drug Icon",
+      "file_type": "image",
+      "source_file": "public/legacy/images/drug.png"
+    },
+    {
+      "id": "docker_infra",
+      "label": "Docker Infrastructure",
+      "file_type": "document",
+      "source_file": "docker-compose.yml"
+    }
+  ],
+  "edges": [
+    {
+      "source": "readme_ampulife",
+      "target": "readme_layered_architecture",
+      "relation": "contains_concept",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md"
+    },
+    {
+      "source": "readme_migration",
+      "target": "script_js",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "README.md"
+    },
+    {
+      "source": "legacy_index",
+      "target": "script_js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/legacy/index.html"
+    },
+    {
+      "source": "setupcharacter_js",
+      "target": "script_js",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "README.md"
+    },
+    {
+      "source": "healthengine_js",
+      "target": "illnesscatalog_js",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "src/layers/domain/services/healthEngine.js"
+    },
+    {
+      "source": "eventscatalog_js",
+      "target": "eventengine_js",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "src/layers/infrastructure/catalogs/eventsCatalog.js"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "game_layers",
+      "label": "Layered Architecture Components",
+      "nodes": [
+        "readme_layered_architecture",
+        "healthengine_js",
+        "eventscatalog_js",
+        "gamerepository_js"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "README.md"
+    }
+  ],
+  "input_tokens": 1500,
+  "output_tokens": 800
+}

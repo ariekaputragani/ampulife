@@ -15,6 +15,7 @@ import { handleEventChoice } from "@/layers/application/use-cases/handleEventCho
 import { takeActivityAction } from "@/layers/application/use-cases/takeActivityAction";
 import { askParentsAction } from "@/layers/application/use-cases/askParentsAction";
 import { changeLifestyleAction } from "@/layers/application/use-cases/changeLifestyleAction";
+import { dropOutAction } from "@/layers/application/use-cases/dropOutAction";
 import { resolveChoice } from "@/layers/application/use-cases/resolveChoice";
 import {
   clearGameState,
@@ -83,6 +84,7 @@ export function useLayeredGame() {
     promote: () => setState((current) => takePromotionAction(current)),
     takeActivity: (activityId) => setState((current) => takeActivityAction(current, activityId)),
     changeLifestyle: (lifestyleId) => setState((current) => changeLifestyleAction(current, lifestyleId)),
+    dropOut: () => setState((current) => dropOutAction(current, "voluntary")),
     startNewGame: () => setState((current) => ({ ...createInitialGameState(), mode: "create" })),
     setupRandomCharacter: () => {
       const gender = Math.random() > 0.5 ? "male" : "female";

@@ -1,4 +1,5 @@
 import { cloneState, applyStatDelta, clamp, clampStatus, pushLog, pushNotification, generateRandomName } from "@/layers/domain/entities/stateUtils";
+import { dropOutAction } from "./dropOutAction";
 import { jobsCatalog } from "@/layers/infrastructure/catalogs/jobsCatalog";
 import { triggerRandomEvent } from "@/layers/domain/services/eventEngine";
 import { educationCatalog } from "@/layers/infrastructure/catalogs/educationCatalog";
@@ -213,7 +214,15 @@ export function ageUpYear(state, rng = Math.random) {
     }
 
     // Financial Crisis check
-    if (next.family.savings < 0 && !next.family.isScholarshipActive) {
+    const isBasicEdu = ["elementary", "junior_high"].includes(next.education.level);
+    const debtLimit = isBasicEdu ? -10_000_000 : -(yearlyFee * 2);
+
+    // If scholarship covers the fee (yearlyFee is 0), don't force DO for financial reasons
+    if (yearlyFee > 0 && next.family.savings < debtLimit) {
+      const updated = dropOutAction(next, "financial");
+      Object.assign(next, updated);
+      return next; 
+    } else if (next.family.savings < 0) {
       pushLog(next, "PERINGATAN: Tabungan keluargamu habis! Kamu terancam putus sekolah.");
     }
   }
@@ -552,12 +561,21 @@ export function ageUpYear(state, rng = Math.random) {
       // const yr = next.education.yearsStudied;
 
       if (!next.profile.isIndependent && isAnyParentAlive) {
-        next.family.savings -= univCost;
-        const payer = isFatherAlive ? "Orang tua" : "Ibu";
-        pushLog(next, `${payer} ku membayar biaya kuliah tahunan ku sebesar Rp${univCost.toLocaleString("id-ID")}.`);
-      } else {
-        next.money -= univCost;
-        pushLog(next, `Saya membayar biaya kuliah tahunan Saya sebesar Rp${univCost.toLocaleString("id-ID")}.`);
+        // Consolidated billing: yearlyFee already deducted in the block above (line 208)
+        // We only handle the DO check here if it wasn't handled in the basic block
+        if (yearlyFee > 0 && next.family.savings < -(yearlyFee * 2)) {
+          const updated = dropOutAction(next, "financial");
+          Object.assign(next, updated);
+        }
+      } else if (next.profile.isIndependent) {
+        // Independent player billing (not handled in the family block above)
+        next.money -= yearlyFee;
+        pushLog(next, `Saya membayar biaya pendidikan tahunan sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
+        
+        if (yearlyFee > 0 && next.money < -(yearlyFee * 2)) {
+          const updated = dropOutAction(next, "financial");
+          Object.assign(next, updated);
+        }
       }
 
       if (next.education.yearsStudied >= 4) {

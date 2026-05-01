@@ -1,0 +1,590 @@
+{
+  "communities": {
+    "0": [
+      "js_jquery_min",
+      "js_jquery_min_a",
+      "js_jquery_min_ae",
+      "js_jquery_min_at",
+      "js_jquery_min_b",
+      "js_jquery_min_be",
+      "js_jquery_min_c",
+      "js_jquery_min_ct",
+      "js_jquery_min_dt",
+      "js_jquery_min_e",
+      "js_jquery_min_ee",
+      "js_jquery_min_f",
+      "js_jquery_min_fe",
+      "js_jquery_min_g",
+      "js_jquery_min_ge",
+      "js_jquery_min_gt",
+      "js_jquery_min_he",
+      "js_jquery_min_ht",
+      "js_jquery_min_i",
+      "js_jquery_min_ie",
+      "js_jquery_min_it",
+      "js_jquery_min_j",
+      "js_jquery_min_k",
+      "js_jquery_min_kt",
+      "js_jquery_min_l",
+      "js_jquery_min_m",
+      "js_jquery_min_n",
+      "js_jquery_min_ne",
+      "js_jquery_min_o",
+      "js_jquery_min_ot",
+      "js_jquery_min_p",
+      "js_jquery_min_pt",
+      "js_jquery_min_q",
+      "js_jquery_min_qe",
+      "js_jquery_min_re",
+      "js_jquery_min_rt",
+      "js_jquery_min_se",
+      "js_jquery_min_t",
+      "js_jquery_min_te",
+      "js_jquery_min_tt",
+      "js_jquery_min_u",
+      "js_jquery_min_ut",
+      "js_jquery_min_v",
+      "js_jquery_min_vt",
+      "js_jquery_min_w",
+      "js_jquery_min_we",
+      "js_jquery_min_x",
+      "js_jquery_min_y",
+      "js_jquery_min_ye",
+      "js_jquery_min_yt",
+      "js_jquery_min_z",
+      "js_jquery_min_ze",
+      "js_sweetalert2_all_min_xe",
+      "public_legacy_js_jquery_min_js"
+    ],
+    "1": [
+      "js_script_back",
+      "js_script_bebasp",
+      "js_script_belimobil",
+      "js_script_belirumah",
+      "js_script_dapatkerja",
+      "js_script_ged",
+      "js_script_getfemalefn",
+      "js_script_getln",
+      "js_script_getmalefn",
+      "js_script_getmaxday",
+      "js_script_gym",
+      "js_script_hubmen",
+      "js_script_jualmobil",
+      "js_script_jualrumah",
+      "js_script_kabur",
+      "js_script_kecanduan",
+      "js_script_kerja",
+      "js_script_kerjaa",
+      "js_script_kerjaan",
+      "js_script_kriminal",
+      "js_script_masukp",
+      "js_script_meninggal",
+      "js_script_mobil",
+      "js_script_mobilc",
+      "js_script_mobiln",
+      "js_script_mobilpp",
+      "js_script_naikgaji",
+      "js_script_naikpangkat",
+      "js_script_newline",
+      "js_script_pecat",
+      "js_script_penyakit",
+      "js_script_rand",
+      "js_script_randomevents",
+      "js_script_renovasi",
+      "js_script_rumah",
+      "js_script_rumahc",
+      "js_script_rumahn",
+      "js_script_rusuh",
+      "js_script_serangan",
+      "js_script_sima",
+      "js_script_sosmed",
+      "js_script_tolak",
+      "js_script_uanga",
+      "js_script_univ",
+      "js_script_univer",
+      "js_script_univers",
+      "js_script_universitas",
+      "js_script_update",
+      "js_script_updatea",
+      "js_script_updatedayoptions",
+      "js_script_updateformtgl",
+      "js_script_validmonth",
+      "js_sweetalert2_all_min",
+      "public_legacy_js_script_js"
+    ],
+    "2": [
+      "catalogs_illnesscatalog_getillnessbyid",
+      "catalogs_illnesscatalog_pickillnessbyage",
+      "entities_stateutils_applystatdelta",
+      "entities_stateutils_clamp",
+      "entities_stateutils_clampstatus",
+      "entities_stateutils_clonestate",
+      "entities_stateutils_generaterandomname",
+      "entities_stateutils_pushlog",
+      "entities_stateutils_pushnotification",
+      "services_careerengine_cantakejob",
+      "services_careerengine_computeyearlysalary",
+      "services_careerengine_geteffectivesmarts",
+      "services_careerengine_getjobbyid",
+      "services_careerengine_getpromotiontarget",
+      "services_eventengine_pickweighted",
+      "services_eventengine_triggerrandomevent",
+      "services_healthengine_applyillnessprogression",
+      "services_healthengine_getseverityfactor",
+      "services_healthengine_nextseverity",
+      "src_layers_application_use_cases_ageupyear_js",
+      "src_layers_application_use_cases_askparentsaction_js",
+      "src_layers_application_use_cases_changelifestyleaction_js",
+      "src_layers_application_use_cases_handleeventchoice_js",
+      "src_layers_application_use_cases_resolvechoice_js",
+      "src_layers_application_use_cases_setupcharacter_js",
+      "src_layers_application_use_cases_takeactivityaction_js",
+      "src_layers_application_use_cases_takeassetaction_js",
+      "src_layers_application_use_cases_takecrimeaction_js",
+      "src_layers_application_use_cases_takeeducationaction_js",
+      "src_layers_application_use_cases_takejobaction_js",
+      "src_layers_application_use_cases_takepromotionaction_js",
+      "src_layers_application_use_cases_takerelationaction_js",
+      "src_layers_application_use_cases_taketreatmentaction_js",
+      "src_layers_domain_entities_stateutils_js",
+      "src_layers_domain_services_careerengine_js",
+      "src_layers_domain_services_eventengine_js",
+      "src_layers_domain_services_healthengine_js",
+      "src_layers_infrastructure_catalogs_illnesscatalog_js",
+      "use_cases_ageupyear_ageupyear",
+      "use_cases_askparentsaction_askparentsaction",
+      "use_cases_changelifestyleaction_changelifestyleaction",
+      "use_cases_handleeventchoice_handleeventchoice",
+      "use_cases_resolvechoice_resolvechoice",
+      "use_cases_setupcharacter_setupcharacter",
+      "use_cases_takeactivityaction_takeactivityaction",
+      "use_cases_takeassetaction_takeassetaction",
+      "use_cases_takecrimeaction_randint",
+      "use_cases_takecrimeaction_takecrimeaction",
+      "use_cases_takeeducationaction_takeeducationaction",
+      "use_cases_takejobaction_takejobaction",
+      "use_cases_takepromotionaction_takepromotionaction",
+      "use_cases_takerelationaction_takerelationaction",
+      "use_cases_taketreatmentaction_downgradeseverity",
+      "use_cases_taketreatmentaction_taketreatmentaction"
+    ],
+    "3": [
+      "js_sweetalert2_all_min_an",
+      "js_sweetalert2_all_min_at",
+      "js_sweetalert2_all_min_bn",
+      "js_sweetalert2_all_min_cn",
+      "js_sweetalert2_all_min_constructor",
+      "js_sweetalert2_all_min_dn",
+      "js_sweetalert2_all_min_emit",
+      "js_sweetalert2_all_min_en",
+      "js_sweetalert2_all_min_fe",
+      "js_sweetalert2_all_min_fn",
+      "js_sweetalert2_all_min_gethandlersbyeventname",
+      "js_sweetalert2_all_min_hn",
+      "js_sweetalert2_all_min_kt",
+      "js_sweetalert2_all_min_ln",
+      "js_sweetalert2_all_min_lt",
+      "js_sweetalert2_all_min_m",
+      "js_sweetalert2_all_min_mn",
+      "js_sweetalert2_all_min_nn",
+      "js_sweetalert2_all_min_on",
+      "js_sweetalert2_all_min_once",
+      "js_sweetalert2_all_min_pn",
+      "js_sweetalert2_all_min_qt",
+      "js_sweetalert2_all_min_removealllisteners",
+      "js_sweetalert2_all_min_removelistener",
+      "js_sweetalert2_all_min_reset",
+      "js_sweetalert2_all_min_rn",
+      "js_sweetalert2_all_min_rt",
+      "js_sweetalert2_all_min_se",
+      "js_sweetalert2_all_min_sn",
+      "js_sweetalert2_all_min_te",
+      "js_sweetalert2_all_min_tn",
+      "js_sweetalert2_all_min_u",
+      "public_legacy_js_sweetalert2_all_min_js"
+    ],
+    "4": [
+      "js_sweetalert2_all_min_a",
+      "js_sweetalert2_all_min_ct",
+      "js_sweetalert2_all_min_de",
+      "js_sweetalert2_all_min_ee",
+      "js_sweetalert2_all_min_it",
+      "js_sweetalert2_all_min_j",
+      "js_sweetalert2_all_min_jt",
+      "js_sweetalert2_all_min_l",
+      "js_sweetalert2_all_min_ne",
+      "js_sweetalert2_all_min_o",
+      "js_sweetalert2_all_min_p",
+      "js_sweetalert2_all_min_qe",
+      "js_sweetalert2_all_min_qn",
+      "js_sweetalert2_all_min_s",
+      "js_sweetalert2_all_min_t",
+      "js_sweetalert2_all_min_ue",
+      "js_sweetalert2_all_min_v",
+      "js_sweetalert2_all_min_w",
+      "js_sweetalert2_all_min_wt",
+      "js_sweetalert2_all_min_x",
+      "js_sweetalert2_all_min_yn",
+      "js_sweetalert2_all_min_z",
+      "js_sweetalert2_all_min_zt"
+    ],
+    "5": [
+      "js_sweetalert2_all_min_bt",
+      "js_sweetalert2_all_min_d",
+      "js_sweetalert2_all_min_dt",
+      "js_sweetalert2_all_min_f",
+      "js_sweetalert2_all_min_ft",
+      "js_sweetalert2_all_min_g",
+      "js_sweetalert2_all_min_gt",
+      "js_sweetalert2_all_min_ht",
+      "js_sweetalert2_all_min_in",
+      "js_sweetalert2_all_min_me",
+      "js_sweetalert2_all_min_mt",
+      "js_sweetalert2_all_min_nt",
+      "js_sweetalert2_all_min_ot",
+      "js_sweetalert2_all_min_pt",
+      "js_sweetalert2_all_min_re",
+      "js_sweetalert2_all_min_st",
+      "js_sweetalert2_all_min_tt",
+      "js_sweetalert2_all_min_vt",
+      "js_sweetalert2_all_min_we",
+      "js_sweetalert2_all_min_xt",
+      "js_sweetalert2_all_min_y",
+      "js_sweetalert2_all_min_yt",
+      "js_sweetalert2_all_min_zn_then"
+    ],
+    "6": [
+      "app_page_home",
+      "create_page_createpage",
+      "game_layeredgameview_activitiestab",
+      "game_layeredgameview_assetstab",
+      "game_layeredgameview_financetab",
+      "game_layeredgameview_healthtab",
+      "game_layeredgameview_jobstab",
+      "game_layeredgameview_layeredgameview",
+      "game_layeredgameview_relationstab",
+      "game_page_gamepage",
+      "game_uselayeredgame_uselayeredgame",
+      "src_app_create_page_js",
+      "src_app_game_page_js",
+      "src_app_page_js",
+      "src_layers_presentation_game_layeredgameview_jsx",
+      "src_layers_presentation_game_uselayeredgame_js"
+    ],
+    "7": [
+      "js_sweetalert2_all_min_e",
+      "js_sweetalert2_all_min_gn",
+      "js_sweetalert2_all_min_h",
+      "js_sweetalert2_all_min_jn",
+      "js_sweetalert2_all_min_main",
+      "js_sweetalert2_all_min_oe",
+      "js_sweetalert2_all_min_ut",
+      "js_sweetalert2_all_min_vn",
+      "js_sweetalert2_all_min_wn",
+      "js_sweetalert2_all_min_xn",
+      "js_sweetalert2_all_min_zn",
+      "js_sweetalert2_all_min_zn_constructor",
+      "js_sweetalert2_all_min_zn_finally",
+      "js_sweetalert2_all_min_zn_main"
+    ],
+    "8": [
+      "js_jquery_min_le",
+      "js_sweetalert2_all_min_ae",
+      "js_sweetalert2_all_min_b",
+      "js_sweetalert2_all_min_ce",
+      "js_sweetalert2_all_min_et",
+      "js_sweetalert2_all_min_ge",
+      "js_sweetalert2_all_min_i",
+      "js_sweetalert2_all_min_k",
+      "js_sweetalert2_all_min_ke",
+      "js_sweetalert2_all_min_le",
+      "js_sweetalert2_all_min_n",
+      "js_sweetalert2_all_min_q",
+      "js_sweetalert2_all_min_ye",
+      "js_sweetalert2_all_min_ze"
+    ],
+    "9": [
+      "js_select2_min_a",
+      "js_select2_min_b",
+      "js_select2_min_c",
+      "js_select2_min_e",
+      "js_select2_min_i",
+      "js_select2_min_l",
+      "js_select2_min_n",
+      "js_select2_min_r",
+      "js_select2_min_s",
+      "js_select2_min_w",
+      "js_select2_min_x",
+      "public_legacy_js_select2_min_js"
+    ],
+    "10": [
+      "js_sweetalert2_all_min_be",
+      "js_sweetalert2_all_min_c",
+      "js_sweetalert2_all_min_ie",
+      "js_sweetalert2_all_min_je",
+      "js_sweetalert2_all_min_pe",
+      "js_sweetalert2_all_min_r",
+      "js_sweetalert2_all_min_ve"
+    ],
+    "11": [
+      "js_sweetalert2_all_min_kn",
+      "js_sweetalert2_all_min_kn_constructor",
+      "js_sweetalert2_all_min_kn_gettimerleft",
+      "js_sweetalert2_all_min_kn_increase",
+      "js_sweetalert2_all_min_kn_isrunning",
+      "js_sweetalert2_all_min_kn_start",
+      "js_sweetalert2_all_min_kn_stop"
+    ],
+    "12": [
+      "src_layers_application_use_cases_deriveoptions_js",
+      "use_cases_deriveoptions_getavailableactivities",
+      "use_cases_deriveoptions_getavailableassets",
+      "use_cases_deriveoptions_getavailablecrimes",
+      "use_cases_deriveoptions_getavailableeducation",
+      "use_cases_deriveoptions_getavailablejobs",
+      "use_cases_deriveoptions_getavailabletreatments"
+    ],
+    "13": [
+      "entities_gamestate_createinitialgamestate",
+      "persistence_gamerepository_cleargamestate",
+      "persistence_gamerepository_loadgamestate",
+      "persistence_gamerepository_parsesave",
+      "persistence_gamerepository_savegamestate",
+      "src_layers_domain_entities_gamestate_js",
+      "src_layers_infrastructure_persistence_gamerepository_js"
+    ],
+    "14": [
+      "app_layout_rootlayout",
+      "src_app_layout_js"
+    ],
+    "15": [
+      "game_charactercreation_charactercreation",
+      "src_layers_presentation_game_charactercreation_jsx"
+    ],
+    "16": [
+      "readme_ampulife",
+      "readme_layered_architecture"
+    ],
+    "17": [
+      "eslint_config_mjs"
+    ],
+    "18": [
+      "next_config_mjs"
+    ],
+    "19": [
+      "src_layers_infrastructure_catalogs_assetscatalog_js"
+    ],
+    "20": [
+      "src_layers_infrastructure_catalogs_crimecatalog_js"
+    ],
+    "21": [
+      "src_layers_infrastructure_catalogs_educationcatalog_js"
+    ],
+    "22": [
+      "src_layers_infrastructure_catalogs_eventscatalog_js"
+    ],
+    "23": [
+      "src_layers_infrastructure_catalogs_jobscatalog_js"
+    ],
+    "24": [
+      "src_layers_infrastructure_catalogs_treatmentcatalog_js"
+    ],
+    "25": [
+      "readme_migration"
+    ],
+    "26": [
+      "legacy_index"
+    ],
+    "27": [
+      "agents_rules"
+    ],
+    "28": [
+      "logo_image"
+    ],
+    "29": [
+      "drug_image"
+    ],
+    "30": [
+      "docker_infra"
+    ]
+  },
+  "cohesion": {
+    "0": 0.09,
+    "1": 0.11,
+    "2": 0.07,
+    "3": 0.12,
+    "4": 0.26,
+    "5": 0.13,
+    "6": 0.12,
+    "7": 0.19,
+    "8": 0.19,
+    "9": 0.21,
+    "10": 0.43,
+    "11": 0.52,
+    "12": 0.29,
+    "13": 0.33,
+    "14": 1.0,
+    "15": 1.0,
+    "16": 1.0,
+    "17": 1.0,
+    "18": 1.0,
+    "19": 1.0,
+    "20": 1.0,
+    "21": 1.0,
+    "22": 1.0,
+    "23": 1.0,
+    "24": 1.0,
+    "25": 1.0,
+    "26": 1.0,
+    "27": 1.0,
+    "28": 1.0,
+    "29": 1.0,
+    "30": 1.0
+  },
+  "gods": [
+    {
+      "id": "js_script_update",
+      "label": "update()",
+      "degree": 25
+    },
+    {
+      "id": "js_sweetalert2_all_min_z",
+      "label": "z()",
+      "degree": 24
+    },
+    {
+      "id": "js_sweetalert2_all_min_c",
+      "label": "c()",
+      "degree": 23
+    },
+    {
+      "id": "js_sweetalert2_all_min_w",
+      "label": "w()",
+      "degree": 23
+    },
+    {
+      "id": "js_sweetalert2_all_min",
+      "label": "$()",
+      "degree": 23
+    },
+    {
+      "id": "js_script_updatea",
+      "label": "updatea()",
+      "degree": 17
+    },
+    {
+      "id": "entities_stateutils_pushlog",
+      "label": "pushLog()",
+      "degree": 17
+    },
+    {
+      "id": "js_sweetalert2_all_min_qe",
+      "label": "qe()",
+      "degree": 16
+    },
+    {
+      "id": "js_sweetalert2_all_min_bt",
+      "label": "bt()",
+      "degree": 16
+    },
+    {
+      "id": "js_sweetalert2_all_min_t",
+      "label": "t()",
+      "degree": 15
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Ye()",
+      "target": "e()",
+      "source_files": [
+        "public\\legacy\\js\\jquery.min.js",
+        "public\\legacy\\js\\sweetalert2.all.min.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities; peripheral node `Ye()` unexpectedly reaches hub `e()`"
+    },
+    {
+      "source": "I()",
+      "target": "h()",
+      "source_files": [
+        "public\\legacy\\js\\jquery.min.js",
+        "public\\legacy\\js\\sweetalert2.all.min.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "$()",
+      "target": "e()",
+      "source_files": [
+        "public\\legacy\\js\\jquery.min.js",
+        "public\\legacy\\js\\sweetalert2.all.min.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "z()",
+      "target": "R()",
+      "source_files": [
+        "public\\legacy\\js\\jquery.min.js",
+        "public\\legacy\\js\\sweetalert2.all.min.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "te()",
+      "target": "S()",
+      "source_files": [
+        "public\\legacy\\js\\jquery.min.js",
+        "public\\legacy\\js\\sweetalert2.all.min.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `$()` connect `Community 1` to `Community 3`, `Community 4`?",
+      "why": "High betweenness centrality (0.169) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `u()` connect `Community 3` to `Community 1`, `Community 4`, `Community 5`, `Community 8`, `Community 9`?",
+      "why": "High betweenness centrality (0.050) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `e()` connect `Community 7` to `Community 0`, `Community 3`, `Community 4`, `Community 8`, `Community 10`?",
+      "why": "High betweenness centrality (0.046) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 18 inferred relationships involving `$()` (e.g. with `updateFormTgl()` and `updateDayOptions()`) actually correct?",
+      "why": "`$()` has 18 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `AmpuLife Project`, `Migration Plan`, `Layered Architecture Pattern` to the rest of the system?",
+      "why": "8 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.09 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 1` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.11 - nodes in this community are weakly interconnected."
+    }
+  ]
+}
