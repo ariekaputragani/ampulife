@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createInitialGameState } from "@/layers/domain/entities/gameState";
 import { ageUpYear } from "@/layers/application/use-cases/ageUpYear";
-import { takeJobAction } from "@/layers/application/use-cases/takeJobAction";
+import { applyJobAction, resignJobAction } from "@/layers/application/use-cases/careerActions";
 import { takeAssetAction } from "@/layers/application/use-cases/takeAssetAction";
 import { takeRelationAction } from "@/layers/application/use-cases/takeRelationAction";
 import { takeEducationAction } from "@/layers/application/use-cases/takeEducationAction";
@@ -69,7 +69,8 @@ export function useLayeredGame() {
     handleEventChoice: (optionId) => setState((current) => handleEventChoice(current, optionId)),
     resolveChoice: (eventId, choiceId, payload) => setState((current) => resolveChoice(current, eventId, choiceId, payload)),
     ageUp: () => setState((current) => ageUpYear(current)),
-    takeJob: (jobId) => setState((current) => takeJobAction(current, jobId)),
+    applyJob: (jobId) => setState((current) => applyJobAction(current, jobId)),
+    resignJob: () => setState((current) => resignJobAction(current)),
     buyAsset: (assetId) =>
       setState((current) => takeAssetAction(current, assetId)),
     askParents: (assetId) =>

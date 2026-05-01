@@ -1,7 +1,7 @@
 # Graph Report - ampulife  (2026-05-01)
 
 ## Corpus Check
-- 42 files · ~45,333 words
+- 42 files · ~46,184 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -74,40 +74,40 @@ Cohesion: 0.11
 Nodes (51): back(), bebasp(), beliMobil(), beliRumah(), dapatKerja(), ged(), getFemaleFN(), getLN() (+43 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.11
-Nodes (25): Le(), an(), at(), ce(), cn(), dn(), en(), ft() (+17 more)
+Cohesion: 0.12
+Nodes (16): Le(), ae(), at(), b(), ce(), dn(), k(), le() (+8 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.28
 Nodes (22): A(), Ct(), de(), ee(), It(), j(), jt(), L() (+14 more)
 
 ### Community 5 - "Community 5"
+Cohesion: 0.16
+Nodes (16): bt(), dt(), f(), g(), gt(), ht(), mt(), nt() (+8 more)
+
+### Community 6 - "Community 6"
 Cohesion: 0.12
 Nodes (5): Home(), CreatePage(), LayeredGameView(), GamePage(), useLayeredGame()
 
-### Community 6 - "Community 6"
-Cohesion: 0.21
-Nodes (10): e(), et(), gn(), h(), _main(), n(), Wn(), xn() (+2 more)
-
 ### Community 7 - "Community 7"
-Cohesion: 0.23
-Nodes (13): be(), c(), dt(), Ge(), i(), Ie(), je(), ke() (+5 more)
+Cohesion: 0.2
+Nodes (14): an(), cn(), d(), emit(), fe(), _getHandlersByEventName(), In(), jn() (+6 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.21
-Nodes (6): a(), b(), c(), e(), n(), x()
+Nodes (10): e(), et(), gn(), h(), _main(), n(), Wn(), xn() (+2 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.23
-Nodes (12): ae(), b(), bt(), f(), g(), le(), oe(), pe() (+4 more)
+Cohesion: 0.21
+Nodes (6): a(), b(), c(), e(), n(), x()
 
 ### Community 10 - "Community 10"
-Cohesion: 0.27
-Nodes (10): d(), emit(), fe(), _getHandlersByEventName(), In(), jn(), me(), re() (+2 more)
+Cohesion: 0.26
+Nodes (12): en(), ft(), hn(), m(), nn(), on(), once(), qt() (+4 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.28
-Nodes (8): gt(), ht(), mt(), Ot(), pt(), st(), Tt(), xt()
+Cohesion: 0.31
+Nodes (10): be(), c(), Ge(), i(), Ie(), je(), ke(), pe() (+2 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.52
@@ -168,11 +168,11 @@ Nodes (1): Docker Infrastructure
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `$()` connect `Community 2` to `Community 3`, `Community 4`?**
+- **Why does `$()` connect `Community 2` to `Community 10`, `Community 3`, `Community 4`?**
   _High betweenness centrality (0.166) - this node is a cross-community bridge._
-- **Why does `u()` connect `Community 3` to `Community 2`, `Community 4`, `Community 8`, `Community 9`, `Community 10`?**
+- **Why does `u()` connect `Community 10` to `Community 2`, `Community 3`, `Community 4`, `Community 7`, `Community 9`?**
   _High betweenness centrality (0.049) - this node is a cross-community bridge._
-- **Why does `e()` connect `Community 6` to `Community 1`, `Community 3`, `Community 4`, `Community 7`, `Community 9`?**
+- **Why does `e()` connect `Community 8` to `Community 11`, `Community 1`, `Community 3`, `Community 4`?**
   _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Are the 18 inferred relationships involving `$()` (e.g. with `updateFormTgl()` and `updateDayOptions()`) actually correct?**
   _`$()` has 18 INFERRED edges - model-reasoned connections that need verification._

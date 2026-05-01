@@ -2,6 +2,7 @@ export const jobsCatalog = [
   {
     id: "ngamen",
     name: "Pengamen Jalanan",
+    type: "full-time",
     track: "informal",
     tier: 1,
     minAge: 12,
@@ -13,6 +14,7 @@ export const jobsCatalog = [
   {
     id: "parking_attendant",
     name: "Tukang Parkir",
+    type: "full-time",
     track: "informal",
     tier: 1,
     minAge: 15,
@@ -24,6 +26,7 @@ export const jobsCatalog = [
   {
     id: "newspaper_boy",
     name: "Loper Koran",
+    type: "full-time",
     track: "informal",
     tier: 1,
     minAge: 12,
@@ -35,6 +38,7 @@ export const jobsCatalog = [
   {
     id: "warung_keeper",
     name: "Penjaga Warung",
+    type: "full-time",
     track: "service",
     tier: 1,
     minAge: 14,
@@ -46,6 +50,7 @@ export const jobsCatalog = [
   {
     id: "waiter",
     name: "Pelayan Restoran",
+    type: "full-time",
     track: "service",
     tier: 1,
     minAge: 17,
@@ -58,6 +63,7 @@ export const jobsCatalog = [
   {
     id: "head_waiter",
     name: "Kepala Pelayan",
+    type: "full-time",
     track: "service",
     tier: 2,
     minAge: 20,
@@ -68,6 +74,7 @@ export const jobsCatalog = [
   {
     id: "admin_staff",
     name: "Staff Administrasi",
+    type: "full-time",
     track: "corporate",
     tier: 1,
     minAge: 18,
@@ -80,6 +87,7 @@ export const jobsCatalog = [
   {
     id: "manager",
     name: "Manajer Operasional",
+    type: "full-time",
     track: "corporate",
     tier: 2,
     minAge: 25,
@@ -92,6 +100,7 @@ export const jobsCatalog = [
   {
     id: "ceo",
     name: "Direktur Utama (CEO)",
+    type: "full-time",
     track: "corporate",
     tier: 3,
     minAge: 35,
@@ -102,6 +111,7 @@ export const jobsCatalog = [
   {
     id: "tutor",
     name: "Guru Les Privat",
+    type: "full-time",
     track: "education",
     tier: 1,
     minAge: 16,
@@ -112,6 +122,7 @@ export const jobsCatalog = [
   {
     id: "teacher",
     name: "Guru Sekolah",
+    type: "full-time",
     track: "education",
     tier: 2,
     minAge: 22,
@@ -125,6 +136,7 @@ export const jobsCatalog = [
   {
     id: "principal",
     name: "Kepala Sekolah",
+    type: "full-time",
     track: "education",
     tier: 3,
     minAge: 35,
@@ -135,6 +147,7 @@ export const jobsCatalog = [
   {
     id: "nurse",
     name: "Perawat",
+    type: "full-time",
     track: "medical",
     tier: 1,
     minAge: 22,
@@ -146,6 +159,7 @@ export const jobsCatalog = [
   {
     id: "doctor",
     name: "Dokter Umum",
+    type: "full-time",
     track: "medical",
     tier: 2,
     minAge: 26,
@@ -159,6 +173,7 @@ export const jobsCatalog = [
   {
     id: "specialist_doctor",
     name: "Dokter Spesialis",
+    type: "full-time",
     track: "medical",
     tier: 3,
     minAge: 32,
@@ -170,6 +185,7 @@ export const jobsCatalog = [
   {
     id: "police",
     name: "Polisi",
+    type: "full-time",
     track: "law",
     tier: 1,
     minAge: 20,
@@ -183,6 +199,7 @@ export const jobsCatalog = [
   {
     id: "detective",
     name: "Detektif",
+    type: "full-time",
     track: "law",
     tier: 2,
     minAge: 25,
@@ -194,6 +211,7 @@ export const jobsCatalog = [
   {
     id: "jr_dev",
     name: "Junior App Developer",
+    type: "full-time",
     track: "tech",
     tier: 1,
     minAge: 20,
@@ -207,6 +225,7 @@ export const jobsCatalog = [
   {
     id: "sr_dev",
     name: "Senior App Developer",
+    type: "full-time",
     track: "tech",
     tier: 2,
     minAge: 24,
@@ -214,6 +233,40 @@ export const jobsCatalog = [
     requiredMajor: "computer_science",
     salaryPerYear: 144_000_000,
     delta: { happy: 1, health: -1, smarts: 2, looks: 1 },
+  },
+  // --- PART-TIME JOBS ---
+  {
+    id: "pt_barista",
+    name: "Barista Part-time",
+    type: "part-time",
+    track: "service",
+    tier: 1,
+    minAge: 16,
+    minSmarts: 20,
+    salaryPerYear: 9_600_000, // Rp800k/bln
+    delta: { happy: 5, health: -2, smarts: 5, looks: 10 },
+  },
+  {
+    id: "pt_cashier",
+    name: "Kasir Minimarket (Part-time)",
+    type: "part-time",
+    track: "service",
+    tier: 1,
+    minAge: 15,
+    minSmarts: 25,
+    salaryPerYear: 7_200_000, // Rp600k/bln
+    delta: { happy: -2, health: -3, smarts: 8, looks: 0 },
+  },
+  {
+    id: "pt_library_helper",
+    name: "Asisten Perpustakaan (Part-time)",
+    type: "part-time",
+    track: "education",
+    tier: 1,
+    minAge: 14,
+    minSmarts: 40,
+    salaryPerYear: 6_000_000, // Rp500k/bln
+    delta: { happy: 10, health: 0, smarts: 15, looks: 0 },
   },
   {
     id: "banker",

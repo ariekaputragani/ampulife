@@ -112,17 +112,6 @@ export function takeActivityAction(state, activityId) {
       }
       break;
 
-    case "work_part_time":
-      if (newState.age < 15) {
-        message = "Kamu terlalu muda untuk bekerja part-time.";
-      } else {
-        const salary = 500_000 + Math.floor(Math.random() * 500_000); // Gaji harian/mingguan yang dikumpulkan setahun
-        newState.money += salary;
-        newState.stats.health = Math.max(0, newState.stats.health - 5);
-        newState.stats.happy = Math.max(0, newState.stats.happy - 3);
-        message = `Kamu bekerja sampingan setelah sekolah dan mendapatkan Rp${salary.toLocaleString("id-ID")} untuk uang sakumu.`;
-      }
-      break;
 
     case "join_extracurricular":
       if (newState.education.level === "none" || newState.education.level === "university") {

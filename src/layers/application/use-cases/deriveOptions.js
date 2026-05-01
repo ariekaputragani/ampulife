@@ -91,14 +91,6 @@ export function getAvailableActivities(state) {
       description: "Mencoba melamar beasiswa pendidikan untuk meringankan beban orang tua.",
       effects: "💰 Biaya Sekolah Gratis (Jika diterima)"
     },
-    {
-      id: "work_part_time",
-      name: "Kerja Part-time (Siswa)",
-      minAge: 15,
-      cost: 0,
-      description: "Bekerja sampingan sepulang sekolah untuk menambah uang saku.",
-      effects: "💸 +Uang, ❤️ -5 Health"
-    },
     { 
       id: "join_extracurricular", 
       name: "Ikut Ekstrakurikuler", 
@@ -147,7 +139,19 @@ export function getAvailableActivities(state) {
     });
   }
 
-  return acts.filter(a => state.age >= a.minAge);
+  const isInSchool = state.education.level && state.education.level !== "none";
+
+  return acts.filter(a => {
+    // 1. Age check
+    if (state.age < a.minAge) return false;
+    if (a.maxAge && state.age > a.maxAge) return false;
+
+    // 2. Contextual check
+    if (a.id === "apply_scholarship" && !isInSchool) return false;
+    if (a.id === "join_extracurricular" && !isInSchool) return false;
+
+    return true;
+  });
 }
 
 export function getAvailableTreatments(state) {

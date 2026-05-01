@@ -459,8 +459,8 @@ function RelationsTab({ state, actions, onBack }) {
     { id: "ask_money", name: "💰 Minta Uang", desc: "Minta uang saku.", effect: "💸 +Uang, 📉 -5%", familyOnly: true },
     { id: "give_money", name: "💸 Memberi Uang", desc: "Beri uang saku.", effect: "📈 +Kedekatan, 💸 -Uang" },
     { id: "gift", name: "🎁 Hadiah", desc: "Memberi kado (Rp1jt).", effect: "📈 +15%" },
-    { id: "ask_out", name: "❤️ Pacaran", desc: "Ajak pacaran.", effect: "Status: Pacar", oppositeOnly: true, minAge: 12, hideIfPartner: true },
-    { id: "propose", name: "💍 Lamar", desc: "Ajak menikah (Rp50jt).", effect: "Status: Pasangan", partnerOnly: true }
+    { id: "ask_out", name: "❤️ Pacaran", desc: "Ajak pacaran.", effect: "Status: Pacar", oppositeOnly: true, minAge: 12, hideIfPartner: true, nonFamilyOnly: true },
+    { id: "propose", name: "💍 Lamar", desc: "Ajak menikah (Rp50jt).", effect: "Status: Pasangan", partnerOnly: true, nonFamilyOnly: true }
   ];
 
   const handleAction = (rel, action) => {
@@ -605,6 +605,7 @@ function RelationsTab({ state, actions, onBack }) {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "12px" }}>
                     {relActions.map(action => {
                       if (action.familyOnly && rel.status !== "family") return null;
+                      if (action.nonFamilyOnly && rel.status === "family") return null;
                       if (action.oppositeOnly && !isOppositeGender) return null;
                       if (action.minAge && state.age < action.minAge) return null;
                       if (action.partnerOnly && rel.status !== "partner") return null;
@@ -844,12 +845,16 @@ function CareerTab({ state, options, actions, onBack }) {
         <h4>Pekerjaan Saat Ini</h4>
         {state.career.jobId ? (
           <div className={styles.currentJobCard}>
-            <p>Bekerja sebagai: <strong>{currentJob?.name || state.career.jobId}</strong></p>
+            <div style={{ fontWeight: "bold", fontSize: "16px" }}>{currentJob?.name || state.career.jobId}</div>
+            <div style={{ fontSize: "12px", color: "#2f9e44", fontWeight: "bold" }}>Gaji: Rp{currentJob?.salaryPerYear.toLocaleString("id-ID")}/thn</div>
             <div style={{ fontSize: "11px", color: "#666", marginBottom: "10px" }}>Masa kerja: {state.career.yearsInRole} tahun</div>
-            <button onClick={() => actions.promote()} className={styles.primaryButton}>Cek Promosi</button>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button onClick={() => actions.promote()} className={styles.primaryButton} style={{ flex: 1 }}>Cek Promosi</button>
+              <button onClick={() => actions.resignJob()} className={styles.secondaryButton} style={{ flex: 1, backgroundColor: "#fff5f5", color: "#fa5252", borderColor: "#ffa8a8" }}>Resign</button>
+            </div>
           </div>
         ) : (
-          <p>Belum memiliki pekerjaan.</p>
+          <p style={{ fontSize: "14px", color: "#868e96" }}>Belum memiliki pekerjaan.</p>
         )}
       </div>
 
@@ -858,24 +863,35 @@ function CareerTab({ state, options, actions, onBack }) {
       <h4>Lowongan Kerja</h4>
       <div className={styles.optionsList}>
         {options.jobs.length > 0 ? (
-          options.jobs.map((job) => (
-            <button
-              key={job.id}
-              onClick={() => actions.takeJob(job.id)}
-              style={{ textAlign: "left", padding: "12px" }}
-            >
-              <div style={{ fontWeight: "bold" }}>{job.name}</div>
-              <div style={{ fontSize: "12px", color: "#2f9e44", fontWeight: "bold", marginTop: "2px" }}>
-                Gaji: Rp{job.salaryPerYear.toLocaleString("id-ID")}/thn
-              </div>
-              <div style={{ fontSize: "10px", color: "#868e96", marginTop: "4px" }}>
-                Efek: {job.delta.happy > 0 ? `😊+${job.delta.happy} ` : ""}{job.delta.smarts > 0 ? `🧠+${job.delta.smarts} ` : ""}{job.delta.looks > 0 ? `✨+${job.delta.looks} ` : ""}
-              </div>
-            </button>
-          ))
+          options.jobs.map((job) => {
+            const isCurrent = state.career.jobId === job.id;
+            if (isCurrent) return null; // Don't show current job in vacancies
+
+            return (
+              <button
+                key={job.id}
+                onClick={() => actions.applyJob(job.id)}
+                disabled={!!state.career.jobId}
+                style={{ textAlign: "left", padding: "12px", opacity: state.career.jobId ? 0.6 : 1 }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontWeight: "bold" }}>{job.name}</div>
+                  <span style={{ fontSize: "10px", background: job.type === "part-time" ? "#e7f5ff" : "#f8f9fa", padding: "2px 6px", borderRadius: "4px" }}>
+                    {job.type === "part-time" ? "Part-time" : "Full-time"}
+                  </span>
+                </div>
+                <div style={{ fontSize: "12px", color: "#2f9e44", fontWeight: "bold", marginTop: "2px" }}>
+                  Gaji: Rp{job.salaryPerYear.toLocaleString("id-ID")}/thn
+                </div>
+                {state.career.jobId && (
+                  <div style={{ fontSize: "10px", color: "#fa5252", marginTop: "4px" }}>Resign dulu untuk melamar</div>
+                )}
+              </button>
+            );
+          })
         ) : (
           <p style={{ fontSize: "12px", color: "#adb5bd", fontStyle: "italic" }}>
-            {state.age < 15 ? "Kamu masih terlalu muda untuk bekerja secara formal." : "Tidak ada lowongan kerja yang sesuai kualifikasimu saat ini."}
+            {state.age < 14 ? "Kamu masih terlalu muda untuk bekerja." : "Tidak ada lowongan kerja yang sesuai kualifikasimu saat ini."}
           </p>
         )}
       </div>

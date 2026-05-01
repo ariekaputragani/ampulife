@@ -135,7 +135,9 @@ export function ageUpYear(state, rng = Math.random) {
     }
   } else {
     // Independent Player Economy
-    let playerExpenses = 15_000_000 + transportCost; // Base kos + makan + transport
+    let baseRent = next.profile.livingWithParents ? 0 : 7_000_000;
+    let baseFoodMisc = 8_000_000;
+    let playerExpenses = baseRent + baseFoodMisc + transportCost;
 
     // Taxes for player
     let playerTaxes = 0;
@@ -154,7 +156,7 @@ export function ageUpYear(state, rng = Math.random) {
       next.money -= playerExpenses;
     }
 
-    const report = `[Pengeluaran Pribadi] Pajak: Rp${playerTaxes.toLocaleString("id-ID")}, Kos/Makan/Transport: Rp${playerExpenses.toLocaleString("id-ID")}`;
+    const report = `[Pengeluaran Pribadi] Pajak: Rp${playerTaxes.toLocaleString("id-ID")}, ${baseRent > 0 ? `Kos: Rp${baseRent.toLocaleString("id-ID")}, ` : ""}Makan: Rp${baseFoodMisc.toLocaleString("id-ID")}, Transport: Rp${transportCost.toLocaleString("id-ID")}`;
     pushLog(next, report);
   }
 
@@ -512,27 +514,32 @@ export function ageUpYear(state, rng = Math.random) {
       pushNotification(next, { title: "Sekolah", message: `Kamu bersekolah di ${next.education.schoolName}.`, icon: "info" });
     }
     // Age 18: Graduate SMA (Decision Phase)
-    else if (next.age === 18 && next.education.level === "high_school") {
-      next.education.completed.push("high_school");
-      const graduatedName = next.education.schoolName;
+    // Age 18-22: Graduation SMA & Gap Year Decision Phase
+    else if (next.age >= 18 && next.age <= 22 && next.education.level === "none" && !next.education.completed.includes("university")) {
+      const isGraduationYear = next.age === 18;
+      const title = isGraduationYear ? "Kelulusan SMA" : "Keputusan Masa Depan";
+      const message = isGraduationYear 
+        ? `Selamat! Kamu lulus dari SMA. Apa langkahmu selanjutnya?`
+        : `Kamu masih dalam masa Gap Year. Apa rencanamu tahun ini?`;
 
-      pushLog(next, `Kamu lulus dari ${graduatedName}.`);
-
-      next.education.level = "none";
-      next.education.yearsStudied = 0;
-      next.education.schoolName = "";
-      next.family.isScholarshipActive = false;
+      if (isGraduationYear) {
+        next.education.completed.push("high_school");
+        next.education.yearsStudied = 0;
+        next.education.schoolName = "";
+        next.family.isScholarshipActive = false;
+      }
 
       pushNotification(next, {
-        title: "Sekolah",
-        message: `Kamu lulus dari ${graduatedName}.`,
-        icon: "success",
+        title,
+        message,
+        icon: isGraduationYear ? "success" : "question",
         type: "confirm",
         eventId: "graduation_sma",
         options: [
-          { id: "college", label: "Pergi ke universitas" },
-          { id: "job", label: "Cari kerja" },
-          { id: "gap_year", label: "Ambil cuti" }
+          { id: "ptn", label: "Ikut Seleksi PTN (Negeri)" },
+          { id: "swasta", label: "Daftar Swasta (Langsung)" },
+          { id: "job", label: "Cari Kerja & Mandiri" },
+          { id: "gap_year", label: "Ambil Gap Year" }
         ],
         payload: {}
       });
@@ -553,22 +560,20 @@ export function ageUpYear(state, rng = Math.random) {
       });
     }
 
-    // University Progression & Graduation (Legacy script.js lines 1086-1096)
-    const isInUni = next.education.level === "university" || (next.education.level && next.education.level.startsWith("college_"));
+    // University Progression & Graduation
+    const eduEntry = educationCatalog.find(e => e.id === next.education.level);
+    const isInUni = next.education.level === "university" || (next.education.level && (next.education.level.startsWith("university_") || next.education.level.startsWith("college_")));
+    
     if (isInUni) {
-      const eduEntry = educationCatalog.find(e => e.id === next.education.level);
-      const univCost = eduEntry ? eduEntry.costPerYear : 45_000_000;
-      // const yr = next.education.yearsStudied;
+      const yearsToComplete = eduEntry?.yearsToComplete || 4;
 
       if (!next.profile.isIndependent && isAnyParentAlive) {
-        // Consolidated billing: yearlyFee already deducted in the block above (line 208)
-        // We only handle the DO check here if it wasn't handled in the basic block
+        // Consolidated billing: yearlyFee already deducted in the block above
         if (yearlyFee > 0 && next.family.savings < -(yearlyFee * 2)) {
           const updated = dropOutAction(next, "financial");
           Object.assign(next, updated);
         }
       } else if (next.profile.isIndependent) {
-        // Independent player billing (not handled in the family block above)
         next.money -= yearlyFee;
         pushLog(next, `Saya membayar biaya pendidikan tahunan sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
         
@@ -578,14 +583,27 @@ export function ageUpYear(state, rng = Math.random) {
         }
       }
 
-      if (next.education.yearsStudied >= 4) {
+      if (next.education.yearsStudied >= yearsToComplete) {
         otherEvents = true;
         next.education.completed.push(next.education.level);
         next.education.level = "none";
         next.education.yearsStudied = 0;
         next.stats.smarts += 10;
-        pushLog(next, "Saya telah lulus dari universitas.");
-        pushNotification(next, { title: "Universitas", message: "Kamu telah lulus dari universitas.", icon: "success" });
+        
+        const gradMsg = "Selamat! Kamu telah resmi menyandang gelar sarjana. Bagaimana rencana hidupmu selanjutnya?";
+        pushLog(next, gradMsg);
+        
+        pushNotification(next, {
+          title: "Kelulusan Universitas",
+          message: gradMsg,
+          icon: "success",
+          type: "confirm",
+          eventId: "graduation_university",
+          options: [
+            { id: "independent", label: "Hidup Mandiri (Pindah Keluar)" },
+            { id: "with_parents", label: "Tinggal Bareng Ortu (Hemat Biaya)" }
+          ]
+        });
       }
     }
   }
@@ -663,6 +681,17 @@ export function ageUpYear(state, rng = Math.random) {
         }
         pushLog(next, inheritanceMsg);
 
+        // --- NEW: Income Reduction Logic ---
+        if (rel.id === "father") {
+          const oldIncome = next.family.monthlyIncome;
+          next.family.monthlyIncome = Math.floor(next.family.monthlyIncome * 0.4); // Loss of 60%
+          pushLog(next, `Ekonomi keluarga menurun drastis karena Bapak sudah tidak bekerja. (Pendapatan: Rp${next.family.monthlyIncome.toLocaleString("id-ID")}/bln)`);
+        } else if (rel.id === "mother") {
+          const oldIncome = next.family.monthlyIncome;
+          next.family.monthlyIncome = Math.floor(next.family.monthlyIncome * 0.6); // Loss of 40%
+          pushLog(next, `Ekonomi keluarga menurun karena Ibu sudah tidak bekerja. (Pendapatan: Rp${next.family.monthlyIncome.toLocaleString("id-ID")}/bln)`);
+        }
+
 
         next.currentEvent = {
           id: "funeral_decision",
@@ -687,23 +716,44 @@ export function ageUpYear(state, rng = Math.random) {
     });
   }
 
-  if ([6, 12, 15].includes(next.age)) {
-    const isMale = rng() > 0.5;
-    const gender = isMale ? "male" : "female";
+  // --- 9. NEW RELATIONSHIPS (School, Campus, & Workplace) ---
+  const isInSchool = next.education.level && next.education.level !== "none";
+  const hasJob = !!next.career.jobId;
+  const friendChance = isInSchool ? 0.25 : (hasJob ? 0.15 : 0.05);
+
+  if (next.age >= 6 && rng() < friendChance) {
+    // Smart Gender Balancing: If player has too many of one gender, increase chance for the other
+    const maleCount = next.relations.filter(r => r.gender === "male" && !r.isDead && r.status === "friend").length;
+    const femaleCount = next.relations.filter(r => r.gender === "female" && !r.isDead && r.status === "friend").length;
+    
+    let genderChance = 0.5;
+    if (maleCount > femaleCount + 2) genderChance = 0.8; // More likely to get female
+    else if (femaleCount > maleCount + 2) genderChance = 0.2; // More likely to get male
+
+    const gender = rng() < genderChance ? "female" : "male";
     const newName = generateRandomName(gender);
+    
+    let friendLabel = "Teman";
+    if (isInSchool) {
+      const isUni = next.education.level.startsWith("university_") || next.education.level.startsWith("college_");
+      friendLabel = isUni ? "Teman Kampus" : "Teman Sekolah";
+    } else if (hasJob) {
+      friendLabel = "Rekan Kantor";
+    }
 
     next.relations.push({
       id: `friend_${next.age}_${Date.now()}`,
-      label: "Teman Sekolah",
+      label: friendLabel,
       name: newName,
-      age: next.age,
+      age: next.age + (Math.floor(rng() * 5) - 2), // Friends around same age
       relationship: 45,
       support: 45,
       gender,
       status: "friend",
       lastInteractionAge: -1
     });
-    pushLog(next, `Kamu berkenalan dengan teman baru bernama ${newName} di sekolah.`);
+
+    pushLog(next, `Kamu berkenalan dengan ${friendLabel} baru bernama ${newName}.`);
   }
 
   // --- 10. FEATURE UNLOCKS (ABSOLUTE BOTTOM) ---
