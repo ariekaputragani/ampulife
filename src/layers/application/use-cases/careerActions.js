@@ -7,13 +7,23 @@ export function applyJobAction(state, jobId) {
 
   if (!job) return state;
 
-  // 1. Check if already employed
+  // 0. Initialize flags if not exists
+  if (!next.flags) next.flags = {};
+  if (next.flags.jobSearchCount === undefined) next.flags.jobSearchCount = 0;
+
+  // 1. Check application limit (Max 3 per year)
+  if (next.flags.jobSearchCount >= 3) {
+    pushLog(next, `Kamu sudah terlalu banyak melamar kerja tahun ini. HRD perusahaan lain mungkin sudah menandai namamu. Istirahatlah dan coba lagi tahun depan.`);
+    return next;
+  }
+
+  // 2. Check if already employed
   if (next.career.jobId) {
     pushLog(next, `Kamu masih bekerja sebagai ${next.career.jobId}. Kamu harus resign terlebih dahulu.`);
     return next;
   }
 
-  // 2. Check basic requirements (Age, Smarts, Wealth)
+  // 3. Check basic requirements (Age, Smarts)
   if (next.age < job.minAge) {
     pushLog(next, `Umurmu belum cukup untuk melamar sebagai ${job.name}.`);
     return next;
@@ -24,7 +34,7 @@ export function applyJobAction(state, jobId) {
     return next;
   }
 
-  // 3. Wealth status check (Class-based restriction)
+  // 4. Wealth status check (Class-based restriction)
   const statusLevels = { poor: 1, middle: 2, rich: 3 };
   const currentStatusLevel = statusLevels[next.family.wealthStatus] || 1;
   const maxStatusLevel = statusLevels[job.maxWealthStatus] || 99;
@@ -34,18 +44,21 @@ export function applyJobAction(state, jobId) {
     return next;
   }
 
-  // 4. Hiring Chance (Success/Fail)
-  // Base chance 60% + boost from smarts/looks
-  const hiringChance = 0.5 + (next.stats.smarts / 400) + (next.stats.looks / 400);
+  // 5. TRIGGER INTERACTIVE INTERVIEW
+  next.flags.jobSearchCount += 1;
   
-  if (Math.random() < hiringChance) {
-    next.career.jobId = job.id;
-    next.career.yearsInRole = 0;
-    pushLog(next, `SELAMAT! Lamaranmu diterima. Kamu sekarang bekerja sebagai ${job.name}.`);
-  } else {
-    next.stats.happy = Math.max(0, next.stats.happy - 5);
-    pushLog(next, `Maaf, lamaranmu untuk posisi ${job.name} ditolak oleh HRD. Coba lagi tahun depan atau cari lowongan lain.`);
-  }
+  next.currentEvent = {
+    id: "job_interview",
+    label: "Wawancara Kerja",
+    summary: `Kamu dipanggil untuk sesi wawancara posisi ${job.name} di sebuah perusahaan. Bagaimana kamu akan membawakan dirimu?`,
+    isInteractive: true,
+    options: [
+      { id: "confident", label: "Percaya Diri & Tegas", color: "blue" },
+      { id: "polite", label: "Sopan & Rendah Hati", color: "green" },
+      { id: "nervous", label: "Gugup & Apa Adanya", color: "gray" }
+    ],
+    payload: { jobId: job.id, jobName: job.name }
+  };
 
   return next;
 }
@@ -60,6 +73,7 @@ export function resignJobAction(state) {
   const oldJobId = next.career.jobId;
   const job = jobsCatalog.find(j => j.id === oldJobId);
 
+  next.career.lastJobId = oldJobId;
   next.career.jobId = null;
   next.career.yearsInRole = 0;
   

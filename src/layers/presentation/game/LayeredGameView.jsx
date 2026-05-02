@@ -326,7 +326,10 @@ export default function LayeredGameView() {
                   <button
                     key={opt.id}
                     className={`${styles.modalOptionButton} ${idx === 0 ? styles.modalOptionButtonPrimary : ""}`}
-                    onClick={() => actions.handleEventChoice(opt.id)}
+                    onClick={() => {
+                      actions.handleEventChoice(opt.id);
+                      setActiveTab("journal");
+                    }}
                   >
                     {opt.label}
                   </button>

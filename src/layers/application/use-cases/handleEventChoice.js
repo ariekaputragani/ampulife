@@ -32,10 +32,8 @@ export function handleEventChoice(state, optionId) {
     const option = next.currentEvent.options.find((o) => o.id === optionId);
     
     if (option) {
-      // Execute logic in resolveChoice if it's the funeral
-      if (eventId === "funeral_decision") {
-        next = resolveChoice(next, eventId, optionId);
-      }
+      // Execute logic in resolveChoice for centralized handling
+      next = resolveChoice(next, eventId, optionId, next.currentEvent.payload || {});
     }
   }
 

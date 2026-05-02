@@ -1,4 +1,5 @@
 import { cloneState, pushLog, clamp, clampStatus, pushNotification } from "@/layers/domain/entities/stateUtils";
+import { jobsCatalog } from "@/layers/infrastructure/catalogs/jobsCatalog";
 
 export function resolveChoice(state, eventId, choiceId, payload = {}) {
   const next = cloneState(state);
@@ -126,6 +127,86 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       next.education.level = "none"; // Forced drop out
       next.stats.happy = clamp(next.stats.happy - 50);
       pushLog(next, "Kamu memilih untuk pergi dari rumah dan berjuang sendiri di jalanan. Hidup terasa sangat berat, dan kamu terpaksa putus sekolah.");
+    }
+  }
+
+  if (eventId === "job_interview") {
+    const { jobId, jobName } = payload;
+    const job = jobsCatalog.find(j => j.id === jobId);
+    
+    // Base chance from stats
+    let baseChance = 0.35 + (next.stats.smarts / 300) + (next.stats.looks / 600);
+    
+    // Education Boost
+    let eduBoost = 0;
+    if (next.education.completed.includes("university")) eduBoost = 0.15;
+    else if (next.education.completed.includes("high_school") || next.education.completed.includes("paket_c")) eduBoost = 0.05;
+    
+    baseChance += eduBoost;
+
+    const track = job?.track || "informal";
+    const tier = job?.tier || 1;
+    if (tier === 2) baseChance -= 0.10;
+    else if (tier === 3) baseChance -= 0.25;
+    else if (tier >= 4) baseChance -= 0.40;
+
+    // Experience Boost
+    const totalYearsWorked = next.career.yearsWorked || 0;
+    const generalExpBoost = Math.min(0.20, totalYearsWorked * 0.01); // Max +20%
+    baseChance += generalExpBoost;
+
+    // Industry Relevance Boost (Same track as last job)
+    if (next.career.lastJobId) {
+      const lastJob = jobsCatalog.find(j => j.id === next.career.lastJobId);
+      if (lastJob && lastJob.track === track && track !== "informal") {
+        baseChance += 0.15;
+      }
+    }
+
+    const isHighLevel = (job?.tier || 1) >= 3;
+
+    // Track Preferences
+    // A. Corporate/Tech/Finance/Media prefer Confidence
+    const prefersConfidence = ["corporate", "tech", "finance", "media", "law"].includes(track);
+    // B. Service/Education/Medical prefer Politeness
+    const prefersPoliteness = ["service", "education", "medical"].includes(track);
+
+    if (choiceId === "confident") {
+       if (next.stats.smarts < 40) {
+         // Arrogant without brains
+         baseChance -= 0.25;
+         pushLog(next, "HRD merasa kamu terlalu sombong padahal kualifikasimu meragukan.");
+       } else if (prefersConfidence || isHighLevel) {
+         baseChance += 0.30;
+       } else if (prefersPoliteness) {
+         baseChance -= 0.10; // Arrogant for a service job
+       } else {
+         baseChance += 0.10;
+       }
+    } else if (choiceId === "polite") {
+       if (prefersPoliteness) {
+         baseChance += 0.30;
+       } else if (prefersConfidence) {
+         baseChance += 0.10; // Safe but not exciting
+       } else {
+         baseChance += 0.15;
+       }
+    } else if (choiceId === "nervous") {
+       baseChance -= 0.25;
+       pushLog(next, "Kamu terlihat sangat gugup saat wawancara, membuat HRD ragu.");
+    }
+
+    if (Math.random() < baseChance) {
+      next.career.jobId = jobId;
+      next.career.yearsInRole = 0;
+      const successMsg = `SELAMAT! HRD terkesan dengan ${choiceId === "confident" ? "kepercayaan dirimu" : "kesopananmu"}. Kamu diterima sebagai ${jobName}.`;
+      pushLog(next, successMsg);
+      pushNotification(next, { title: "Diterima!", message: successMsg, icon: "success" });
+    } else {
+      next.stats.happy = Math.max(0, next.stats.happy - 10);
+      const failMsg = `Maaf, lamaranmu sebagai ${jobName} ditolak. ${choiceId === "nervous" ? "Kamu harus lebih tenang lain kali." : "Mungkin kamu kurang cocok dengan posisi ini."}`;
+      pushLog(next, failMsg);
+      pushNotification(next, { title: "Ditolak", message: failMsg, icon: "error" });
     }
   }
 
