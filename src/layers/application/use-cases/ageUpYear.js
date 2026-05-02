@@ -990,6 +990,34 @@ export function ageUpYear(state, rng = Math.random) {
               { id: "with_parents", label: isAnyParentAlive ? "Tinggal Bareng Ortu (Hemat Biaya)" : "Tetap di Rumah (Tanpa Ortu)" }
             ]
           });
+        } else if (eduEntry.id === "high_school" || eduEntry.id === "paket_c") {
+          const isPaket = eduEntry.id === "paket_c";
+          const gradMsg = `Selamat! Kamu telah lulus ${isPaket ? "Kejar Paket C" : "SMA"}. Ijazah setara SMA kini ada di tanganmu.`;
+          pushLog(next, gradMsg);
+          
+          pushNotification(next, {
+            title: isPaket ? "Lulus Paket C" : "Lulus SMA",
+            message: "Selamat! Kamu telah menyelesaikan masa pendidikan menengah. Pilih langkahmu selanjutnya untuk masa depan.",
+            icon: "success",
+            type: "confirm",
+            eventId: "graduation_path_selection",
+            options: [
+              { id: "snbp", label: "Ikut Jalur SNBP (Prestasi)", color: "green" },
+              { id: "snbt", label: next.age <= 25 ? "Ikut Jalur SNBT (UTBK)" : "UTBK (Hanya < 25 thn)", color: "blue", disabled: next.age > 25 },
+              { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
+              { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
+              { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" },
+              { id: "work", label: "Langsung Cari Kerja", color: "gray" }
+            ]
+          });
+        } else if (eduEntry.id === "junior_high") {
+           const num = Math.floor(rng() * 100) + 1;
+           next.education.level = "high_school";
+           next.education.yearsStudied = 0;
+           next.education.schoolName = `SMAN ${num} ${next.profile.city}`;
+           const gradMsg = `Selamat! Kamu lulus SMP dan melanjutkan ke ${next.education.schoolName}.`;
+           pushLog(next, gradMsg);
+           pushNotification(next, { title: "Lulus SMP", message: gradMsg, icon: "success" });
         } else if (isPaket) {
           const paketType = eduEntry.id.split("_")[1].toUpperCase();
           const gradMsg = `Selamat! Kamu telah lulus ${eduEntry.name}. Kini kamu memegang ijazah setara ${paketType === "B" ? "SMP" : "SMA"}.`;

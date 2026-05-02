@@ -3,6 +3,111 @@ import { jobsCatalog } from "@/layers/infrastructure/catalogs/jobsCatalog";
 
 export function resolveChoice(state, eventId, choiceId, payload = {}) {
   const next = cloneState(state);
+  const isAnyParentAlive = next.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
+
+  if (eventId === "graduation_path_selection") {
+    if (choiceId === "work") {
+      pushLog(next, "Kamu memutuskan untuk tidak melanjutkan kuliah dan langsung fokus mencari kerja. Semoga sukses!");
+      return next;
+    }
+
+    if (choiceId === "terbuka") {
+      next.education.level = "university_terbuka";
+      next.education.yearsStudied = 0;
+      next.education.schoolName = "Universitas Terbuka";
+      pushLog(next, "Kamu mendaftar di Universitas Terbuka agar bisa belajar secara fleksibel sambil melakukan aktivitas lain.");
+      pushNotification(next, { title: "Daftar UT", message: "Kamu resmi menjadi mahasiswa Universitas Terbuka.", icon: "success" });
+      return next;
+    }
+
+    if (choiceId === "swasta") {
+      next.education.level = "university_swasta";
+      next.education.yearsStudied = 0;
+      next.education.schoolName = "Universitas Swasta";
+      pushLog(next, "Kamu mendaftar di Universitas Swasta. Biaya kuliah mungkin lebih tinggi, namun fasilitasnya cukup memadai.");
+      pushNotification(next, { title: "Daftar Swasta", message: "Kamu resmi terdaftar di Universitas Swasta.", icon: "success" });
+      return next;
+    }
+
+    if (choiceId === "snbp") {
+      const chance = next.stats.smarts > 80 ? 0.35 : 0.05;
+      if (Math.random() < chance) {
+        next.education.level = "university_ptn_snbp";
+        next.education.yearsStudied = 0;
+        next.education.schoolName = "Universitas Negeri (SNBP)";
+        const msg = "LUAR BIASA! Kamu lulus jalur SNBP. Kamu masuk universitas negeri tanpa tes dan biaya semester sangat murah!";
+        pushLog(next, msg);
+        pushNotification(next, { title: "Lolos SNBP!", message: msg, icon: "success" });
+      } else {
+        const failMsg = "Maaf, kamu tidak lolos seleksi SNBP. Jangan menyerah, masih ada jalur tes (SNBT) atau Mandiri.";
+        pushLog(next, failMsg);
+        pushNotification(next, { 
+          title: "Gagal SNBP", 
+          message: failMsg, 
+          icon: "error",
+          type: "confirm",
+          eventId: "graduation_path_selection",
+          options: [
+            { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue", disabled: next.age > 25 },
+            { id: "mandiri", label: "Daftar Jalur Mandiri", color: "orange" },
+            { id: "swasta", label: "Daftar Swasta", color: "purple" },
+            { id: "work", label: "Langsung Kerja", color: "gray" }
+          ]
+        });
+      }
+      return next;
+    }
+
+    if (choiceId === "snbt") {
+      const passChance = 0.2 + (next.stats.smarts / 200);
+      if (Math.random() < passChance) {
+        next.education.level = "university_ptn_snbt";
+        next.education.yearsStudied = 0;
+        next.education.schoolName = "Universitas Negeri (SNBT)";
+        const msg = "SELAMAT! Kamu lulus UTBK dan diterima di PTN impianmu melalui jalur SNBT.";
+        pushLog(next, msg);
+        pushNotification(next, { title: "Lulus UTBK!", message: msg, icon: "success" });
+      } else {
+        const failMsg = "Kamu gagal dalam seleksi UTBK. Nilaimu belum mencukupi untuk bersaing di PTN tujuanmu.";
+        pushLog(next, failMsg);
+        pushNotification(next, { 
+          title: "Gagal SNBT", 
+          message: failMsg, 
+          icon: "error",
+          type: "confirm",
+          eventId: "graduation_path_selection",
+          options: [
+            { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
+            { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
+            { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" },
+            { id: "work", label: "Langsung Kerja", color: "gray" }
+          ]
+        });
+      }
+      return next;
+    }
+
+    if (choiceId === "mandiri") {
+      const upInitial = 35_000_000;
+      const currentMoney = next.profile.isIndependent ? next.money : next.family.savings;
+      
+      if (currentMoney < upInitial) {
+        pushNotification(next, { title: "Dana Kurang", message: "Tabunganmu tidak mencukupi untuk membayar uang pangkal jalur Mandiri (Rp35jt).", icon: "warning" });
+        return next;
+      }
+
+      if (next.profile.isIndependent) next.money -= upInitial;
+      else next.family.savings -= upInitial;
+
+      next.education.level = "university_ptn_mandiri";
+      next.education.yearsStudied = 0;
+      next.education.schoolName = "Universitas Negeri (Mandiri)";
+      const msg = `Kamu masuk PTN melalui jalur Mandiri dengan membayar uang pangkal Rp${upInitial.toLocaleString("id-ID")}.`;
+      pushLog(next, msg);
+      pushNotification(next, { title: "Berhasil Masuk", message: msg, icon: "success" });
+      return next;
+    }
+  }
 
   if (eventId === "graduation_sma") {
     if (choiceId === "ptn") {

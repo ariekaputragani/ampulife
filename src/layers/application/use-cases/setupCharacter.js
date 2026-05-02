@@ -59,8 +59,9 @@ export function setupCharacter(state, { name, city, gender, birthDate }) {
   const fatherName = generateRandomName("male");
   const motherName = generateRandomName("female");
 
-  const fatherAge = Math.floor(Math.random() * 33) + 18; // 18-50 thn
-  const motherAge = Math.floor(Math.random() * 33) + 18; // 18-50 thn
+  const motherAge = Math.floor(Math.random() * 21) + 20; // 20-40 years old
+  const ageGap = Math.floor(Math.random() * 12) - 3; // -3 to +8 years gap
+  const fatherAge = Math.max(19, motherAge + ageGap);
   const baseSupport = familyWealth === "rich" ? 90 : familyWealth === "poor" ? 40 : 65;
 
   next.relations = [
