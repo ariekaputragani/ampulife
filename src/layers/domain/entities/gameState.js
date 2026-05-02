@@ -14,6 +14,7 @@ export function createInitialGameState() {
         year: 2026,
       },
       isIndependent: false, // Menandakan apakah pemain sudah mandiri secara finansial
+      livingWithParents: true, // Menandakan apakah pemain masih tinggal bersama orang tua
     },
     actions: [
       {

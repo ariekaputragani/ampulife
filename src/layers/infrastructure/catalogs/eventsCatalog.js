@@ -2,6 +2,29 @@ import { pushLog, pushNotification } from "@/layers/domain/entities/stateUtils";
 
 export const eventsCatalog = [
   {
+    id: "infant_milestone",
+    label: "Perkembangan",
+    minAge: 1,
+    maxAge: 3,
+    weight: (state) => 0.8,
+    isInteractive: false,
+    apply: (state) => {
+      const milestones = [
+        "Saya sudah mulai bisa merangkak ke seluruh ruangan.",
+        "Saya mengucapkan kata pertama saya hari ini!",
+        "Saya baru saja belajar berdiri sendiri tanpa pegangan.",
+        "Ibu sangat senang karena saya sudah bisa makan bubur dengan lahap.",
+        "Ayah mengajak saya bermain petak umpet, saya tertawa kegirangan.",
+        "Saya baru saja tumbuh gigi pertama saya, rasanya agak gatal.",
+        "Saya mulai bisa mengenali wajah orang-orang di sekitar saya.",
+        "Saya belajar memegang botol susu sendiri.",
+        "Saya sangat suka saat Ayah membacakan buku cerita sebelum tidur."
+      ];
+      const summary = milestones[Math.floor(Math.random() * milestones.length)];
+      return { summary };
+    },
+  },
+  {
     id: "medan_peril",
     label: "Korban",
     minAge: 1,

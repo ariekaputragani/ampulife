@@ -29,9 +29,9 @@ export function triggerRandomEvent(state, rng = Math.random) {
 
   const totalWeight = candidates.reduce((sum, c) => sum + c.weight, 0);
 
-  let chance = 0.55;
-  if (totalWeight < 2.0) {
-    chance = totalWeight * 0.25; // Scale down chance if not many events are valid
+  let chance = 0.75;
+  if (totalWeight < 1.0) {
+    chance = Math.max(0.2, totalWeight * 0.5); // Better chance for early years
   }
 
   if (rng() > chance) {
@@ -53,7 +53,7 @@ export function triggerRandomEvent(state, rng = Math.random) {
   } else {
     const result = picked.event.apply(state);
     if (result && result.summary) {
-      pushLog(state, `Event: ${result.summary}`);
+      pushLog(state, result.summary);
     }
   }
 

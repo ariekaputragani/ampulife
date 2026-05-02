@@ -4,6 +4,7 @@ export function setupCharacter(state, { name, city, gender, birthDate }) {
   const next = cloneState(state);
 
   next.profile = {
+    ...next.profile,
     name: name || generateRandomName(gender),
     city: city || "Jakarta",
     gender,
