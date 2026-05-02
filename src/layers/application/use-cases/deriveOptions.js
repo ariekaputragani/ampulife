@@ -105,6 +105,22 @@ export function getAvailableActivities(state) {
       description: "Aktif dalam organisasi sekolah untuk menambah teman dan keahlian.", 
       effects: "🧠 +3 Smarts, 😊 +5 Happy, ✨ +2 Looks" 
     },
+    {
+      id: "vacation_domestic",
+      name: "Liburan Domestik",
+      minAge: 18,
+      cost: 5_000_000,
+      description: "Piknik keluarga ke tempat wisata lokal (Bali/Puncak).",
+      effects: "😊 +15 Happy, ❤️ Kedekatan Keluarga"
+    },
+    {
+      id: "vacation_international",
+      name: "Liburan Luar Negeri",
+      minAge: 18,
+      cost: 75_000_000,
+      description: "Jalan-jalan ke luar negeri (Jepang/Eropa).",
+      effects: "😊 +50 Happy, ❤️ Kedekatan Keluarga++"
+    },
   ];
 
   const hasSIM = state.profile.licenses && state.profile.licenses.includes("SIM A/C");

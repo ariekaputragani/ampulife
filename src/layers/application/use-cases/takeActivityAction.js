@@ -159,6 +159,46 @@ export function takeActivityAction(state, activityId) {
       }
       break;
 
+    case "vacation_domestic":
+      const domesticCost = 5_000_000;
+      if (newState.money >= domesticCost) {
+        newState.money -= domesticCost;
+        newState.stats.happy = Math.min(100, newState.stats.happy + 15);
+        
+        // Boost relation with spouse and children
+        newState.relations = newState.relations.map(rel => {
+          if (rel.status === "spouse" || rel.label === "Anak") {
+            return { ...rel, relationship: Math.min(100, (rel.relationship || 0) + 10) };
+          }
+          return rel;
+        });
+
+        message = "Kamu mengajak keluarga berlibur ke tempat wisata domestik. Semua orang merasa senang!";
+      } else {
+        message = "Uangmu tidak cukup untuk liburan domestik.";
+      }
+      break;
+
+    case "vacation_international":
+      const internationalCost = 75_000_000;
+      if (newState.money >= internationalCost) {
+        newState.money -= internationalCost;
+        newState.stats.happy = Math.min(100, newState.stats.happy + 50);
+        
+        // Massive boost relation with spouse and children
+        newState.relations = newState.relations.map(rel => {
+          if (rel.status === "spouse" || rel.label === "Anak") {
+            return { ...rel, relationship: Math.min(100, (rel.relationship || 0) + 25) };
+          }
+          return rel;
+        });
+
+        message = "LUAR BIASA! Kamu sekeluarga berlibur ke luar negeri. Momen ini sangat berkesan bagi seluruh anggota keluarga.";
+      } else {
+        message = "Uangmu tidak cukup untuk liburan ke luar negeri.";
+      }
+      break;
+
     default:
       message = "Aktivitas tidak dikenal.";
   }

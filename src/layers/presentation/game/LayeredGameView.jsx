@@ -603,15 +603,15 @@ function RelationsTab({ state, actions, onBack }) {
                   background: isDead ? "#f8f9fa" : "#fff"
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <strong>{rel.name}</strong> {isDead ? "🕯️" : (currentGender === "male" ? "♂️" : "♀️")}
-                    <div style={{ fontSize: "11px", color: "#868e96" }}>
-                      {isDead ? "Almarhum/ah" : rel.label} • {statusLabels[rel.status] || (rel.id === "father" || rel.id === "mother" ? "Keluarga" : "Teman")}
-                      {rel.age && ` • ${rel.age} Th`}
-                    </div>
+                <div className={styles.itemHeader}>
+                  <div className={styles.itemTitle}>
+                    {rel.name} {rel.gender === "M" ? "♂️" : rel.gender === "F" ? "♀️" : ""}
+                    {isDead && <span style={{ color: "#fa5252", fontSize: "10px", marginLeft: "5px" }}>(Wafat)</span>}
                   </div>
-                  {!isDead && <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057" }}>{currentRel}%</div>}
+                  {!isDead && <div className={styles.itemValue}>{currentRel}%</div>}
+                </div>
+                <div className={styles.itemSubtitle}>
+                  {rel.label} • {statusLabels[rel.status] || rel.status} • {rel.education ? `${rel.education} • ` : ""}{rel.age} Th
                 </div>
 
                 {!isDead && (

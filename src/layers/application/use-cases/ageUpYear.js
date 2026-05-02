@@ -103,8 +103,8 @@ export function ageUpYear(state, rng = Math.random) {
     pushLog(next, `Pasanganmu (${spouse.name}) berkontribusi gaji sebesar Rp${spouseYearlyIncome.toLocaleString("id-ID")} ke rekening bersama.`);
   }
 
-  // Childcare for Player's own children
-  const myChildren = next.relations.filter(r => r.label === "Anak" && !r.isDead);
+  // Childcare for Player's own children (Only for non-independent children)
+  const myChildren = next.relations.filter(r => r.label === "Anak" && !r.isDead && !r.isIndependent);
   let playerChildcareCost = 0;
   myChildren.forEach(child => {
     let cost = 0;
@@ -136,6 +136,7 @@ export function ageUpYear(state, rng = Math.random) {
       status: "family",
       gender: childGender === "Laki-laki" ? "M" : "F",
       age: 0,
+      education: "Belum Sekolah",
       relationship: 100,
       bond: 100,
       support: 100,
@@ -155,6 +156,74 @@ export function ageUpYear(state, rng = Math.random) {
       message: `Selamat! Kamu memiliki seorang anak baru bernama ${childName}. (Biaya RS: Rp${birthCost.toLocaleString("id-ID")})`,
       icon: "success"
     });
+  }
+
+  // --- 3.5 CHILD SCHOOLING MILESTONES ---
+  next.relations = next.relations.map(rel => {
+    if (rel.label !== "Anak" || rel.isDead) return rel;
+    
+    let schoolingFee = 0;
+    let schoolLevel = "";
+    
+    if (rel.age === 6) { schoolingFee = 5_000_000; schoolLevel = "SD"; rel.education = "SD"; }
+    else if (rel.age === 12) { schoolingFee = 10_000_000; schoolLevel = "SMP"; rel.education = "SMP"; }
+    else if (rel.age === 15) { schoolingFee = 15_000_000; schoolLevel = "SMA"; rel.education = "SMA"; }
+    else if (rel.age === 18) { schoolingFee = 50_000_000; schoolLevel = "Universitas"; rel.education = "Universitas"; }
+    
+    if (schoolingFee > 0) {
+      if (lifestyle === "mewah") schoolingFee *= 5;
+      else if (lifestyle === "hemat") schoolingFee *= 0.5;
+      next.money -= schoolingFee;
+      pushLog(next, `Tahun ini ${rel.name} (${rel.age} Th) mulai masuk ${schoolLevel}. Kamu membayar biaya pendaftaran sebesar Rp${schoolingFee.toLocaleString("id-ID")}.`);
+    }
+
+    if (!rel.education || rel.education === "Belum Sekolah") {
+      if (rel.age >= 22) rel.education = "Lulus Kuliah";
+      else if (rel.age >= 18) rel.education = "Universitas";
+      else if (rel.age >= 15) rel.education = "SMA";
+      else if (rel.age >= 12) rel.education = "SMP";
+      else if (rel.age >= 6) rel.education = "SD";
+      else rel.education = "Belum Sekolah";
+    }
+    return rel;
+  });
+
+  // --- 3.5.1 CHILD INDEPENDENCE CHECK ---
+  next.relations = next.relations.map(rel => {
+    if (rel.label === "Anak" && !rel.isDead && rel.age === 23 && !rel.isIndependent) {
+      rel.isIndependent = true;
+      rel.education = "Bekerja";
+      pushLog(next, `${rel.name} sudah dewasa dan mulai hidup mandiri. Kamu tidak perlu lagi menanggung biaya hidupnya.`);
+      pushNotification(next, {
+        title: "Anak Mandiri",
+        message: `${rel.name} sekarang sudah dewasa dan mulai hidup mandiri.`,
+        icon: "success"
+      });
+    }
+    return rel;
+  });
+
+  // --- 3.6 RANDOM CHILD EVENTS ---
+  const schoolingChildren = myChildren.filter(c => c.age >= 6 && c.age <= 22);
+  if (schoolingChildren.length > 0 && rng() < 0.10) {
+    const targetChild = schoolingChildren[Math.floor(rng() * schoolingChildren.length)];
+    const eventRoll = rng();
+    
+    if (eventRoll < 0.4) {
+      // Sick
+      const medicalCost = 2_000_000;
+      next.money -= medicalCost;
+      pushLog(next, `${targetChild.name} jatuh sakit dan harus dibawa ke dokter. Biaya pengobatan: Rp${medicalCost.toLocaleString("id-ID")}.`);
+    } else if (eventRoll < 0.7) {
+      // Achievement
+      next.stats.happy = clamp(next.stats.happy + 10);
+      pushLog(next, `Bangga sekali! ${targetChild.name} mendapatkan juara di sekolahnya. Ini membuatmu sangat bahagia.`);
+    } else {
+      // Request money/toy
+      const toyCost = 500_000;
+      next.money -= toyCost;
+      pushLog(next, `${targetChild.name} merengek minta dibelikan mainan baru. Kamu tidak tega menolaknya. (-Rp${toyCost.toLocaleString("id-ID")})`);
+    }
   }
 
   // Childcare
@@ -774,7 +843,7 @@ export function ageUpYear(state, rng = Math.random) {
     // --- 9. RELATIONS & FRIENDS (Death & Inheritance) ---
     next.relations = next.relations.map(rel => {
       if (rel.isDead) return rel;
-      rel.age = (rel.age || next.age) + 1;
+      // rel.age is already incremented at the top of ageUpYear in section 1.1
 
       // Death probability check
       const deathProb = rel.age < 18 ? 0.001 : rel.age < 45 ? 0.005 : rel.age < 65 ? 0.01 : rel.age < 75 ? 0.02 : rel.age < 85 ? 0.04 : rel.age < 90 ? 0.10 : 0.20;
