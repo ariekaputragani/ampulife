@@ -126,6 +126,7 @@ export default function LayeredGameView() {
         )}
         {activeTab === "health" && <HealthTab state={state} options={options} actions={actions} onBack={() => setActiveTab("journal")} />}
         {activeTab === "finance" && <FinanceTab state={state} actions={actions} onBack={() => setActiveTab("journal")} />}
+        {activeTab === "identity" && <IdentityTab state={state} onBack={() => setActiveTab("journal")} />}
 
 
 
@@ -249,6 +250,14 @@ export default function LayeredGameView() {
                     onClick={() => setActiveTab("finance")}
                   >
                     <i className="fa-solid fa-wallet"></i> Keuangan
+                  </button>
+
+                  <button
+                    className={styles.navButton1}
+                    onClick={() => setActiveTab("identity")}
+                    style={{ backgroundColor: "#f8f9fa", color: "#495057", border: "1px solid #ced4da" }}
+                  >
+                    <i className="fa-solid fa-id-card"></i> Identitas
                   </button>
                 </div>
               );
@@ -573,7 +582,8 @@ function RelationsTab({ state, actions, onBack }) {
     friend: "Teman",
     best_friend: "Sahabat",
     partner: "Pacar ❤️",
-    spouse: "Pasangan 💍"
+    spouse: "Pasangan 💍",
+    grandchild: "Cucu 👶"
   };
 
   return (
@@ -605,13 +615,17 @@ function RelationsTab({ state, actions, onBack }) {
               >
                 <div className={styles.itemHeader}>
                   <div className={styles.itemTitle}>
-                    {rel.name} {rel.gender === "M" ? "♂️" : rel.gender === "F" ? "♀️" : ""}
+                    {rel.name} {currentGender === "male" ? "♂️" : currentGender === "female" ? "♀️" : ""}
                     {isDead && <span style={{ color: "#fa5252", fontSize: "10px", marginLeft: "5px" }}>(Wafat)</span>}
                   </div>
                   {!isDead && <div className={styles.itemValue}>{currentRel}%</div>}
                 </div>
                 <div className={styles.itemSubtitle}>
-                  {rel.label} • {statusLabels[rel.status] || rel.status} • {rel.education ? `${rel.education} • ` : ""}{rel.age} Th
+                  {rel.label} • {statusLabels[rel.status] || rel.status} • 
+                  {rel.livingStatus === "stay_home" && "🏠 Tinggal Bersama • "}
+                  {rel.livingStatus === "moved_out" && "✈️ Merantau • "}
+                  {rel.education ? `${rel.education} • ` : ""}
+                  {rel.age} Th
                 </div>
 
                 {!isDead && (
@@ -798,8 +812,8 @@ function EducationTab({ state, options, actions, onBack }) {
           <div style={{ marginTop: "10px" }}>
             <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057" }}>Riwayat Kelulusan:</div>
             <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginTop: "5px" }}>
-              {state.education.completed.map(id => (
-                <span key={id} style={{ fontSize: "10px", background: "#e7f5ff", color: "#228be6", padding: "2px 8px", borderRadius: "10px", border: "1px solid #a5d8ff" }}>
+              {state.education.completed.map((id, index) => (
+                <span key={`${id}-${index}`} style={{ fontSize: "10px", background: "#e7f5ff", color: "#228be6", padding: "2px 8px", borderRadius: "10px", border: "1px solid #a5d8ff" }}>
                   {educationCatalog.find(e => e.id === id)?.name}
                 </span>
               ))}
@@ -1128,14 +1142,16 @@ function FinanceTab({ state, actions, onBack }) {
         </p>
       </div>
 
-      {!state.profile?.isIndependent ? (
+      {/* Section: Family Economy (Show if living with parents OR underage) */}
+      {(state.profile?.livingWithParents || (state.age < 18 && !state.profile?.isIndependent)) && (
         <div className={styles.itemCard} style={{ background: "#e7f5ff", borderLeft: "4px solid #228be6", padding: "10px", marginBottom: "10px", color: "#333" }}>
           <h4>Ekonomi Keluarga</h4>
           <p>Status: <strong>{state.family.wealthStatus.toUpperCase()}</strong></p>
           <p>Tabungan Keluarga: <strong>Rp{state.family.savings.toLocaleString("id-ID")}</strong></p>
-          <p>Gaji Orang Tua: <strong>Rp{state.family.monthlyIncome.toLocaleString("id-ID")}/bln</strong></p>
+          {state.family.monthlyIncome > 0 && <p>Gaji Orang Tua: <strong>Rp{state.family.monthlyIncome.toLocaleString("id-ID")}/bln</strong></p>}
+          
           <div style={{ marginTop: "10px", borderTop: "1px solid #dee2e6", paddingTop: "10px" }}>
-            <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057", marginBottom: "5px" }}>Beasiswa Aktif:</div>
+            <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057", marginBottom: "5px" }}>Beasiswa/Subsidi Aktif:</div>
             {state.family.activeScholarships && state.family.activeScholarships.length > 0 ? (
               state.family.activeScholarships.map(s => (
                 <div key={s.id} style={{ background: "#fff", padding: "8px", borderRadius: "4px", marginBottom: "5px", border: "1px solid #ced4da", fontSize: "11px" }}>
@@ -1144,16 +1160,75 @@ function FinanceTab({ state, actions, onBack }) {
                 </div>
               ))
             ) : (
-              <div style={{ fontSize: "11px", color: "#adb5bd" }}>Tidak ada beasiswa aktif.</div>
+              <div style={{ fontSize: "11px", color: "#adb5bd" }}>Tidak ada beasiswa/subsidi aktif.</div>
             )}
           </div>
         </div>
-      ) : (
-        <div className={styles.itemCard} style={{ background: "#ebfbee", borderLeft: "4px solid #40c057", padding: "10px", marginBottom: "10px", color: "#333" }}>
-          <h4>Ekonomi Pribadi</h4>
-          <p>Status: <strong>MANDIRI</strong></p>
-          <p>Uang Tersedia: <strong>Rp{state.money.toLocaleString("id-ID")}</strong></p>
-          <p style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>Kamu sekarang bertanggung jawab penuh atas biaya kos, makan, dan pajak pribadimu.</p>
+      )}
+
+      {/* Section: Personal Economy (Show if independent OR in jail OR has money) */}
+      {(state.profile?.isIndependent || state.legal?.inJail || state.money > 0) && (
+        <div className={styles.itemCard} style={{ background: "#ebfbee", borderLeft: "4px solid #40c057", padding: "15px", marginBottom: "10px", color: "#333" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+            <h4 style={{ margin: 0 }}>Ekonomi Pribadi</h4>
+            {state.legal?.inJail ? (
+              <span style={{ fontSize: "10px", background: "#fa5252", color: "#fff", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold" }}>DI PENJARA</span>
+            ) : (
+              <span style={{ fontSize: "10px", background: "#40c057", color: "#fff", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold" }}>{state.profile?.isIndependent ? "MANDIRI" : "TABUNGAN"}</span>
+            )}
+          </div>
+          
+          <div style={{ marginBottom: "15px" }}>
+            <div style={{ fontSize: "12px", color: "#666" }}>Uang Tersedia:</div>
+            <div style={{ fontSize: "20px", fontWeight: "bold", color: "#2b8a3e" }}>Rp{state.money.toLocaleString("id-ID")}</div>
+          </div>
+
+          {!state.legal?.inJail && (
+            <div style={{ borderTop: "1px solid #d3f9d8", paddingTop: "10px" }}>
+              <div style={{ fontSize: "12px", fontWeight: "bold", color: "#2b8a3e", marginBottom: "8px" }}>Rincian Pendapatan Bulanan:</div>
+              
+              {(() => {
+                const currentJob = jobsCatalog.find(j => j.id === state.career.jobId);
+                const playerMonthly = currentJob ? Math.floor(currentJob.salaryPerYear / 12) : 0;
+                
+                const spouse = state.relations.find(r => r.status === "spouse" && !r.isDead);
+                let spouseMonthly = 0;
+                if (spouse) {
+                  const spouseYearly = lifestyle === "mewah" ? 150_000_000 : 45_000_000;
+                  spouseMonthly = Math.floor(spouseYearly / 12);
+                }
+
+                if (playerMonthly === 0 && spouseMonthly === 0) {
+                  return <div style={{ fontSize: "11px", color: "#fa5252", fontStyle: "italic" }}>Tidak ada pendapatan rutin saat ini.</div>;
+                }
+
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                    {playerMonthly > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px" }}>
+                        <span>Gaji Kamu ({currentJob?.name}):</span>
+                        <strong>Rp{playerMonthly.toLocaleString("id-ID")}</strong>
+                      </div>
+                    )}
+                    {spouseMonthly > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px" }}>
+                        <span>Gaji Pasangan ({spouse?.name}):</span>
+                        <strong>Rp{spouseMonthly.toLocaleString("id-ID")}</strong>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "5px", paddingTop: "5px", borderTop: "1px dashed #b2f2bb", fontWeight: "bold" }}>
+                      <span>Total Pendapatan:</span>
+                      <span>Rp{(playerMonthly + spouseMonthly).toLocaleString("id-ID")}/bln</span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+          
+          <div style={{ fontSize: "11px", color: "#666", marginTop: "12px", fontStyle: "italic" }}>
+            {state.legal?.inJail ? "Selama di penjara, kamu tidak bisa bekerja atau menerima pendapatan rutin." : "Kamu bertanggung jawab penuh atas biaya hidup dan kebutuhan pribadimu."}
+          </div>
         </div>
       )}
       <div className={styles.optionsList}>
@@ -1181,6 +1256,105 @@ function FinanceTab({ state, actions, onBack }) {
           <div style={{ fontSize: "11px", color: "#e03131", marginTop: "4px" }}>📈 Biaya Hidup +60% | 📈 Kebahagiaan +3/thn</div>
         </button>
       </div>
+      <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "15px" }}>Kembali</button>
+    </div>
+  );
+}
+function IdentityTab({ state, onBack }) {
+  const getZodiac = (day, month) => {
+    const d = Number(day);
+    const m = Number(month);
+    if ((m === 1 && d >= 20) || (m === 2 && d <= 18)) return "Aquarius ♒";
+    if ((m === 2 && d >= 19) || (m === 3 && d <= 20)) return "Pisces ♓";
+    if ((m === 3 && d >= 21) || (m === 4 && d <= 19)) return "Aries ♈";
+    if ((m === 4 && d >= 20) || (m === 5 && d <= 20)) return "Taurus ♉";
+    if ((m === 5 && d >= 21) || (m === 6 && d <= 20)) return "Gemini ♊";
+    if ((m === 6 && d >= 21) || (m === 7 && d <= 22)) return "Cancer ♋";
+    if ((m === 7 && d >= 23) || (m === 8 && d <= 22)) return "Leo ♌";
+    if ((m === 8 && d >= 23) || (m === 9 && d <= 22)) return "Virgo ♍";
+    if ((m === 9 && d >= 23) || (m === 10 && d <= 22)) return "Libra ♎";
+    if ((m === 10 && d >= 23) || (m === 11 && d <= 21)) return "Scorpio ♏";
+    if ((m === 11 && d >= 22) || (m === 12 && d <= 21)) return "Sagittarius ♐";
+    return "Capricorn ♑";
+  };
+
+  const birthDate = state.profile.birthDate;
+  const zodiac = getZodiac(birthDate.day, birthDate.month);
+  const birthPlace = state.profile.birthPlace || "Rumah Sakit Umum";
+
+  return (
+    <div className={styles.tabPane}>
+      <h3>Kartu Identitas (KTP)</h3>
+      <div 
+        className={styles.itemCard} 
+        style={{ 
+          background: "linear-gradient(135deg, #e7f5ff 0%, #ffffff 100%)", 
+          border: "2px solid #a5d8ff",
+          padding: "20px",
+          borderRadius: "12px",
+          boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+          color: "#333",
+          position: "relative",
+          overflow: "hidden"
+        }}
+      >
+        <div style={{ position: "absolute", top: "-10px", right: "-10px", opacity: 0.1, fontSize: "80px" }}>
+          <i className="fa-solid fa-id-card"></i>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div style={{ borderBottom: "1px solid #d0ebff", pb: "10px", marginBottom: "5px" }}>
+            <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Nama Lengkap</label>
+            <div style={{ fontSize: "18px", fontWeight: "bold", color: "#1864ab" }}>{state.profile.name.toUpperCase()}</div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+            <div>
+              <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Jenis Kelamin</label>
+              <div style={{ fontSize: "14px", fontWeight: "600" }}>
+                {state.profile.gender === "male" ? "Laki-laki (♂️)" : "Perempuan (♀️)"}
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Zodiak</label>
+              <div style={{ fontSize: "14px", fontWeight: "600" }}>{zodiac}</div>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+            <div>
+              <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Tempat Lahir</label>
+              <div style={{ fontSize: "14px", fontWeight: "600" }}>{birthPlace}</div>
+            </div>
+            <div>
+              <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Tanggal Lahir</label>
+              <div style={{ fontSize: "14px", fontWeight: "600" }}>{birthDate.day}/{birthDate.month}/{birthDate.year}</div>
+            </div>
+          </div>
+
+          <div style={{ borderTop: "1px solid #d0ebff", pt: "10px", marginTop: "5px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+            <div>
+              <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Kewarganegaraan</label>
+              <div style={{ fontSize: "14px", fontWeight: "600" }}>WNI</div>
+            </div>
+            <div>
+              <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Domisili</label>
+              <div style={{ fontSize: "14px", fontWeight: "600", color: state.legal?.inJail ? "#fa5252" : "#1864ab" }}>
+                {state.legal?.inJail 
+                  ? "Lapas" 
+                  : state.profile?.livingWithParents 
+                    ? "Rumah Ortu" 
+                    : "Mandiri/Kos"}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginTop: "20px", fontSize: "11px", color: "#868e96", fontStyle: "italic", textAlign: "center" }}>
+        "Identitas ini berlaku seumur hidup selama karakter masih bernapas."
+      </div>
+
       <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "15px" }}>Kembali</button>
     </div>
   );

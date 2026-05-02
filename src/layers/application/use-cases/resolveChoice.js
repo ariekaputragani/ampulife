@@ -1,4 +1,4 @@
-import { cloneState, pushLog, clamp, clampStatus } from "@/layers/domain/entities/stateUtils";
+import { cloneState, pushLog, clamp, clampStatus, pushNotification } from "@/layers/domain/entities/stateUtils";
 
 export function resolveChoice(state, eventId, choiceId, payload = {}) {
   const next = cloneState(state);
@@ -7,56 +7,82 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     if (choiceId === "ptn") {
       // PTN Selection (Harder but cheaper)
       const passChance = 0.3 + (next.stats.smarts / 200); // Max 80% if smarts is 100
+      const isAnyParentAlive = next.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
+
       if (Math.random() < passChance) {
+        next.education.isPTNPass = true; // Mark as PTN passer
         pushLog(next, "LUAR BIASA! Kamu lulus seleksi PTN (Negeri). Biaya kuliahmu akan jauh lebih terjangkau.");
-        // Trigger funding selection for PTN
-        pushNotification(next, {
-          title: "Pendanaan Kuliah (PTN)",
-          message: "Siapa yang akan membiayai kuliah PTN kamu?",
-          icon: "question",
-          type: "confirm",
-          eventId: "university_funding",
-          options: [
-            { id: "parents", label: "Orang Tua (Jika Mampu)" },
-            { id: "self", label: "Bayar Sendiri (Kerja Sampingan)" }
-          ],
-          payload: { type: "ptn" }
-        });
+        
+        if (!isAnyParentAlive) {
+          next.profile.isIndependent = true;
+          next.education.level = "university_ptn";
+          next.education.yearsStudied = 0;
+          next.education.schoolName = "Universitas Negeri";
+          next.education.isPTNPass = false;
+          pushLog(next, "Karena tidak ada orang tua yang membiayai, kamu memutuskan untuk kuliah di Universitas Negeri dengan biaya sendiri (berjuang mandiri).");
+        } else {
+          pushNotification(next, {
+            title: "Pendanaan Kuliah (PTN)",
+            message: "Siapa yang akan membiayai kuliah PTN kamu?",
+            icon: "question",
+            type: "confirm",
+            eventId: "university_funding",
+            options: [
+              { id: "parents", label: "Orang Tua (Jika Mampu)" },
+              { id: "self", label: "Bayar Sendiri (Kerja Sampingan)" }
+            ]
+          });
+        }
       } else {
         pushLog(next, "Sayang sekali, kamu gagal dalam seleksi PTN tahun ini.");
         // Trigger fallback options
         pushNotification(next, {
           title: "Seleksi PTN Gagal",
-          message: "Kamu gagal masuk PTN. Apa rencana cadanganmu?",
-          icon: "warning",
+          message: "Kamu gagal masuk PTN. Ingin mencoba universitas swasta atau cari kerja?",
+          icon: "error",
           type: "confirm",
           eventId: "graduation_sma",
           options: [
-            { id: "swasta", label: "Daftar Swasta (Satu-satunya Jalan)" },
-            { id: "job", label: "Cari Kerja Saja" },
-            { id: "gap_year", label: "Ambil Gap Year (Coba Lagi Tahun Depan)" }
+            { id: "swasta", label: "Daftar Swasta" },
+            { id: "job", label: "Cari Kerja" }
           ]
         });
       }
     } else if (choiceId === "swasta") {
+      next.education.isPTNPass = false; // Ensure it's marked as swasta
       pushLog(next, "Kamu memutuskan untuk mendaftar di universitas Swasta.");
-      // Trigger funding selection for Swasta
-      pushNotification(next, {
-        title: "Pendanaan Kuliah (Swasta)",
-        message: "Biaya Swasta cukup mahal. Siapa yang akan membayarnya?",
-        icon: "question",
-        type: "confirm",
-        eventId: "university_funding",
-        options: [
-          { id: "parents", label: "Orang Tua (Butuh Tabungan Besar)" },
-          { id: "self", label: "Bayar Sendiri (Wajib Mandiri)" }
-        ],
-        payload: { type: "swasta" }
-      });
+      
+      const isAnyParentAlive = next.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
+      
+      if (!isAnyParentAlive) {
+        next.profile.isIndependent = true;
+        next.education.level = "university_swasta";
+        next.education.yearsStudied = 0;
+        next.education.schoolName = "Universitas Swasta";
+        pushLog(next, "Karena tidak ada orang tua yang membiayai, kamu memutuskan untuk kuliah di Universitas Swasta dengan biaya sendiri (berjuang mandiri).");
+      } else {
+        // Trigger funding selection for Swasta
+        pushNotification(next, {
+          title: "Pendanaan Kuliah (Swasta)",
+          message: "Biaya Swasta cukup mahal. Siapa yang akan membayarnya?",
+          icon: "question",
+          type: "confirm",
+          eventId: "university_funding",
+          options: [
+            { id: "parents", label: "Orang Tua (Butuh Tabungan Besar)" },
+            { id: "self", label: "Bayar Sendiri (Wajib Mandiri)" }
+          ]
+        });
+      }
     } else if (choiceId === "job") {
+      const isAnyParentAlive = next.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
       next.profile.isIndependent = true;
       next.stats.happy = clamp(next.stats.happy + 5);
-      pushLog(next, "Saya memutuskan untuk hidup mandiri, mencari kos-kosan, dan mengelola keuangan Saya sendiri mulai sekarang.");
+      if (isAnyParentAlive) {
+        pushLog(next, "Saya memutuskan untuk hidup mandiri, mencari kos-kosan, dan mengelola keuangan Saya sendiri mulai sekarang.");
+      } else {
+        pushLog(next, "Saya memutuskan untuk mulai mencari kerja dan berjuang sendiri demi masa depan.");
+      }
     } else if (choiceId === "gap_year") {
       next.stats.happy = clamp(next.stats.happy + 10);
       pushLog(next, "Saya memutuskan untuk mengambil Gap Year. Saya akan mencoba lagi tahun depan.");
@@ -65,19 +91,58 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
 
   if (eventId === "graduation_university") {
     next.profile.isIndependent = true; // Financial autonomy
+    next.education.level = "none";
+    next.education.yearsStudied = 0;
+    next.education.schoolName = "";
     if (choiceId === "independent") {
       next.profile.livingWithParents = false;
       next.stats.happy = clamp(next.stats.happy + 15);
       pushLog(next, "Kamu memutuskan untuk pindah keluar dan hidup mandiri sepenuhnya. Selamat berjuang di dunia nyata!");
     } else if (choiceId === "with_parents") {
+      const isAnyParentAlive = next.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
       next.profile.livingWithParents = true;
       next.stats.happy = clamp(next.stats.happy + 5);
-      pushLog(next, "Kamu memutuskan untuk tetap tinggal bersama orang tua sambil menabung untuk masa depanmu.");
+      if (isAnyParentAlive) {
+        pushLog(next, "Kamu memutuskan untuk tetap tinggal bersama orang tua sambil menabung untuk masa depanmu.");
+      } else {
+        pushLog(next, "Kamu memutuskan untuk tetap tinggal di rumah keluarga dan menabung untuk masa depanmu.");
+      }
+    }
+  }
+
+  if (eventId === "orphan_crisis") {
+    if (choiceId === "relative") {
+      next.family.savings = Math.floor(next.family.savings * 0.2); // Most assets lost or tied up
+      next.family.monthlyIncome = 3_500_000; // Relative's basic support
+      next.family.wealthStatus = "middle";
+      next.family.isBankrupt = false; 
+      next.profile.isIndependent = false;
+      next.profile.livingWithParents = true; // Living with extended family
+      next.stats.happy = clamp(next.stats.happy - 15);
+      pushLog(next, "Kamu kini tinggal bersama paman dan bibimu. Mereka berjanji akan menjagamu dan memastikan kamu tetap bisa melanjutkan sekolah.");
+    } else if (choiceId === "street") {
+      next.profile.isIndependent = true;
+      next.profile.livingWithParents = false;
+      next.education.level = "none"; // Forced drop out
+      next.stats.happy = clamp(next.stats.happy - 50);
+      pushLog(next, "Kamu memilih untuk pergi dari rumah dan berjuang sendiri di jalanan. Hidup terasa sangat berat, dan kamu terpaksa putus sekolah.");
+    }
+  }
+
+  if (eventId === "prison_release_choice") {
+    if (choiceId === "parents") {
+      next.profile.livingWithParents = true;
+      next.profile.isIndependent = false; 
+      pushLog(next, "Kamu memutuskan untuk kembali ke rumah keluarga untuk menata kembali hidupmu setelah bebas.");
+    } else if (choiceId === "independent") {
+      next.profile.isIndependent = true;
+      next.profile.livingWithParents = false;
+      pushLog(next, "Kamu memilih untuk langsung hidup mandiri dan berjanji akan menjadi pribadi yang lebih baik.");
     }
   }
 
   if (eventId === "university_funding") {
-    const isPTN = payload.type === "ptn";
+    const isPTN = next.education.isPTNPass === true;
     const tuition = isPTN ? 15_000_000 : 45_000_000; // Yearly tuition
 
     if (choiceId === "parents") {
@@ -85,6 +150,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
         next.education.level = isPTN ? "university_ptn" : "university_swasta";
         next.education.yearsStudied = 0;
         next.education.schoolName = isPTN ? "Universitas Negeri" : "Universitas Swasta";
+        next.education.isPTNPass = false; // Reset flag after use
         pushLog(next, `Orang tuamu setuju membiayai kuliahmu di ${next.education.schoolName}.`);
       } else {
         pushLog(next, "Orang tuamu minta maaf karena tabungan mereka tidak cukup untuk membiayai kuliahmu.");
@@ -98,8 +164,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
           options: [
             { id: "self", label: "Bayar Sendiri (Berjuang Mandiri)" },
             { id: "job", label: "Batalkan Kuliah & Cari Kerja" }
-          ],
-          payload
+          ]
         });
       }
     } else if (choiceId === "self") {
@@ -107,11 +172,12 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       next.education.level = isPTN ? "university_ptn" : "university_swasta";
       next.education.yearsStudied = 0;
       next.education.schoolName = isPTN ? "Universitas Negeri" : "Universitas Swasta";
+      next.education.isPTNPass = false; // Reset flag after use
       pushLog(next, `Kamu memutuskan untuk kuliah di ${next.education.schoolName} dengan biaya sendiri. Kamu sekarang hidup mandiri.`);
-    }
- else if (choiceId === "job") {
+    } else if (choiceId === "job") {
       next.profile.isIndependent = true;
       next.education.level = "none";
+      next.education.isPTNPass = false; // Reset flag
       pushLog(next, "Karena kendala biaya, kamu terpaksa membatalkan niat kuliah dan langsung mencari kerja.");
     }
   }

@@ -19,7 +19,7 @@ export const eventsCatalog = [
     label: "Sekolah",
     minAge: 7,
     maxAge: 16,
-    weight: (state) => (state.stats.smarts > 55 ? 0.1 : 0.02),
+    weight: (state) => (state.stats.smarts > 55 && !state.legal.inJail ? 0.1 : 0.02),
     apply: (state) => {
       state.stats.happy = Math.min(100, state.stats.happy + 6);
       state.stats.smarts = Math.min(100, state.stats.smarts + 3);
@@ -197,9 +197,10 @@ export const eventsCatalog = [
     minAge: 13,
     maxAge: 16,
     weight: (state) => {
-      // Hanya muncul jika miskin dan masih sekolah (belum drop out)
-      if (state.familyWealth !== "poor") return 0;
-      if (state.education.level === "none") return 0;
+      // Hanya muncul jika miskin, masih sekolah, dan punya orang tua
+      const isAnyParentAlive = state.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
+      if (state.familyWealth !== "poor" || !isAnyParentAlive) return 0;
+      if (state.education.level === "none" || state.legal.inJail) return 0;
       return 0.8;
     },
     isInteractive: true,
@@ -234,7 +235,7 @@ export const eventsCatalog = [
     label: "Sekolah",
     minAge: 7,
     maxAge: 16,
-    weight: (state) => (state.education.level !== "none" ? 0.25 : 0),
+    weight: (state) => (state.education.level !== "none" && !state.legal.inJail ? 0.25 : 0),
     isInteractive: true,
     apply: (state) => ({
       summary: "Seseorang mengejekmu di koridor sekolah. Apa yang kamu lakukan?",
@@ -304,7 +305,7 @@ export const eventsCatalog = [
     label: "Proyek sampingan",
     minAge: 16,
     maxAge: 70,
-    weight: (state) => (state.stats.smarts > 50 ? 1.1 : 0.4),
+    weight: (state) => (state.stats.smarts > 50 && !state.legal.inJail ? 1.1 : 0.4),
     apply: (state) => {
       state.money += 12_000_000;
       return { summary: "Kamu mendapat proyek sampingan dan bonus uang." };
@@ -316,6 +317,9 @@ export const eventsCatalog = [
     minAge: 7,
     maxAge: 999,
     weight: (state) => {
+      if (state.legal.inJail) return 0;
+      const isAnyParentAlive = state.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
+      if (!isAnyParentAlive) return 0;
       const avgSupport =
         state.relations.reduce((acc, item) => acc + item.support, 0) /
         Math.max(1, state.relations.length);
@@ -333,7 +337,7 @@ export const eventsCatalog = [
     minAge: 13,
     maxAge: 22,
     weight: (state) => {
-      if (state.education.level === "none" || state.family.isScholarshipActive) return 0;
+      if (state.education.level === "none" || state.family.isScholarshipActive || state.legal.inJail) return 0;
       return state.stats.smarts > 75 ? 0.8 : 0.2;
     },
     isInteractive: false,
@@ -358,7 +362,8 @@ export const eventsCatalog = [
     minAge: 7,
     maxAge: 22,
     weight: (state) => {
-      if (state.family.savings > 0 || state.education.level === "none" || state.family.isScholarshipActive) return 0;
+      const isAnyParentAlive = state.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
+      if (state.family.savings > 0 || state.education.level === "none" || state.family.isScholarshipActive || !isAnyParentAlive) return 0;
       return 2.0; // High weight if savings are negative
     },
     isInteractive: true,
@@ -407,7 +412,7 @@ export const eventsCatalog = [
     label: "Organisasi",
     minAge: 13,
     maxAge: 17,
-    weight: (state) => (state.education.level !== "none" ? 0.3 : 0),
+    weight: (state) => (state.education.level !== "none" && !state.legal.inJail ? 0.3 : 0),
     isInteractive: true,
     apply: (state) => ({
       summary: "Pendaftaran pengurus OSIS baru telah dibuka. Teman-temanmu menyarankanmu untuk ikut. Apa posisimu?",
@@ -423,7 +428,7 @@ export const eventsCatalog = [
     label: "Prestasi",
     minAge: 10,
     maxAge: 18,
-    weight: (state) => (state.stats.smarts > 70 && state.education.level !== "none" ? 0.4 : 0),
+    weight: (state) => (state.stats.smarts > 70 && state.education.level !== "none" && !state.legal.inJail ? 0.4 : 0),
     isInteractive: true,
     apply: (state) => ({
       summary: "Guru melihat potensi besarmu dan menawarimu untuk mewakili sekolah di Lomba Sains Nasional.",
@@ -438,7 +443,7 @@ export const eventsCatalog = [
     label: "Dinamika Sosial",
     minAge: 12,
     maxAge: 16,
-    weight: (state) => (state.relations.some(r => !r.isDead && r.status === "friend") ? 0.25 : 0),
+    weight: (state) => (state.relations.some(r => !r.isDead && r.status === "friend") && !state.legal.inJail ? 0.25 : 0),
     isInteractive: true,
     apply: (state) => {
       const friends = state.relations.filter(r => !r.isDead && r.status === "friend");
@@ -459,7 +464,7 @@ export const eventsCatalog = [
     label: "Pergaulan",
     minAge: 14,
     maxAge: 17,
-    weight: (state) => (state.education.level !== "none" ? 0.2 : 0),
+    weight: (state) => (state.education.level !== "none" && !state.legal.inJail ? 0.2 : 0),
     isInteractive: true,
     apply: (state) => ({
       summary: "Sekelompok teman mengajakmu bolos sekolah saat jam pelajaran kosong untuk nongkrong di kantin belakang.",
@@ -474,7 +479,7 @@ export const eventsCatalog = [
     label: "Moralitas",
     minAge: 8,
     maxAge: 16,
-    weight: (state) => (state.education.level !== "none" ? 0.15 : 0),
+    weight: (state) => (state.education.level !== "none" && !state.legal.inJail ? 0.15 : 0),
     isInteractive: true,
     apply: (state) => ({
       summary: "Kamu melihat seorang siswa kelas bawah sedang di-bully oleh kakak kelas di kantin. Apa yang kamu lakukan?",
@@ -492,7 +497,7 @@ export const eventsCatalog = [
     maxAge: 18,
     weight: (state) => {
       const hasSIM = state.profile.licenses && state.profile.licenses.includes("SIM A/C");
-      return !hasSIM ? 0.8 : 0;
+      return !hasSIM && !state.legal.inJail ? 0.8 : 0;
     },
     isInteractive: false,
     apply: (state) => {
