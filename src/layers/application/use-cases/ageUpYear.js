@@ -337,16 +337,8 @@ export function ageUpYear(state, rng = Math.random) {
 
   // Education Cost Logic
   if (next.education.level !== "none") {
-    // 2. Education Cost Logic (Scaled by Wealth)
-    const educationCosts = {
-      elementary: { poor: 0, middle: 5_000_000, rich: 45_000_000 },
-      junior_high: { poor: 0, middle: 8_000_000, rich: 65_000_000 },
-      high_school: { poor: 0, middle: 12_000_000, rich: 90_000_000 },
-      university: { poor: 5_000_000, middle: 35_000_000, rich: 250_000_000 },
-    };
-
-    const costConfig = educationCosts[next.education.level];
-    yearlyFee = costConfig ? costConfig[next.family.wealthStatus] : 0;
+    const eduEntry = educationCatalog.find(e => e.id === next.education.level);
+    yearlyFee = eduEntry ? (eduEntry.costPerYear || 0) : 0;
 
     // --- SCHOLARSHIP MANAGEMENT ---
     if (!next.family.activeScholarships) next.family.activeScholarships = [];
@@ -833,6 +825,11 @@ export function ageUpYear(state, rng = Math.random) {
       if (edu) {
         next.education.yearsStudied += 1;
         next.stats.smarts = clamp(next.stats.smarts + (edu.smartsPerYear || 2));
+        
+        const isInUni = next.education.level.startsWith("university_") || next.education.level.startsWith("college_") || next.education.level === "university";
+        if (isInUni) {
+          pushLog(next, `Saya sedang menjalani tahun ke-${next.education.yearsStudied} kuliah di ${next.education.schoolName || "Universitas"}.`);
+        }
       }
     }
 

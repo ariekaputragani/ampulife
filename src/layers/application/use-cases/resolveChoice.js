@@ -120,8 +120,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
         pushLog(next, "LUAR BIASA! Kamu lulus seleksi PTN (Negeri). Biaya kuliahmu akan jauh lebih terjangkau.");
         
         if (!isAnyParentAlive) {
-          next.profile.isIndependent = true;
-          next.education.level = "university_ptn";
+          next.education.level = "university_ptn_snbt"; // Default to SNBT if not specified
           next.education.yearsStudied = 0;
           next.education.schoolName = "Universitas Negeri";
           next.education.isPTNPass = false;
@@ -157,8 +156,6 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     } else if (choiceId === "swasta") {
       next.education.isPTNPass = false; // Ensure it's marked as swasta
       pushLog(next, "Kamu memutuskan untuk mendaftar di universitas Swasta.");
-      
-      const isAnyParentAlive = next.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
       
       if (!isAnyParentAlive) {
         next.profile.isIndependent = true;
@@ -355,11 +352,11 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       }
     } else if (choiceId === "self") {
       next.profile.isIndependent = true;
-      next.education.level = isPTN ? "university_ptn" : "university_swasta";
+      next.education.level = isPTN ? "university_ptn_snbt" : "university_swasta";
       next.education.yearsStudied = 0;
       next.education.schoolName = isPTN ? "Universitas Negeri" : "Universitas Swasta";
       next.education.isPTNPass = false; // Reset flag after use
-      pushLog(next, `Kamu memutuskan untuk kuliah di ${next.education.schoolName} dengan biaya sendiri. Kamu sekarang hidup mandiri.`);
+      pushLog(next, `Kamu memutuskan untuk kuliah di ${next.education.schoolName} dengan biaya sendiri. Kamu sekarang mandiri secara finansial.`);
     } else if (choiceId === "job") {
       next.profile.isIndependent = true;
       next.education.level = "none";
