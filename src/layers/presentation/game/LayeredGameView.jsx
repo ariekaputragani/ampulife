@@ -474,7 +474,8 @@ function RelationsTab({ state, actions, onBack }) {
     { id: "give_money", name: "💸 Memberi Uang", desc: "Beri uang saku.", effect: "📈 +Kedekatan, 💸 -Uang" },
     { id: "gift", name: "🎁 Hadiah", desc: "Memberi kado (Rp1jt).", effect: "📈 +15%" },
     { id: "ask_out", name: "❤️ Pacaran", desc: "Ajak pacaran.", effect: "Status: Pacar", oppositeOnly: true, minAge: 12, hideIfPartner: true, nonFamilyOnly: true },
-    { id: "propose", name: "💍 Lamar", desc: "Ajak menikah (Rp50jt).", effect: "Status: Pasangan", partnerOnly: true, nonFamilyOnly: true }
+    { id: "propose", name: "💍 Lamar", desc: "Ajak menikah (Rp50jt).", effect: "Status: Pasangan", partnerOnly: true, nonFamilyOnly: true },
+    { id: "toggle_kb", name: "🍼 Program KB", desc: "Tunda/Atur anak.", effect: "Peluang Anak: 0%", spouseOnly: true }
   ];
 
   const handleAction = (rel, action) => {
@@ -579,73 +580,111 @@ function RelationsTab({ state, actions, onBack }) {
     <div className={styles.tabPane}>
       <h3>Hubungan & Sosial</h3>
       <div className={styles.optionsList}>
-        {state.relations.map((rel) => {
-          const isInteracted = rel.lastInteractionAge === state.age;
-          const currentRel = rel.relationship ?? rel.bond ?? 0;
-          const currentGender = rel.gender || (rel.id === "mother" ? "female" : "male");
-          const isOppositeGender = currentGender !== state.profile.gender;
-          const isDead = rel.isDead;
+        {(() => {
+          const family = state.relations.filter(r => r.status === "family" || r.status === "spouse" || r.status === "partner" || r.id === "mother" || r.id === "father");
+          const others = state.relations.filter(r => !family.find(f => f.id === r.id));
+
+          const renderCard = (rel) => {
+            const isInteracted = rel.lastInteractionAge === state.age;
+            const currentRel = rel.relationship ?? rel.bond ?? 0;
+            const currentGender = rel.gender || (rel.id === "mother" ? "female" : "male");
+            const isOppositeGender = currentGender !== state.profile.gender;
+            const isDead = rel.isDead;
+
+            return (
+              <div
+                key={rel.id}
+                className={styles.itemCard}
+                style={{
+                  padding: "12px",
+                  borderLeft: isDead ? "4px solid #adb5bd" : (rel.status === "partner" || rel.status === "spouse" ? "4px solid #f06595" : "4px solid #ced4da"),
+                  marginBottom: "10px",
+                  opacity: isDead ? 0.6 : 1,
+                  background: isDead ? "#f8f9fa" : "#fff"
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <strong>{rel.name}</strong> {isDead ? "🕯️" : (currentGender === "male" ? "♂️" : "♀️")}
+                    <div style={{ fontSize: "11px", color: "#868e96" }}>
+                      {isDead ? "Almarhum/ah" : rel.label} • {statusLabels[rel.status] || (rel.id === "father" || rel.id === "mother" ? "Keluarga" : "Teman")}
+                      {rel.age && ` • ${rel.age} Th`}
+                    </div>
+                  </div>
+                  {!isDead && <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057" }}>{currentRel}%</div>}
+                </div>
+
+                {!isDead && (
+                  <>
+                    <progress
+                      value={currentRel}
+                      max="100"
+                      style={{ width: "100%", height: "8px", marginTop: "8px" }}
+                    />
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "12px" }}>
+                      {relActions.map(action => {
+                        if (action.familyOnly && rel.status !== "family") return null;
+                        if (action.nonFamilyOnly && rel.status === "family") return null;
+                        if (action.oppositeOnly && !isOppositeGender) return null;
+                        if (action.minAge && state.age < action.minAge) return null;
+                        if (action.partnerOnly && rel.status !== "partner") return null;
+                        if (action.spouseOnly && rel.status !== "spouse") return null;
+                        if (action.hideIfPartner && (rel.status === "partner" || rel.status === "spouse")) return null;
+
+                        const isDisabled = isInteracted && action.id !== "ask_out" && action.id !== "propose" && action.id !== "give_money" && action.id !== "toggle_kb";
+
+                        let actionName = action.name;
+                        let actionEffect = action.effect;
+                        let btnStyle = { textAlign: "left", padding: "8px", height: "auto", display: "flex", flexDirection: "column" };
+
+                        if (action.id === "toggle_kb") {
+                          const isKB = state.family.isKB;
+                          actionName = isKB ? "✅ KB: AKTIF" : "🍼 Ikut KB?";
+                          actionEffect = isKB ? "Peluang Anak: 0%" : "Peluang Anak: 20%";
+                          if (isKB) btnStyle.background = "#e7f5ff";
+                        }
+
+                        return (
+                          <button
+                            key={action.id}
+                            disabled={isDisabled}
+                            onClick={() => handleAction(rel, action)}
+                            style={btnStyle}
+                          >
+                            <span style={{ fontWeight: "bold", fontSize: "12px" }}>{actionName}</span>
+                            <span style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>{action.desc}</span>
+                            <span style={{ fontSize: "9px", color: "#228be6", fontWeight: "bold" }}>{actionEffect}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          };
 
           return (
-            <div
-              key={rel.id}
-              className={styles.itemCard}
-              style={{
-                padding: "12px",
-                borderLeft: isDead ? "4px solid #adb5bd" : (rel.status === "partner" || rel.status === "spouse" ? "4px solid #f06595" : "4px solid #ced4da"),
-                marginBottom: "10px",
-                opacity: isDead ? 0.6 : 1,
-                background: isDead ? "#f8f9fa" : "#fff"
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <strong>{rel.name}</strong> {isDead ? "🕯️" : (currentGender === "male" ? "♂️" : "♀️")}
-                  <div style={{ fontSize: "11px", color: "#868e96" }}>
-                    {isDead ? "Almarhum/ah" : rel.label} • {statusLabels[rel.status] || (rel.id === "father" || rel.id === "mother" ? "Keluarga" : "Teman")}
-                    {rel.age && ` • ${rel.age} Th`}
+            <>
+              {family.length > 0 && (
+                <div style={{ marginBottom: "20px" }}>
+                  <div style={{ fontSize: "14px", fontWeight: "bold", color: "#228be6", marginBottom: "10px", paddingBottom: "5px", borderBottom: "2px solid #e7f5ff", display: "flex", alignItems: "center", gap: "5px" }}>
+                    <span>👨‍👩‍👧‍👦</span> Keluarga
                   </div>
+                  {family.map(renderCard)}
                 </div>
-                {!isDead && <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057" }}>{currentRel}%</div>}
-              </div>
-
-              {!isDead && (
-                <>
-                  <progress
-                    value={currentRel}
-                    max="100"
-                    style={{ width: "100%", height: "8px", marginTop: "8px" }}
-                  />
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "12px" }}>
-                    {relActions.map(action => {
-                      if (action.familyOnly && rel.status !== "family") return null;
-                      if (action.nonFamilyOnly && rel.status === "family") return null;
-                      if (action.oppositeOnly && !isOppositeGender) return null;
-                      if (action.minAge && state.age < action.minAge) return null;
-                      if (action.partnerOnly && rel.status !== "partner") return null;
-                      if (action.hideIfPartner && (rel.status === "partner" || rel.status === "spouse")) return null;
-
-                      const isDisabled = isInteracted && action.id !== "ask_out" && action.id !== "propose" && action.id !== "give_money";
-
-                      return (
-                        <button
-                          key={action.id}
-                          disabled={isDisabled}
-                          onClick={() => handleAction(rel, action)}
-                          style={{ textAlign: "left", padding: "8px", height: "auto", display: "flex", flexDirection: "column" }}
-                        >
-                          <span style={{ fontWeight: "bold", fontSize: "12px" }}>{action.name}</span>
-                          <span style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>{action.desc}</span>
-                          <span style={{ fontSize: "9px", color: "#228be6", fontWeight: "bold" }}>{action.effect}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
               )}
-            </div>
+              {others.length > 0 && (
+                <div>
+                  <div style={{ fontSize: "14px", fontWeight: "bold", color: "#868e96", marginBottom: "10px", paddingBottom: "5px", borderBottom: "2px solid #f1f3f5", display: "flex", alignItems: "center", gap: "5px" }}>
+                    <span>👥</span> Teman & Lainnya
+                  </div>
+                  {others.map(renderCard)}
+                </div>
+              )}
+            </>
           );
-        })}
+        })()}
       </div>
       <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "10px" }}>Kembali</button>
     </div>
@@ -946,15 +985,48 @@ function CareerTab({ state, options, actions, promotionInfo, onViewDetail, onBac
       <h3>Karir & Pekerjaan</h3>
 
       <div className={styles.itemCard} style={{ borderLeft: "4px solid #fcc419", marginBottom: "15px" }}>
-        <h4>Pekerjaan Saat Ini</h4>
-        {state.career.jobId ? (
+        <h4>{state.career.isRetired ? "Status Pensiun" : "Pekerjaan Saat Ini"}</h4>
+        {state.career.isRetired ? (
+          <div className={styles.currentJobCard}>
+            <div style={{ fontWeight: "bold", fontSize: "16px", color: "#1864ab" }}>👴 Pensiunan</div>
+            <div style={{ fontSize: "13px", color: "#2f9e44", fontWeight: "bold", marginTop: "5px" }}>
+              Uang Pensiun: Rp{state.career.pensionAmount.toLocaleString("id-ID")}/thn
+            </div>
+            <p style={{ fontSize: "11px", color: "#666", marginTop: "10px" }}>
+              Kamu telah menyelesaikan masa baktimu. Nikmati hari tuamu dengan tenang!
+            </p>
+          </div>
+        ) : state.career.jobId ? (
           <div className={styles.currentJobCard}>
             <div style={{ fontWeight: "bold", fontSize: "16px" }}>{currentJob?.name || state.career.jobId}</div>
             <div style={{ fontSize: "12px", color: "#2f9e44", fontWeight: "bold" }}>Gaji: Rp{currentJob?.salaryPerYear.toLocaleString("id-ID")}/thn</div>
             <div style={{ fontSize: "11px", color: "#666", marginBottom: "10px" }}>Masa kerja: {state.career.yearsInRole} tahun</div>
-            <div style={{ display: "flex", gap: "10px" }}>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
               <button onClick={() => actions.promote()} className={styles.primaryButton} style={{ flex: 1 }}>Cek Promosi</button>
               <button onClick={() => actions.resignJob()} className={styles.secondaryButton} style={{ flex: 1, backgroundColor: "#fff5f5", color: "#fa5252", borderColor: "#ffa8a8" }}>Resign</button>
+              
+              {state.age >= 55 && (
+                <button 
+                  onClick={() => {
+                    Swal.fire({
+                      title: 'Pensiun Dini?',
+                      text: "Kamu akan berhenti bekerja dan menerima uang pesangon serta gaji pensiun bulanan.",
+                      icon: 'question',
+                      showCancelButton: true,
+                      confirmButtonText: 'Ya, Pensiun!',
+                      cancelButtonText: 'Batal'
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        actions.retireEarly();
+                      }
+                    });
+                  }} 
+                  className={styles.secondaryButton} 
+                  style={{ flex: "1 0 100%", marginTop: "5px", backgroundColor: "#e7f5ff", color: "#228be6", borderColor: "#a5d8ff" }}
+                >
+                  👴 Pensiun Dini
+                </button>
+              )}
             </div>
 
             {promotionInfo && !promotionInfo.canPromote && (

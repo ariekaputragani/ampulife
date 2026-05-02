@@ -19,17 +19,26 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
     return next;
   }
 
+  const getDisplayName = (rel) => {
+    if (rel.status !== "family") return rel.name;
+    const label = rel.label.toLowerCase();
+    if (["ibu", "ayah", "bapak", "mama", "papa"].includes(label)) return rel.label;
+    return `${rel.label} ${rel.name}`;
+  };
+
+  const displayName = getDisplayName(relation);
+
   if (actionKey === "chat") {
     relation.relationship = clamp(relation.relationship + 5);
     relation.lastInteractionAge = next.age;
-    pushLog(next, `Kamu mengobrol santai dengan ${relation.name}. Kedekatan meningkat.`);
+    pushLog(next, `Kamu mengobrol santai dengan ${displayName}. Kedekatan meningkat.`);
   } 
   
   else if (actionKey === "rant") {
     relation.relationship = clamp(relation.relationship + 8);
     next.stats.happy = clamp(next.stats.happy + 5);
     relation.lastInteractionAge = next.age;
-    pushLog(next, `Kamu curhat panjang lebar kepada ${relation.name}. Kamu merasa lebih lega.`);
+    pushLog(next, `Kamu curhat panjang lebar kepada ${displayName}. Kamu merasa lebih lega.`);
   }
 
   else if (actionKey === "ask_money") {
@@ -62,13 +71,13 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
       next.money += amount;
       relation.relationship = clamp(relation.relationship - 3);
       relation.lastInteractionAge = next.age;
-      pushLog(next, `Berhasil! ${relation.name} memberikanmu uang jajan tambahan sebesar Rp${amount.toLocaleString("id-ID")}.`);
+      pushLog(next, `Berhasil! ${displayName} memberikanmu uang jajan tambahan sebesar Rp${amount.toLocaleString("id-ID")}.`);
     } else {
       // FAILURE
       relation.relationship = clamp(relation.relationship - 10);
       next.stats.happy = clamp(next.stats.happy - 10);
       relation.lastInteractionAge = next.age;
-      pushLog(next, `${relation.name} menolak memberimu uang. "Cari uang itu susah, jangan cuma bisa minta!" katanya.`);
+      pushLog(next, `${displayName} menolak memberimu uang. "Cari uang itu susah, jangan cuma bisa minta!" katanya.`);
     }
   }
 
@@ -81,11 +90,11 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
     next.money -= cost;
     relation.relationship = clamp(relation.relationship + 15);
     relation.lastInteractionAge = next.age;
-    pushLog(next, `Kamu memberikan hadiah spesial kepada ${relation.name}. Dia terlihat sangat senang!`);
+    pushLog(next, `Kamu memberikan hadiah spesial kepada ${displayName}. Dia terlihat sangat senang!`);
   } 
 
   else if (actionKey === "give_money") {
-    const amount = Number(payload);
+    const amount = Number(payload?.amount || payload);
     if (isNaN(amount) || amount <= 0) return next;
     
     if (next.money < amount) {
@@ -97,18 +106,18 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
     
     // Only gain relationship once per year per person
     if (relation.lastMoneyInteractionAge !== next.age) {
-      // Calculation from legacy script.js lines 1207-1299
+      // Improved Calculation
       let gain = 0;
       if (amount < 1_000_000) {
-        gain = 1;
-      } else if (amount < 10_000_000) {
-        gain = 2;
-      } else if (amount < 100_000_000) {
         gain = 5;
+      } else if (amount < 10_000_000) {
+        gain = 12;
+      } else if (amount < 100_000_000) {
+        gain = 25;
       } else if (amount < 500_000_000) {
-        gain = 10;
+        gain = 50;
       } else {
-        gain = 15;
+        gain = 100;
       }
       
       relation.relationship = clamp(relation.relationship + gain);
@@ -116,7 +125,7 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
     }
     
     // We do NOT update relation.lastInteractionAge here, so social actions remain open!
-    pushLog(next, `Saya memberi uang ke ${relation.label} sebesar Rp${amount.toLocaleString("id-ID")}`);
+    pushLog(next, `Saya memberi uang ke ${displayName} sebesar Rp${amount.toLocaleString("id-ID")}`);
   }
 
   else if (actionKey === "ask_out") {
@@ -130,11 +139,11 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
     }
     if (relation.relationship < 60) {
       relation.relationship = clamp(relation.relationship - 10);
-      pushLog(next, `${relation.name} menolak ajakan pacaranmu karena merasa kalian belum cukup dekat.`);
+      pushLog(next, `${displayName} menolak ajakan pacaranmu karena merasa kalian belum cukup dekat.`);
     } else {
       relation.status = "partner";
       relation.relationship = clamp(relation.relationship + 10);
-      pushLog(next, `Luar biasa! ${relation.name} menerima pernyataan cintamu. Kalian sekarang resmi berpacaran.`);
+      pushLog(next, `Luar biasa! ${displayName} menerima pernyataan cintamu. Kalian sekarang resmi berpacaran.`);
     }
   }
 
@@ -150,13 +159,21 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
     }
 
     if (relation.relationship < 90) {
-      pushLog(next, `${relation.name} merasa belum siap untuk menikah denganmu.`);
+      pushLog(next, `${displayName} merasa belum siap untuk menikah denganmu.`);
     } else {
       next.money -= weddingCost;
       relation.status = "spouse";
       relation.relationship = 100;
-      pushLog(next, `Selamat! Lamaranmu diterima. Kamu dan ${relation.name} kini resmi menikah dalam sebuah upacara yang indah.`);
+      pushLog(next, `Selamat! Lamaranmu diterima. Kamu dan ${displayName} kini resmi menikah dalam sebuah upacara yang indah.`);
     }
+  }
+
+  else if (actionKey === "toggle_kb") {
+    if (relation.status !== "spouse") return next;
+    if (!next.family) next.family = {};
+    next.family.isKB = !next.family.isKB;
+    const status = next.family.isKB ? "AKTIF (Tunda Anak)" : "MATI (Program Anak)";
+    pushLog(next, `Kamu berdiskusi dengan ${displayName} tentang rencana keluarga. Program KB sekarang: ${status}.`);
   }
 
   return next;

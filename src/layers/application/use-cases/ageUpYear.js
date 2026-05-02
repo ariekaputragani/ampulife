@@ -38,6 +38,17 @@ export function ageUpYear(state, rng = Math.random) {
   next.flags.isSocialMediaPosted = false;
   next.flags.isDrugAttempted = false;
 
+  // --- 1.1 GLOBAL RELATION AGING ---
+  next.relations = next.relations.map((relation) => {
+    if (relation.isDead) return relation;
+    return {
+      ...relation,
+      age: relation.age + 1,
+      bond: clamp(relation.bond + (rng() > 0.5 ? 1 : -1)),
+      support: clamp(relation.support + (rng() > 0.5 ? 1 : -1)),
+    };
+  });
+
   let grossIncome = 0;
 
   // --- 2. PRE-CALCULATE FINANCES ---
@@ -79,6 +90,72 @@ export function ageUpYear(state, rng = Math.random) {
 
   const expenseRatio = next.family.wealthStatus === "poor" ? 0.75 : next.family.wealthStatus === "middle" ? 0.6 : 0.35;
   const basicExpenses = Math.floor(yearlyIncome * expenseRatio * lifestyleMult);
+
+  // --- SPOUSE INCOME & CHILDCARE FOR PLAYER ---
+  const spouse = next.relations.find(r => r.status === "spouse" && !r.isDead);
+  if (spouse) {
+    // Spouse contributes to Joint Account
+    let spouseYearlyIncome = 45_000_000;
+    if (lifestyle === "mewah") spouseYearlyIncome = 150_000_000;
+    else if (lifestyle === "hemat") spouseYearlyIncome = 25_000_000;
+    
+    grossIncome += spouseYearlyIncome;
+    pushLog(next, `Pasanganmu (${spouse.name}) berkontribusi gaji sebesar Rp${spouseYearlyIncome.toLocaleString("id-ID")} ke rekening bersama.`);
+  }
+
+  // Childcare for Player's own children
+  const myChildren = next.relations.filter(r => r.label === "Anak" && !r.isDead);
+  let playerChildcareCost = 0;
+  myChildren.forEach(child => {
+    let cost = 0;
+    if (child.age <= 4) cost = 4_000_000;
+    else if (child.age <= 12) cost = 2_000_000;
+    else if (child.age <= 18) cost = 5_000_000;
+    
+    // Scale by player lifestyle
+    if (lifestyle === "mewah") cost *= 5;
+    else if (lifestyle === "hemat") cost *= 0.5;
+    
+    playerChildcareCost += cost;
+  });
+
+  if (playerChildcareCost > 0) {
+    next.money -= playerChildcareCost;
+    pushLog(next, `Kamu membayar biaya kebutuhan ${myChildren.length} anak sebesar Rp${playerChildcareCost.toLocaleString("id-ID")}.`);
+  }
+
+  // Automatic Birth Chance (20% per year if married and fertile age)
+  if (spouse && next.age >= 20 && next.age <= 45 && !next.family.isKB && rng() < 0.20) {
+    const childGender = rng() > 0.5 ? "Laki-laki" : "Perempuan";
+    const childName = generateRandomName(childGender === "Laki-laki" ? "male" : "female");
+    
+    next.relations.push({
+      id: `child_${Date.now()}_${Math.floor(rng() * 1000)}`,
+      name: childName,
+      label: "Anak",
+      status: "family",
+      gender: childGender === "Laki-laki" ? "M" : "F",
+      age: 0,
+      relationship: 100,
+      bond: 100,
+      support: 100,
+      isDead: false,
+      lastInteractionAge: -1
+    });
+    
+    let birthCost = 15_000_000;
+    if (lifestyle === "mewah") birthCost = 50_000_000;
+    else if (lifestyle === "hemat") birthCost = 5_000_000;
+    
+    next.money -= birthCost;
+    
+    pushLog(next, `Kabar gembira! Pasanganmu melahirkan seorang anak ${childGender} yang diberi nama ${childName}. Biaya persalinan: Rp${birthCost.toLocaleString("id-ID")}.`);
+    pushNotification(next, {
+      title: "Kelahiran Anak",
+      message: `Selamat! Kamu memiliki seorang anak baru bernama ${childName}. (Biaya RS: Rp${birthCost.toLocaleString("id-ID")})`,
+      icon: "success"
+    });
+  }
 
   // Childcare
   let childcareCost = 0;
@@ -133,32 +210,6 @@ export function ageUpYear(state, rng = Math.random) {
     } else if (next.legal.isCaughtThisYear || next.legal.inJail) {
       pushLog(next, `Tahun ini kamu tidak mendapatkan uang jajan sebagai hukuman karena kenakalanmu.`);
     }
-  } else {
-    // Independent Player Economy
-    const hasHouse = next.assets?.some(a => a.id === "small_house" || a.id === "luxury_house");
-    let baseRent = (next.profile.livingWithParents || hasHouse) ? 0 : 7_000_000;
-    let baseFoodMisc = 8_000_000;
-    let playerExpenses = baseRent + baseFoodMisc + transportCost;
-
-    // Taxes for player
-    let playerTaxes = 0;
-    if (grossIncome > 60_000_000) {
-      playerTaxes = Math.floor((grossIncome - 60_000_000) * 0.05);
-    }
-
-    playerExpenses += playerTaxes;
-
-    if (next.money < playerExpenses) {
-      next.stats.happy -= 15;
-      next.stats.health -= 5;
-      pushLog(next, `Uangmu tidak cukup untuk membayar sewa kos dan makan! Kamu terpaksa berhutang dan makan seadanya.`);
-      next.money = 0; // or negative if we allow debt
-    } else {
-      next.money -= playerExpenses;
-    }
-
-    const report = `[Pengeluaran Pribadi] Pajak: Rp${playerTaxes.toLocaleString("id-ID")}, ${baseRent > 0 ? `Kos: Rp${baseRent.toLocaleString("id-ID")}, ` : ""}Makan: Rp${baseFoodMisc.toLocaleString("id-ID")}, Transport: Rp${transportCost.toLocaleString("id-ID")}`;
-    pushLog(next, report);
   }
 
   let yearlyFee = 0;
@@ -326,55 +377,105 @@ export function ageUpYear(state, rng = Math.random) {
   if (!next.legal.inJail && next.career.jobId) {
     const job = jobsCatalog.find((item) => item.id === next.career.jobId);
     if (job) {
-      // --- SALARY INCREASE (Legacy script.js line 2114) ---
-      next.career.yearsWorked += 1;
-      next.career.yearsInRole += 1;
-
-      if (next.career.yearsWorked % 5 === 0) {
-        const raise = 1.05 + rng() * 0.05;
-        // We'll store a multiplier or just increase a base in state if possible
-        // But for now let's just log it and maybe add a bonus to money
-        pushLog(next, `Kamu mendapat kenaikan gaji karena sudah bekerja selama ${next.career.yearsWorked} tahun!`);
-      }
-
-      // --- FIRING LOGIC (Legacy script.js line 2118-2130) ---
-      let fired = false;
-      let fireReason = "";
-
-      if (next.flags.isDrugAttempted && job.id !== "petani") {
-        fired = true;
-        fireReason = "Gagal tes narkoba";
-      } else if (next.stats.happy < 30 || next.stats.health < 30) {
-        // Only certain high-stress jobs in legacy had performance firing
-        const performanceSensitive = ["firefighter", "police", "security", "garbage_collector"];
-        if (performanceSensitive.includes(job.id)) {
-          fired = true;
-          fireReason = "Performa buruk (Kebahagiaan/Kesehatan rendah)";
-        }
-      }
-
-      if (fired) {
-        pushLog(next, `KABAR BURUK: Kamu dipecat dari pekerjaan sebagai ${job.name}. Alasan: ${fireReason}.`);
-        next.career.jobId = null;
-        next.career.yearsInRole = 0;
-      } else {
+      // --- RETIREMENT LOGIC (Automatic at 60) ---
+      if (next.age >= 60 && !next.career.isRetired) {
         const salaryWithBoost = computeYearlySalary(next, job);
-        grossIncome += salaryWithBoost;
-        next.stats = applyStatDelta(next.stats, job.delta);
-        pushLog(next, `Pendapatan kotor tahunan dari ${job.name}: Rp${salaryWithBoost.toLocaleString("id-ID")}.`);
+        const pesangon = Math.floor(salaryWithBoost * next.career.yearsWorked * 0.5);
+        const pensionYearly = Math.floor(salaryWithBoost * 0.3);
+        
+        next.money += pesangon;
+        next.career.isRetired = true;
+        next.career.pensionAmount = pensionYearly;
+        next.career.jobId = null; // No longer employed
+        
+        pushLog(next, `Selamat! Kamu telah mencapai usia pensiun (60 tahun). Kamu berhenti bekerja sebagai ${job.name} dan menerima uang pesangon sebesar Rp${pesangon.toLocaleString("id-ID")}.`);
+        pushNotification(next, {
+          title: "Pensiun",
+          message: `Kamu resmi pensiun! Nikmati masa tuamu dengan uang pensiun tahunan Rp${pensionYearly.toLocaleString("id-ID")}.`,
+          icon: "success"
+        });
+      } else {
+        // --- SALARY INCREASE (Legacy script.js line 2114) ---
+        next.career.yearsWorked += 1;
+        next.career.yearsInRole += 1;
 
-        const promotionTarget = getPromotionTarget(next);
-        if (promotionTarget) {
-          otherEvents = true;
-          const msg = `Promosi otomatis! Kamu naik menjadi ${promotionTarget.name}.`;
-          next.career.jobId = promotionTarget.id;
+        if (next.career.yearsWorked % 5 === 0) {
+          const raise = 1.05 + rng() * 0.05;
+          pushLog(next, `Kamu mendapat kenaikan gaji karena sudah bekerja selama ${next.career.yearsWorked} tahun!`);
+        }
+
+        // --- FIRING LOGIC ---
+        let fired = false;
+        let fireReason = "";
+
+        if (next.flags.isDrugAttempted && job.id !== "petani") {
+          fired = true;
+          fireReason = "Gagal tes narkoba";
+        } else if (next.stats.happy < 30 || next.stats.health < 30) {
+          const performanceSensitive = ["firefighter", "police", "security", "garbage_collector"];
+          if (performanceSensitive.includes(job.id)) {
+            fired = true;
+            fireReason = "Performa buruk (Kebahagiaan/Kesehatan rendah)";
+          }
+        }
+
+        if (fired) {
+          pushLog(next, `KABAR BURUK: Kamu dipecat dari pekerjaan sebagai ${job.name}. Alasan: ${fireReason}.`);
+          next.career.jobId = null;
           next.career.yearsInRole = 0;
-          next.career.promotions += 1;
-          pushLog(next, msg);
-          pushNotification(next, { title: "Pekerjaan", message: msg, icon: "success" });
+        } else {
+          const salaryWithBoost = computeYearlySalary(next, job);
+          grossIncome += salaryWithBoost;
+          next.stats = applyStatDelta(next.stats, job.delta);
+          pushLog(next, `Pendapatan kotor tahunan dari ${job.name}: Rp${salaryWithBoost.toLocaleString("id-ID")}.`);
+
+          const promotionTarget = getPromotionTarget(next);
+          if (promotionTarget) {
+            otherEvents = true;
+            const msg = `Promosi otomatis! Kamu naik menjadi ${promotionTarget.name}.`;
+            next.career.jobId = promotionTarget.id;
+            next.career.yearsInRole = 0;
+            next.career.promotions += 1;
+            pushLog(next, msg);
+            pushNotification(next, { title: "Pekerjaan", message: msg, icon: "success" });
+          }
         }
       }
     }
+  }
+
+  // --- 9.1 PENSION INCOME ---
+  if (next.career.isRetired && next.career.pensionAmount > 0) {
+    grossIncome += next.career.pensionAmount;
+    pushLog(next, `Kamu menerima uang pensiun tahunan sebesar Rp${next.career.pensionAmount.toLocaleString("id-ID")}.`);
+  }
+
+  // --- 10. TAX & ECONOMY CALCULATION (Moved here for accuracy) ---
+  if (next.profile.isIndependent) {
+    const hasHouse = next.assets?.some(a => a.id === "small_house" || a.id === "luxury_house");
+    let baseRent = (next.profile.livingWithParents || hasHouse) ? 0 : 7_000_000;
+    let baseFoodMisc = 8_000_000;
+    let playerExpenses = baseRent + baseFoodMisc + transportCost;
+
+    // Taxes for player (based on total gross income including spouse)
+    let playerTaxes = 0;
+    if (grossIncome > 60_000_000) {
+      playerTaxes = Math.floor((grossIncome - 60_000_000) * 0.05);
+    }
+
+    playerExpenses += playerTaxes;
+
+    if (next.money < playerExpenses) {
+      next.stats.happy -= 15;
+      next.stats.health -= 5;
+      pushLog(next, `Uangmu tidak cukup untuk membayar sewa kos dan makan! Kamu terpaksa berhutang dan makan seadanya.`);
+      next.money = 0; 
+    } else {
+      next.money -= playerExpenses;
+    }
+
+    const report = `[Pengeluaran Pribadi] Pajak: Rp${playerTaxes.toLocaleString("id-ID")}, ${baseRent > 0 ? `Kos: Rp${baseRent.toLocaleString("id-ID")}, ` : ""}Makan: Rp${baseFoodMisc.toLocaleString("id-ID")}, Transport: Rp${transportCost.toLocaleString("id-ID")}`;
+    pushLog(next, report);
   }
 
   // Lifestyle & Budgeting Logic
@@ -427,33 +528,50 @@ export function ageUpYear(state, rng = Math.random) {
     }
   }
 
-  next.relations = next.relations.map((relation) => ({
-    ...relation,
-    bond: clamp(relation.bond + (rng() > 0.5 ? 1 : -1)),
-    support: clamp(relation.support + (rng() > 0.5 ? 1 : -1)),
-  }));
-
   const isFatherAlive = next.relations.find(r => r.id === "father")?.isDead === false;
   const isMotherAlive = next.relations.find(r => r.id === "mother")?.isDead === false;
   const isAnyParentAlive = isFatherAlive || isMotherAlive;
 
-  // --- PLAYER DEATH CHANCE (OLD AGE) ---
+  // --- PLAYER DEATH CHANCE (OLD AGE & HEALTH) ---
   if (next.life.isAlive && next.age >= 60) {
     const deathRoll = rng();
-    let deathChance = 0;
-    if (next.age < 65) deathChance = 0.01;
-    else if (next.age < 75) deathChance = 0.02;
-    else if (next.age < 85) deathChance = 0.04;
-    else if (next.age < 90) deathChance = 0.10;
-    else deathChance = 0.20;
+    
+    // 1. Base Chance based on Age (Minimum risk at 100% health)
+    let baseChance = 0.01; // 60-70
+    if (next.age > 90) baseChance = 0.25;
+    else if (next.age > 80) baseChance = 0.10;
+    else if (next.age > 70) baseChance = 0.03;
 
-    if (deathRoll < deathChance) {
+    // 2. Health Modifier (Penalty for low health)
+    // Formula: multiplier = 1 + (100 - health) / 25
+    // If health 100 -> 1.0x
+    // If health 50  -> 3.0x
+    // If health 0   -> 5.0x
+    const healthMod = 1 + ((100 - next.stats.health) / 25);
+    
+    // 3. Happiness Penalty (Sudden death if depressed)
+    let happyPenalty = 0;
+    if (next.stats.happy < 15) happyPenalty = 0.05;
+
+    const totalDeathChance = (baseChance * healthMod) + happyPenalty;
+
+    if (deathRoll < totalDeathChance) {
       next.life.isAlive = false;
+      
       const deathCauses = [
         "meninggal karena sebab alamiah",
         "meninggal karena usia tua",
         "meninggal dunia saat tidur dengan tenang"
       ];
+      
+      if (next.stats.health < 30) {
+        deathCauses.push("meninggal akibat kondisi kesehatan yang terus memburuk");
+        deathCauses.push("meninggal setelah berjuang melawan komplikasi penyakit");
+      }
+      if (next.stats.happy < 15) {
+        deathCauses.push("meninggal secara mendadak akibat kondisi mental yang sangat tertekan");
+      }
+
       next.life.causeOfDeath = deathCauses[Math.floor(rng() * deathCauses.length)];
       pushLog(next, `Kamu ${next.life.causeOfDeath} pada usia ${next.age} tahun.`);
     }

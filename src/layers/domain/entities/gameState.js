@@ -87,6 +87,8 @@ export function createInitialGameState() {
       yearsWorked: 0,
       yearsInRole: 0,
       promotions: 0,
+      isRetired: false,
+      pensionAmount: 0,
     },
     education: {
       level: "none", // elementary, junior_high, high_school, university
