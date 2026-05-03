@@ -37,23 +37,66 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     };
 
     if (choiceId === "terbuka") {
+      const firstYearUKT = 2_500_000;
+      const currentMoney = next.profile.isIndependent ? next.money : next.family.savings;
+
+      if (currentMoney < firstYearUKT) {
+        pushLog(next, `Bahkan untuk Universitas Terbuka pun tabunganmu tidak mencukupi (Butuh Rp${firstYearUKT.toLocaleString("id-ID")}).`);
+        pushNotification(next, {
+          title: "Dana Tidak Cukup",
+          message: "Bahkan Universitas Terbuka tidak terjangkau saat ini. Apa yang ingin kamu lakukan?",
+          icon: "error",
+          type: "confirm",
+          eventId: "graduation_path_selection",
+          options: [
+            { id: "gap_year", label: "Ambil Gap Year Dulu", color: "yellow" },
+            { id: "job", label: "Fokus Cari Kerja", color: "gray" }
+          ]
+        });
+        return next;
+      }
+
       next.education.level = "university_terbuka";
       next.education.yearsStudied = 0;
       next.education.schoolName = "Universitas Terbuka";
       next.education.isPTNPass = false;
       next.education.isFocusingOnWork = false;
-      pushLog(next, "Kamu mendaftar di Universitas Terbuka agar bisa belajar secara fleksibel sambil melakukan aktivitas lain.");
+      pushLog(next, "Kamu mendaftar di Universitas Terbuka agar bisa belajar secara fleksibel.");
       triggerFundingPopup("Daftar Universitas Terbuka");
       return next;
     }
 
     if (choiceId === "swasta") {
+      const upInitial = 50_000_000;
+      const firstYearUKT = 45_000_000;
+      const totalNeeded = upInitial + firstYearUKT;
+      const currentMoney = next.profile.isIndependent ? next.money : next.family.savings;
+
+      if (currentMoney < totalNeeded) {
+        pushLog(next, `Tabungan tidak cukup untuk Universitas Swasta (Butuh Rp${totalNeeded.toLocaleString("id-ID")}).`);
+        pushNotification(next, {
+          title: "Dana Tidak Cukup",
+          message: `Universitas Swasta butuh Rp${totalNeeded.toLocaleString("id-ID")}. Mau coba pilihan lain?`,
+          icon: "error",
+          type: "confirm",
+          eventId: "graduation_path_selection",
+          options: [
+            { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue" },
+            { id: "mandiri", label: "Jalur Mandiri (PTN)", color: "orange" },
+            { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" },
+            { id: "gap_year", label: "Ambil Gap Year", color: "yellow" },
+            { id: "job", label: "Fokus Kerja", color: "gray" }
+          ]
+        });
+        return next;
+      }
+
       next.education.level = "university_swasta";
       next.education.yearsStudied = 0;
       next.education.schoolName = "Universitas Swasta";
       next.education.isPTNPass = false;
       next.education.isFocusingOnWork = false;
-      pushLog(next, "Kamu mendaftar di Universitas Swasta. Biaya kuliah mungkin lebih tinggi, namun fasilitasnya cukup memadai.");
+      pushLog(next, "Kamu mendaftar di Universitas Swasta.");
       triggerFundingPopup("Daftar Universitas Swasta");
       return next;
     }
@@ -78,8 +121,10 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
           eventId: "graduation_path_selection",
           options: [
             { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue" },
-            { id: "mandiri", label: "Daftar Jalur Mandiri", color: "orange" },
-            { id: "swasta", label: "Daftar Swasta", color: "purple" },
+            { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
+            { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
+            { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" },
+            { id: "gap_year", label: "Ambil Gap Year", color: "yellow" },
             { id: "job", label: "Langsung Kerja", color: "gray" }
           ]
         });
@@ -118,13 +163,24 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
 
     if (choiceId === "mandiri") {
       const upInitial = 35_000_000;
+      const firstYearUKT = 15_000_000;
+      const totalNeeded = upInitial + firstYearUKT;
       const currentMoney = next.profile.isIndependent ? next.money : next.family.savings;
 
-      if (currentMoney < upInitial) {
+      if (currentMoney < totalNeeded) {
+        pushLog(next, `Tabungan tidak cukup untuk jalur Mandiri (Butuh Rp${totalNeeded.toLocaleString("id-ID")}).`);
         pushNotification(next, {
-          title: "Dana Kurang",
-          message: "Tabunganmu tidak mencukupi untuk membayar uang pangkal jalur Mandiri (Rp35jt).",
-          icon: "warning"
+          title: "Dana Tidak Cukup",
+          message: `Jalur Mandiri butuh Rp${totalNeeded.toLocaleString("id-ID")}. Mau coba pilihan lain?`,
+          icon: "error",
+          type: "confirm",
+          eventId: "graduation_path_selection",
+          options: [
+            { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
+            { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" },
+            { id: "gap_year", label: "Ambil Gap Year", color: "yellow" },
+            { id: "job", label: "Fokus Kerja", color: "gray" }
+          ]
         });
         return next;
       }
@@ -157,88 +213,6 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     }
   }
 
-
-  if (eventId === "graduation_sma") {
-    if (choiceId === "ptn") {
-      // PTN Selection (Harder but cheaper)
-      const passChance = 0.3 + (next.stats.smarts / 200); // Max 80% if smarts is 100
-      const isAnyParentAlive = next.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
-
-      if (Math.random() < passChance) {
-        next.education.isPTNPass = true; // Mark as PTN passer
-        pushLog(next, "LUAR BIASA! Kamu lulus seleksi PTN (Negeri). Biaya kuliahmu akan jauh lebih terjangkau.");
-
-        if (!isAnyParentAlive) {
-          next.education.fundingSource = "self";
-          next.profile.isIndependent = true;
-          pushLog(next, "Karena tidak ada orang tua yang membiayai, kamu memutuskan untuk kuliah di Universitas Negeri dengan biaya sendiri (berjuang mandiri).");
-        } else {
-          pushNotification(next, {
-            title: "Pendanaan Kuliah (PTN)",
-            message: "Siapa yang akan membiayai kuliah PTN kamu?",
-            icon: "question",
-            type: "confirm",
-            eventId: "university_funding",
-            options: [
-              { id: "parents", label: "Orang Tua (Jika Mampu)" },
-              { id: "self", label: "Bayar Sendiri (Kerja Sampingan)" }
-            ]
-          });
-        }
-      } else {
-        pushLog(next, "Sayang sekali, kamu gagal dalam seleksi PTN tahun ini.");
-        // Trigger fallback options
-        pushNotification(next, {
-          title: "Seleksi PTN Gagal",
-          message: "Kamu gagal masuk PTN. Ingin mencoba universitas swasta atau cari kerja?",
-          icon: "error",
-          type: "confirm",
-          eventId: "graduation_sma",
-          options: [
-            { id: "swasta", label: "Daftar Swasta" },
-            { id: "job", label: "Cari Kerja" }
-          ]
-        });
-      }
-    } else if (choiceId === "swasta") {
-      next.education.isPTNPass = false; // Ensure it's marked as swasta
-      pushLog(next, "Kamu memutuskan untuk mendaftar di universitas Swasta.");
-
-      if (!isAnyParentAlive) {
-        next.profile.isIndependent = true;
-        next.education.level = "university_swasta";
-        next.education.yearsStudied = 0;
-        next.education.schoolName = "Universitas Swasta";
-        next.education.fundingSource = "self";
-        pushLog(next, "Karena tidak ada orang tua yang membiayai, kamu memutuskan untuk kuliah di Universitas Swasta dengan biaya sendiri (berjuang mandiri).");
-      } else {
-        // Trigger funding selection for Swasta
-        pushNotification(next, {
-          title: "Pendanaan Kuliah (Swasta)",
-          message: "Biaya Swasta cukup mahal. Siapa yang akan membayarnya?",
-          icon: "question",
-          type: "confirm",
-          eventId: "university_funding",
-          options: [
-            { id: "parents", label: "Orang Tua (Butuh Tabungan Besar)" },
-            { id: "self", label: "Bayar Sendiri (Wajib Mandiri)" }
-          ]
-        });
-      }
-    } else if (choiceId === "job") {
-      const isAnyParentAlive = next.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
-      next.profile.isIndependent = true;
-      next.stats.happy = clamp(next.stats.happy + 5);
-      if (isAnyParentAlive) {
-        pushLog(next, "Saya memutuskan untuk hidup mandiri, mencari kos-kosan, dan mengelola keuangan Saya sendiri mulai sekarang.");
-      } else {
-        pushLog(next, "Saya memutuskan untuk mulai mencari kerja dan berjuang sendiri demi masa depan.");
-      }
-    } else if (choiceId === "gap_year") {
-      next.stats.happy = clamp(next.stats.happy + 10);
-      pushLog(next, "Saya memutuskan untuk mengambil Gap Year. Saya akan mencoba lagi tahun depan.");
-    }
-  }
 
   if (eventId === "graduation_university") {
     next.profile.isIndependent = true; // Financial autonomy
@@ -377,28 +351,37 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     if (!program && payload && payload.targetId) {
       program = educationCatalog.find(p => p.id === payload.targetId);
     }
-    
-    // Get actual cost from catalog if available, otherwise fallback to hardcoded defaults
+
+    // 1. Calculate Costs
     const tuition = program ? program.costPerYear : (next.education.isPTNPass ? 15_000_000 : 45_000_000);
+    let admissionFee = 0; // Uang Pangkal
+    const levelId = program ? program.id : next.education.level;
+
+    if (levelId === "university_ptn_mandiri") admissionFee = 35_000_000;
+    else if (levelId === "university_swasta") admissionFee = 50_000_000;
+
+    const totalNeeded = tuition + admissionFee;
 
     if (choiceId === "parents") {
-      if (next.family.savings >= tuition) {
-        // If this came from a manual menu action, we need to set the level now
-        if (payload && payload.targetId) {
-          const program = educationCatalog.find(p => p.id === payload.targetId);
-          if (program) {
-            next.education.level = program.id;
-            next.education.schoolName = program.name;
-          }
+      if (next.family.savings >= totalNeeded) {
+        // Success: Set level and deduct
+        if (payload && payload.targetId && program) {
+          next.education.level = program.id;
+          next.education.schoolName = program.name;
         }
 
-        // education.level & schoolName already set by admission path or manual targetId
         next.education.yearsStudied = 0;
         next.education.fundingSource = "parents";
-        next.education.isPTNPass = false; // Reset flag after use
-        pushLog(next, `Orang tuamu setuju membiayai kuliahmu di ${next.education.schoolName}.`);
+        // Only override isPTNPass if enrolling in swasta/terbuka
+        if (levelId === "university_swasta" || levelId === "university_terbuka") {
+          next.education.isPTNPass = false;
+        }
+        next.family.savings -= totalNeeded;
+        
+        const successMsg = `Orang tuamu membayar total Rp${totalNeeded.toLocaleString("id-ID")} (UKT + Uang Pangkal) untuk kuliahmu di ${next.education.schoolName}.`;
+        pushLog(next, successMsg);
+        pushNotification(next, { title: "Pembayaran Berhasil", message: successMsg, icon: "success" });
 
-        // Trigger Housing Decision
         pushNotification(next, {
           title: "Tempat Tinggal",
           message: "Kamu sudah resmi menjadi mahasiswa. Di mana kamu akan tinggal selama kuliah?",
@@ -411,56 +394,103 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
           ]
         });
       } else {
-        pushLog(next, "Orang tuamu minta maaf karena tabungan mereka tidak cukup untuk membiayai kuliahmu.");
-        // Fallback to self-funded or dropout
+        // FAILURE: Reset level — offer alternative schools (NOT re-exam options)
+        next.education.level = "none";
+        pushLog(next, `Pendaftaran ke ${program?.name || "Universitas"} GAGAL karena tabungan keluarga (Rp${next.family.savings.toLocaleString("id-ID")}) tidak mencukupi biaya masuk Rp${totalNeeded.toLocaleString("id-ID")}.`);
+
+        // Build contextual options — no re-exam, only cheaper/other schools
+        const parentFailOptions = [];
+        if (next.money >= totalNeeded) {
+          parentFailOptions.push({ id: "self", label: "Coba Bayar Sendiri", color: "blue" });
+        }
+        if (levelId !== "university_ptn_mandiri" && levelId !== "university_swasta") {
+          parentFailOptions.push({ id: "mandiri", label: "Coba Jalur Mandiri (PTN)", color: "orange" });
+        }
+        if (levelId !== "university_swasta") {
+          parentFailOptions.push({ id: "swasta", label: "Daftar Kampus Swasta", color: "purple" });
+        }
+        if (levelId !== "university_terbuka") {
+          parentFailOptions.push({ id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" });
+        }
+        parentFailOptions.push({ id: "gap_year", label: "Ambil Gap Year", color: "yellow" });
+        parentFailOptions.push({ id: "job", label: "Batalkan & Cari Kerja", color: "gray" });
+
         pushNotification(next, {
-          title: "Dana Tidak Cukup",
-          message: "Orang tuamu tidak mampu membiayai. Apa pilihanmu?",
+          title: "Pendaftaran Gagal",
+          message: "Orang tuamu tidak mampu membiayai. Pilih jalur lain (sudah lolos seleksi, tidak perlu ujian ulang):",
           icon: "error",
           type: "confirm",
-          eventId: "university_funding",
-          options: [
-            { id: "self", label: "Bayar Sendiri (Berjuang Mandiri)" },
-            { id: "job", label: "Batalkan Kuliah & Cari Kerja" }
-          ]
+          eventId: "graduation_path_selection",
+          options: parentFailOptions
         });
       }
     } else if (choiceId === "self") {
-      next.profile.isIndependent = true;
-      
-      // If this came from a manual menu action, we need to set the level now
-      if (payload && payload.targetId) {
-        const program = educationCatalog.find(p => p.id === payload.targetId);
-        if (program) {
+      if (next.money >= totalNeeded) {
+        next.profile.isIndependent = true;
+        if (payload && payload.targetId && program) {
           next.education.level = program.id;
           next.education.schoolName = program.name;
         }
+
+        next.education.yearsStudied = 0;
+        next.education.fundingSource = "self";
+        // Only override isPTNPass if enrolling in swasta/terbuka
+        if (levelId === "university_swasta" || levelId === "university_terbuka") {
+          next.education.isPTNPass = false;
+        }
+        next.money -= totalNeeded;
+        
+        const successMsg = `Kamu membayar total Rp${totalNeeded.toLocaleString("id-ID")} (UKT + Uang Pangkal) secara mandiri untuk kuliah di ${next.education.schoolName}.`;
+        pushLog(next, successMsg);
+        pushNotification(next, { title: "Pembayaran Berhasil", message: successMsg, icon: "success" });
+
+        pushNotification(next, {
+          title: "Tempat Tinggal",
+          message: "Kamu sudah resmi menjadi mahasiswa. Di mana kamu akan tinggal selama kuliah?",
+          icon: "info",
+          type: "confirm",
+          eventId: "housing_decision_18",
+          options: [
+            { id: "stay_home", label: "Tetap di Rumah Ortu" },
+            { id: "move_out", label: "Pindah Keluar / Kos" }
+          ]
+        });
+      } else {
+        // FAILURE: Reset level, show re-selection popup (NO re-exam — already accepted!)
+        next.education.level = "none";
+        pushLog(next, `Pendaftaran GAGAL. Uangmu (Rp${next.money.toLocaleString("id-ID")}) tidak cukup untuk membayar biaya masuk Rp${totalNeeded.toLocaleString("id-ID")}.`);
+
+        // Build contextual options — skip exam options since player is already post-admission
+        const selfFailOptions = [];
+        if (isAnyParentAlive && next.family.savings >= totalNeeded) {
+          selfFailOptions.push({ id: "parents", label: "Coba Minta Orang Tua", color: "green" });
+        }
+        if (levelId !== "university_ptn_mandiri") {
+          selfFailOptions.push({ id: "mandiri", label: "Coba Jalur Mandiri (PTN)", color: "orange" });
+        }
+        if (levelId !== "university_swasta") {
+          selfFailOptions.push({ id: "swasta", label: "Daftar Kampus Swasta", color: "purple" });
+        }
+        if (levelId !== "university_terbuka") {
+          selfFailOptions.push({ id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" });
+        }
+        selfFailOptions.push({ id: "gap_year", label: "Ambil Gap Year", color: "yellow" });
+        selfFailOptions.push({ id: "job", label: "Batalkan & Cari Kerja", color: "gray" });
+
+        pushNotification(next, {
+          title: "Uang Tidak Cukup",
+          message: `Dana mandirimu (Rp${next.money.toLocaleString("id-ID")}) kurang. Pilih jalur lain (tidak perlu ujian ulang):`,
+          icon: "error",
+          type: "confirm",
+          eventId: "graduation_path_selection",
+          options: selfFailOptions
+        });
       }
-
-      // education.level & schoolName already set by admission path or manual targetId
-      next.education.yearsStudied = 0;
-      next.education.fundingSource = "self";
-      next.education.isPTNPass = false; // Reset flag after use
-      pushLog(next, `Kamu memutuskan untuk kuliah di ${next.education.schoolName} dengan biaya sendiri. Kamu sekarang mandiri secara finansial.`);
-
-      // Trigger Housing Decision
-      pushNotification(next, {
-        title: "Tempat Tinggal",
-        message: "Kamu sudah resmi menjadi mahasiswa. Di mana kamu akan tinggal selama kuliah?",
-        icon: "info",
-        type: "confirm",
-        eventId: "housing_decision_18",
-        options: [
-          { id: "stay_home", label: "Tetap di Rumah Ortu (Lebih Hemat)" },
-          { id: "move_out", label: "Pindah Keluar / Kos (Mandiri Sepenuhnya)" }
-        ]
-      });
     } else if (choiceId === "job") {
       next.profile.isIndependent = true;
       next.education.level = "none";
-      next.education.isPTNPass = false; // Reset flag
-      next.education.fundingSource = "parents"; // Reset
-      pushLog(next, "Karena kendala biaya, kamu terpaksa membatalkan niat kuliah dan langsung mencari kerja.");
+      next.education.yearsStudied = 0;
+      pushLog(next, "Kamu membatalkan pendaftaran kuliah dan memilih untuk langsung mencari pekerjaan.");
     }
   }
 

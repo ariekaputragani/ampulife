@@ -47,7 +47,7 @@ export function applyJobAction(state, jobId) {
 
   // 5. TRIGGER INTERACTIVE INTERVIEW
   next.flags.jobSearchCount += 1;
-  
+
   next.currentEvent = {
     id: "job_interview",
     label: "Wawancara Kerja",
@@ -66,7 +66,7 @@ export function applyJobAction(state, jobId) {
 
 export function resignJobAction(state) {
   const next = cloneState(state);
-  
+
   if (!next.career.jobId) {
     return state;
   }
@@ -77,8 +77,8 @@ export function resignJobAction(state) {
   next.career.lastJobId = oldJobId;
   next.career.jobId = null;
   next.career.yearsInRole = 0;
-  
+
   pushLog(next, `Kamu telah resmi mengundurkan diri dari pekerjaanmu sebagai ${job ? job.name : oldJobId}.`);
-  
+
   return next;
 }
