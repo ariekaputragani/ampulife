@@ -43,11 +43,25 @@ export function ageUpYear(state, rng = Math.random) {
   // --- 1.1 GLOBAL RELATION AGING ---
   next.relations = next.relations.map((relation) => {
     if (relation.isDead) return relation;
+
+    // Passive decay for relations that haven't been interacted with
+    const yearsSinceInteraction = next.age - (relation.lastInteractionAge || 0);
+    const isFriend = relation.status === "friend";
+    const isFamily = relation.status === "family" || ["father", "mother", "sister", "brother", "son", "daughter"].includes(relation.id);
+
+    let passiveDecay = 0;
+    if (isFriend && yearsSinceInteraction > 2) {
+      passiveDecay = -2;
+    } else if (!isFamily && yearsSinceInteraction > 5) {
+      passiveDecay = -1;
+    }
+
     return {
       ...relation,
       age: relation.age + 1,
       bond: clamp(relation.bond + (rng() > 0.5 ? 1 : -1)),
       support: clamp(relation.support + (rng() > 0.5 ? 1 : -1)),
+      relationship: clamp((relation.relationship || 50) + passiveDecay),
     };
   });
 
@@ -128,8 +142,11 @@ export function ageUpYear(state, rng = Math.random) {
     pushLog(next, `Kamu membayar biaya kebutuhan ${myChildren.length} anak sebesar Rp${playerChildcareCost.toLocaleString("id-ID")}.`);
   }
 
-  // Automatic Birth Chance (20% per year if married and fertile age)
-  if (spouse && next.age >= 20 && next.age <= 45 && !next.family.isKB && rng() < 0.20) {
+  // Automatic Birth Chance (Dynamic based on existing children)
+  const existingChildrenCount = next.relations.filter(r => r.label === "Anak" && !r.isDead).length;
+  const birthChance = Math.max(0.02, 0.08 - (existingChildrenCount * 0.015));
+
+  if (spouse && next.age >= 20 && next.age <= 42 && !next.family.isKB && rng() < birthChance) {
     const childGender = rng() > 0.5 ? "Laki-laki" : "Perempuan";
     const childName = generateRandomName(childGender === "Laki-laki" ? "male" : "female");
 
@@ -410,42 +427,42 @@ export function ageUpYear(state, rng = Math.random) {
   }
 
   // --- STATS BRACKETED DELTA (Legacy script.js lines 703-713) ---
-  const randRange = (min, max) => Math.floor(rng() * max) + min;
+  const randRange = (min, max) => Math.floor(rng() * (max - min + 1)) + min;
 
   if (next.age <= 18) {
     next.stats = applyStatDelta(next.stats, {
-      happy: randRange(-2, 5),
-      health: randRange(-2, 5),
-      smarts: randRange(-2, 5),
-      looks: randRange(-2, 5),
+      happy: randRange(-2, 3),
+      health: randRange(-1, 3),
+      smarts: randRange(-1, 3),
+      looks: randRange(-1, 2),
     });
-  } else if (next.age <= 40) {
+  } else if (next.age <= 35) {
     next.stats = applyStatDelta(next.stats, {
-      happy: randRange(-2, 5),
-      health: randRange(-2, 4),
-      smarts: randRange(-2, 5),
-      looks: randRange(-1, 5),
+      happy: randRange(-2, 3),
+      health: randRange(-2, 2),
+      smarts: randRange(-1, 3),
+      looks: randRange(-2, 1),
     });
-  } else if (next.age <= 60) {
+  } else if (next.age <= 55) {
     next.stats = applyStatDelta(next.stats, {
-      happy: randRange(-3, 6),
-      health: randRange(-3, 5),
-      smarts: randRange(-2, 5),
-      looks: randRange(-3, 4),
+      happy: randRange(-3, 2),
+      health: randRange(-3, 1),
+      smarts: randRange(-2, 2),
+      looks: randRange(-3, -1),
     });
-  } else if (next.age <= 80) {
+  } else if (next.age <= 70) {
     next.stats = applyStatDelta(next.stats, {
-      happy: randRange(-4, 6),
-      health: randRange(-4, 5),
-      smarts: randRange(-2, 5),
-      looks: randRange(-4, 4),
+      happy: randRange(-4, 2),
+      health: randRange(-4, 0),
+      smarts: randRange(-3, 1),
+      looks: randRange(-4, -2),
     });
   } else {
     next.stats = applyStatDelta(next.stats, {
-      happy: randRange(-4, 6),
-      health: randRange(-5, 5),
-      smarts: randRange(-2, 4),
-      looks: randRange(-6, 6),
+      happy: randRange(-5, 2),
+      health: randRange(-6, -1),
+      smarts: randRange(-4, 1),
+      looks: randRange(-5, -3),
     });
   }
 
@@ -687,9 +704,9 @@ export function ageUpYear(state, rng = Math.random) {
     let baseRent = (next.profile.livingWithParents || hasHouse) ? 0 : 7_000_000;
 
     // Base survival costs
-    let baseFoodMisc = 8_000_000;
-    if (lifestyle === "mewah") baseFoodMisc = 25_000_000;
-    else if (lifestyle === "hemat") baseFoodMisc = 3_000_000;
+    let baseFoodMisc = 7_000_000;
+    if (lifestyle === "mewah") baseFoodMisc = 22_000_000;
+    else if (lifestyle === "hemat") baseFoodMisc = 2_500_000;
 
     let playerExpenses = baseRent + baseFoodMisc + transportCost;
 
@@ -703,9 +720,9 @@ export function ageUpYear(state, rng = Math.random) {
     // Lifestyle Variable Costs (Savings vs Spending)
     let netSavings = 0;
     if (grossIncome > 0) {
-      let lifestyleRatio = 0.5; // normal
-      if (lifestyle === "hemat") lifestyleRatio = 0.2;
-      else if (lifestyle === "mewah") lifestyleRatio = 0.9;
+      let lifestyleRatio = 0.4; // normal
+      if (lifestyle === "hemat") lifestyleRatio = 0.25;
+      else if (lifestyle === "mewah") lifestyleRatio = 0.75;
 
       const variableSpending = Math.floor(grossIncome * lifestyleRatio);
       netSavings = grossIncome - variableSpending;

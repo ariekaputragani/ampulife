@@ -57,10 +57,11 @@ export function takeCrimeAction(state, crimeId, rng = Math.random) {
     const fine = 5_000_000 + (Math.floor(Math.random() * 15_000_000));
     next.family.savings = Math.max(0, next.family.savings - fine);
 
-    // Severe Stat Penalties
-    next.stats.happy = clamp(next.stats.happy - 40);
-    next.stats.health = clamp(next.stats.health - 20);
-    next.stats.smarts = clamp(next.stats.smarts - 5);
+    // Scaled Stat Penalties
+    const penalty = crime.caughtPenalty || { happy: -40, health: -20, smarts: -5 };
+    next.stats.happy = clamp(next.stats.happy + (penalty.happy || -40));
+    next.stats.health = clamp(next.stats.health + (penalty.health || -20));
+    next.stats.smarts = clamp(next.stats.smarts + (penalty.smarts || -5));
 
     pushLog(
       next,

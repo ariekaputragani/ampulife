@@ -424,19 +424,19 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
 
   if (eventId === "funeral_decision") {
     if (choiceId === "ignore") {
-      next.stats.happy = clamp(next.stats.happy - 30);
+      next.stats.happy = clamp(next.stats.happy - 15);
       next.relations = next.relations.map(r => {
         if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
-          r.relationship = clamp( (r.relationship || 0) - 20);
+          r.relationship = clamp( (r.relationship || 0) - 12);
         }
         return r;
       });
-      pushLog(next, "Saya tidak bisa menghadiri pemakamannya. Keluarga besar merasa kecewa dengan sikap saya.");
+      pushLog(next, "Saya tidak bisa menghadiri pemakamannya. Keluarga besar merasa sedikit kecewa.");
     } else {
-      next.stats.happy = clamp(next.stats.happy + 5);
+      next.stats.happy = clamp(next.stats.happy + 10);
       next.relations = next.relations.map(r => {
         if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
-          r.relationship = clamp( (r.relationship || 0) + 10);
+          r.relationship = clamp( (r.relationship || 0) + 8);
         }
         return r;
       });
