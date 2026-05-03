@@ -46,7 +46,8 @@ export function canTakeJob(state, job) {
 export function computeYearlySalary(state, job) {
   const educationBoost = Math.min(0.3, state.education.yearsStudied * 0.03);
   const loyaltyBoost = Math.min(0.18, state.career.yearsInRole * 0.015);
-  return Math.floor(job.salaryPerYear * (1 + educationBoost + loyaltyBoost));
+  const multiplier = state.career.salaryMultiplier || 1.0;
+  return Math.floor(job.salaryPerYear * (1 + educationBoost + loyaltyBoost) * multiplier);
 }
 
 export function getPromotionRequirements(state) {

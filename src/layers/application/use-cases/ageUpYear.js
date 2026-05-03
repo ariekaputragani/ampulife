@@ -58,12 +58,13 @@ export function ageUpYear(state, rng = Math.random) {
     next.family.monthlyIncome = 1_500_000;
   }
 
+  // Initial wealth status used for background logic, will be updated at the end of the cycle
   const { savings: famSavings, monthlyIncome: famIncome } = next.family;
-  if (famSavings > 500_000_000 && famIncome > 20_000_000) {
+  if (famSavings >= 500_000_000) {
     next.family.wealthStatus = "rich";
-  } else if (famSavings < 50_000_000 && famIncome < 5_000_000) {
+  } else if (famSavings < 10_000_000) {
     next.family.wealthStatus = "poor";
-  } else if (famSavings >= 50_000_000 && famIncome >= 5_000_000) {
+  } else {
     next.family.wealthStatus = "middle";
   }
 
@@ -376,11 +377,13 @@ export function ageUpYear(state, rng = Math.random) {
       pushLog(next, `Beasiswa memotong biaya sekolahmu sebesar Rp${totalDiscount.toLocaleString("id-ID")}.`);
     }
 
-    next.family.savings -= yearlyFee;
-    if (yearlyFee > 0) {
-      pushLog(next, `Keluargamu membayar biaya sekolah sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
-    } else {
-      pushLog(next, `Kamu bersekolah secara gratis tahun ini.`);
+    if (!next.profile.isIndependent) {
+      next.family.savings -= yearlyFee;
+      if (yearlyFee > 0) {
+        pushLog(next, `Keluargamu membayar biaya sekolah sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
+      } else {
+        pushLog(next, `Kamu bersekolah secara gratis tahun ini.`);
+      }
     }
 
     // Financial Crisis check
@@ -397,16 +400,8 @@ export function ageUpYear(state, rng = Math.random) {
     }
   }
 
-  // Allowance derived from family income
-  if (next.age >= 6 && next.age <= 18 && !next.legal.inJail) {
-    const allowancePercent = next.family.wealthStatus === "rich" ? 0.05 : next.family.wealthStatus === "middle" ? 0.02 : 0.005;
-    const allowance = Math.floor((next.family.monthlyIncome * allowancePercent) * (0.8 + rng() * 0.4));
-
-    if (allowance > 0 && next.family.savings > 0) {
-      grossIncome += allowance;
-      pushLog(next, `Kamu mendapat uang jajan Rp${allowance.toLocaleString("id-ID")} tahun ini.`);
-    }
-  }
+  // Allowance logic consolidated into section 3 (Pocket Money)
+  // Removed redundant allowance code from section 4.0
 
   // Social Media Growth
   if (next.socialMedia.isJoined) {
@@ -541,6 +536,8 @@ export function ageUpYear(state, rng = Math.random) {
 
         if (next.career.yearsWorked % 5 === 0) {
           const raise = 1.05 + rng() * 0.05;
+          if (!next.career.salaryMultiplier) next.career.salaryMultiplier = 1.0;
+          next.career.salaryMultiplier *= raise;
           pushLog(next, `Kamu mendapat kenaikan gaji karena sudah bekerja selama ${next.career.yearsWorked} tahun!`);
         }
 
@@ -617,7 +614,7 @@ export function ageUpYear(state, rng = Math.random) {
 
   // --- 9.3 CHILD EDUCATION EXPENSES ---
   if (next.profile.isIndependent && next.life.isAlive) {
-    const children = next.relations.filter(r => (r.status === "child" || r.status === "grandchild") && !r.isDead);
+    const children = next.relations.filter(r => (r.label === "Anak" || r.status === "grandchild") && !r.isDead);
     let totalChildSchoolFees = 0;
 
     children.forEach(child => {
@@ -676,14 +673,8 @@ export function ageUpYear(state, rng = Math.random) {
     }
   }
 
-  // --- 9.4 FAMILY WEALTH STATUS UPDATE (Dynamic based on savings) ---
-  if (next.family.savings < 10_000_000) {
-    next.family.wealthStatus = "poor";
-  } else if (next.family.savings < 500_000_000) {
-    next.family.wealthStatus = "middle";
-  } else {
-    next.family.wealthStatus = "rich";
-  }
+  // --- 9.4 FAMILY WEALTH STATUS UPDATE (Handled at the beginning of the year) ---
+
 
   // --- 9.5 AUTO INDEPENDENCE CHECK ---
   if (next.age >= 18 && !next.profile.livingWithParents) {
@@ -986,7 +977,8 @@ export function ageUpYear(state, rng = Math.random) {
 
       // PTN Eligibility Check (Max 2 years after graduation)
       const currentYear = Number(next.profile.birthDate.year) + next.age;
-      const yearsSinceGrad = currentYear - (next.education.graduationYear || 0);
+      const gradYear = next.education.graduationYear || (currentYear - (isGraduationYear ? 0 : 3));
+      const yearsSinceGrad = currentYear - gradYear;
       const canApplyPTN = yearsSinceGrad <= 2 && (next.education.completed.includes("sma") || next.education.completed.includes("smk"));
 
       const availableOptions = [
@@ -1124,6 +1116,11 @@ export function ageUpYear(state, rng = Math.random) {
         inheritanceMsg = `${rel.label}mu, ${firstName} sudah meninggal!`
       }
       pushLog(next, inheritanceMsg);
+
+      // Reset KB if spouse dies
+      if (rel.status === "spouse" || ["husband", "wife"].includes(rel.status)) {
+        if (next.family) next.family.isKB = false;
+      }
 
       // --- NEW: Income Reduction Logic ---
       if (rel.id === "father") {

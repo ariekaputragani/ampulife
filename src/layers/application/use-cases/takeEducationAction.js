@@ -36,11 +36,7 @@ export function takeEducationAction(state, educationId) {
   next.stats.smarts = clamp(next.stats.smarts + program.smartsPerYear);
   next.stats.happy = clamp(next.stats.happy + 2);
 
-  if (next.education.yearsStudied >= program.yearsToComplete) {
-    pushLog(next, `Kamu menyelesaikan ${program.name}.`);
-  } else {
-    pushLog(next, `Kamu menempuh ${program.name} tahun ke-${next.education.yearsStudied}.`);
-  }
+  pushLog(next, `Kamu mendaftar di ${program.name}.`);
 
   return next;
 }

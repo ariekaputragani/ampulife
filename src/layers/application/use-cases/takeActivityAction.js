@@ -80,7 +80,7 @@ export function takeActivityAction(state, activityId) {
 
         if (smarts < 75) {
           message = "Nilai akademikmu belum cukup memuaskan untuk mendapatkan beasiswa.";
-        } else if (roll < 0.7) { // 30% success chance if smart
+        } else if (roll < 0.3) { // 30% success chance if smart
           // Success! Determine type
           const typeRoll = Math.random();
           let scholarship = {

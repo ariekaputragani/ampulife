@@ -404,9 +404,16 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     if (choiceId === "yes") {
       const chance = 0.35 + (next.stats.smarts - 75) * 0.02;
       if (Math.random() < chance) {
-        next.family.isScholarshipActive = true;
+        if (!next.family.activeScholarships) next.family.activeScholarships = [];
+        next.family.activeScholarships.push({
+          id: `sch_offer_${Date.now()}`,
+          name: "Beasiswa Prestasi (Pilihan)",
+          coverage: "partial",
+          amount: 50,
+          yearsLeft: 3
+        });
         next.stats.happy = clamp(next.stats.happy + 10);
-        pushLog(next, "Luar biasa! Saya memenangkan beasiswa tersebut.");
+        pushLog(next, "Luar biasa! Saya memenangkan beasiswa prestasi (Diskon 50% selama 3 tahun).");
       } else {
         pushLog(next, "Sayang sekali, Saya belum berhasil mendapatkan beasiswa kali ini.");
       }
@@ -417,23 +424,23 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
 
   if (eventId === "funeral_decision") {
     if (choiceId === "ignore") {
-      // next.stats.happy = clamp(next.stats.happy - 30);
-      // next.relations = next.relations.map(r => {
-      //   if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
-      //     r.relationship = clampStatus(r.relationship - 20);
-      //   }
-      //   return r;
-      // });
-      pushLog(next, "Saya tidak bisa menghadiri pemakamannya.");
+      next.stats.happy = clamp(next.stats.happy - 30);
+      next.relations = next.relations.map(r => {
+        if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
+          r.relationship = clamp( (r.relationship || 0) - 20);
+        }
+        return r;
+      });
+      pushLog(next, "Saya tidak bisa menghadiri pemakamannya. Keluarga besar merasa kecewa dengan sikap saya.");
     } else {
-      // next.stats.happy = clamp(next.stats.happy + 5);
-      // next.relations = next.relations.map(r => {
-      //   if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
-      //     r.relationship = clampStatus(r.relationship + 10);
-      //   }
-      //   return r;
-      // });
-      pushLog(next, "Saya menghadiri pemakaman tersebut.");
+      next.stats.happy = clamp(next.stats.happy + 5);
+      next.relations = next.relations.map(r => {
+        if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
+          r.relationship = clamp( (r.relationship || 0) + 10);
+        }
+        return r;
+      });
+      pushLog(next, "Saya menghadiri pemakaman tersebut untuk memberikan penghormatan terakhir.");
     }
   }
 

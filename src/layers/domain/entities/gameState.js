@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 
 export function createInitialGameState() {
   return {
@@ -90,6 +90,7 @@ export function createInitialGameState() {
       promotions: 0,
       isRetired: false,
       pensionAmount: 0,
+      salaryMultiplier: 1.0,
     },
     education: {
       level: "none", // elementary, junior_high, sma, smk, university

@@ -19,7 +19,8 @@ export function applyJobAction(state, jobId) {
 
   // 2. Check if already employed
   if (next.career.jobId) {
-    pushLog(next, `Kamu masih bekerja sebagai ${next.career.jobId}. Kamu harus resign terlebih dahulu.`);
+    const currentJob = jobsCatalog.find(j => j.id === next.career.jobId);
+    pushLog(next, `Kamu masih bekerja sebagai ${currentJob?.name || next.career.jobId}. Kamu harus resign terlebih dahulu.`);
     return next;
   }
 

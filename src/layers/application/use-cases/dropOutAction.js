@@ -13,7 +13,7 @@ export function dropOutAction(state, reason = "voluntary") {
     return next;
   }
 
-  const levelName = next.education.level === "university" ? "Universitas" : 
+  const levelName = (next.education.level === "university" || next.education.level.startsWith("university_")) ? "Universitas" : 
                     (next.education.level === "sma" || next.education.level === "smk") ? (next.education.level === "sma" ? "SMA" : "SMK") :
                     next.education.level === "junior_high" ? "SMP" : "SD";
 
