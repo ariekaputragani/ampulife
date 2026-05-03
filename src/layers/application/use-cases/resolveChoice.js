@@ -1,5 +1,6 @@
 import { cloneState, pushLog, clamp, clampStatus, pushNotification } from "@/layers/domain/entities/stateUtils";
 import { jobsCatalog } from "@/layers/infrastructure/catalogs/jobsCatalog";
+import { educationCatalog } from "@/layers/infrastructure/catalogs/educationCatalog";
 
 export function resolveChoice(state, eventId, choiceId, payload = {}) {
   const next = cloneState(state);
@@ -372,12 +373,26 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
   }
 
   if (eventId === "university_funding") {
-    const isPTN = next.education.isPTNPass === true;
-    const tuition = isPTN ? 15_000_000 : 45_000_000; // Yearly tuition
+    let program = educationCatalog.find(p => p.id === next.education.level);
+    if (!program && payload && payload.targetId) {
+      program = educationCatalog.find(p => p.id === payload.targetId);
+    }
+    
+    // Get actual cost from catalog if available, otherwise fallback to hardcoded defaults
+    const tuition = program ? program.costPerYear : (next.education.isPTNPass ? 15_000_000 : 45_000_000);
 
     if (choiceId === "parents") {
       if (next.family.savings >= tuition) {
-        // education.level & schoolName already set by admission path
+        // If this came from a manual menu action, we need to set the level now
+        if (payload && payload.targetId) {
+          const program = educationCatalog.find(p => p.id === payload.targetId);
+          if (program) {
+            next.education.level = program.id;
+            next.education.schoolName = program.name;
+          }
+        }
+
+        // education.level & schoolName already set by admission path or manual targetId
         next.education.yearsStudied = 0;
         next.education.fundingSource = "parents";
         next.education.isPTNPass = false; // Reset flag after use
@@ -412,7 +427,17 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       }
     } else if (choiceId === "self") {
       next.profile.isIndependent = true;
-      // education.level & schoolName already set by admission path
+      
+      // If this came from a manual menu action, we need to set the level now
+      if (payload && payload.targetId) {
+        const program = educationCatalog.find(p => p.id === payload.targetId);
+        if (program) {
+          next.education.level = program.id;
+          next.education.schoolName = program.name;
+        }
+      }
+
+      // education.level & schoolName already set by admission path or manual targetId
       next.education.yearsStudied = 0;
       next.education.fundingSource = "self";
       next.education.isPTNPass = false; // Reset flag after use

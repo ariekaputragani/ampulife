@@ -30,7 +30,7 @@ export function pushLog(state, message) {
   });
 }
 
-export function pushNotification(state, { title, message, icon = "info", type = "message", eventId = null, options = [] }) {
+export function pushNotification(state, { title, message, icon = "info", type = "message", eventId = null, options = [], payload = {} }) {
   if (!state.notificationQueue) state.notificationQueue = [];
   state.notificationQueue.push({
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -39,7 +39,8 @@ export function pushNotification(state, { title, message, icon = "info", type = 
     icon,
     type,
     eventId,
-    options
+    options,
+    payload
   });
 }
 

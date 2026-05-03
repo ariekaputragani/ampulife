@@ -872,7 +872,7 @@ export function ageUpYear(state, rng = Math.random) {
           next.education.completed.push(next.education.level);
           const oldLevel = next.education.level;
           const isSM = oldLevel === "sma" || oldLevel === "smk";
-          
+
           if (!isSM) {
             next.education.level = "none";
             next.education.yearsStudied = 0;
@@ -988,7 +988,7 @@ export function ageUpYear(state, rng = Math.random) {
       const currentYear = Number(next.profile.birthDate.year) + next.age;
       const gradYear = next.education.graduationYear || (currentYear - (isGraduationYear ? 0 : 1));
       const yearsSinceGrad = currentYear - gradYear;
-      
+
       const isSMA_SMK = next.education.completed.includes("sma") || next.education.completed.includes("smk");
       const isPaketC = next.education.completed.includes("paket_c");
       const hasSecondaryEdu = isSMA_SMK || isPaketC;
@@ -1046,9 +1046,6 @@ export function ageUpYear(state, rng = Math.random) {
             Object.assign(next, updated);
           }
         } else if (next.profile.isIndependent) {
-          next.money -= yearlyFee;
-          if (yearlyFee > 0) pushLog(next, `Saya membayar biaya pendidikan tahunan sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
-
           if (yearlyFee > 0 && next.money < -(yearlyFee * 2)) {
             const updated = dropOutAction(next, "financial");
             Object.assign(next, updated);
