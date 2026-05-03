@@ -821,14 +821,92 @@ export function ageUpYear(state, rng = Math.random) {
   if (!next.legal.inJail && next.life.isAlive) {
     // Education Progression (Increment years and smarts for any active level)
     if (next.education.level !== "none") {
-      const edu = educationCatalog.find(e => e.id === next.education.level) || (next.education.level === "university" ? { smartsPerYear: 5 } : null);
+      const edu = educationCatalog.find(e => e.id === next.education.level) || 
+                  (next.education.level.startsWith("university_") ? { id: next.education.level, smartsPerYear: 5, yearsToComplete: 4, name: "Universitas" } : 
+                  (next.education.level === "university" ? { id: "university", smartsPerYear: 5, yearsToComplete: 4 } : null));
       if (edu) {
+        // Randomize class group every year for SD and SMP only
+        const isBasicSchool = ["elementary", "junior_high"].includes(next.education.level);
+        if (isBasicSchool) {
+          next.education.classGroup = ["A", "B", "C", "D", "E", "F", "G", "H"][Math.floor(rng() * 8)];
+        } else {
+          next.education.classGroup = ""; // No group for SMA/SMK/Uni
+        }
+
+        // Increment years and smarts
         next.education.yearsStudied += 1;
         next.stats.smarts = clamp(next.stats.smarts + (edu.smartsPerYear || 2));
-        
+
         const isInUni = next.education.level.startsWith("university_") || next.education.level.startsWith("college_") || next.education.level === "university";
         if (isInUni) {
-          pushLog(next, `Saya sedang menjalani tahun ke-${next.education.yearsStudied} kuliah di ${next.education.schoolName || "Universitas"}.`);
+          pushLog(next, `Saya sedang menjalani tahun ke-${next.education.yearsStudied} kuliah (S1) di ${next.education.schoolName || "Universitas"}.`);
+        } else if (next.education.level === "elementary") {
+          pushLog(next, `Saya sekarang naik ke Kelas ${next.education.yearsStudied + 1}${next.education.classGroup || ""} di ${next.education.schoolName}.`);
+        } else if (next.education.level === "junior_high") {
+          pushLog(next, `Saya sekarang naik ke Kelas ${next.education.yearsStudied + 7}${next.education.classGroup || ""} di ${next.education.schoolName}.`);
+        } else if (next.education.level === "sma" || next.education.level === "smk") {
+          pushLog(next, `Saya sekarang naik ke Kelas ${next.education.yearsStudied + 10} di ${next.education.schoolName}.`);
+        }
+
+        // --- GRADUATION CHECK (After increment) ---
+        if (next.education.yearsStudied >= edu.yearsToComplete) {
+          const isPaket = next.education.level.startsWith("paket_");
+
+          next.education.completed.push(next.education.level);
+          const oldLevel = next.education.level;
+          next.education.level = "none";
+          next.education.yearsStudied = 0;
+          next.stats.smarts = clamp(next.stats.smarts + 10);
+
+          if (isInUni) {
+            const gradMsg = "Selamat! Kamu telah resmi menyandang gelar sarjana (S1). Bagaimana rencana hidupmu selanjutnya?";
+            pushLog(next, gradMsg);
+            pushNotification(next, {
+              title: "Kelulusan Universitas",
+              message: gradMsg,
+              icon: "success",
+              type: "confirm",
+              eventId: "graduation_university",
+              options: [
+                { id: "independent", label: "Hidup Mandiri (Pindah Keluar)" },
+                { id: "with_parents", label: "Tinggal Bareng Ortu (Hemat Biaya)" }
+              ]
+            });
+          } else if (oldLevel === "sma" || oldLevel === "smk" || oldLevel === "paket_c") {
+            const isPaketC = oldLevel === "paket_c";
+            const gradMsg = `Selamat! Kamu telah lulus ${isPaketC ? "Paket C" : oldLevel.toUpperCase()}. Ijazah setara ${isPaketC ? "SMA" : oldLevel.toUpperCase()} kini ada di tanganmu.`;
+            pushLog(next, gradMsg);
+
+            pushNotification(next, {
+              title: isPaketC ? "Lulus Paket C" : `Lulus ${oldLevel.toUpperCase()}`,
+              message: "Selamat! Kamu telah menyelesaikan masa pendidikan menengah. Pilih langkahmu selanjutnya untuk masa depan.",
+              icon: "success",
+              type: "confirm",
+              eventId: "graduation_path_selection",
+              options: [
+                { id: "snbp", label: "Ikut Jalur SNBP (Prestasi)", color: "green" },
+                { id: "snbt", label: next.age <= 25 ? "Ikut Jalur SNBT (UTBK)" : "UTBK (Hanya < 25 thn)", color: "blue", disabled: next.age > 25 },
+                { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
+                { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
+                { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" },
+                { id: "work", label: "Langsung Cari Kerja", color: "gray" }
+              ]
+            });
+          } else if (oldLevel === "junior_high") {
+            const sman = (rng() < 0.5 || next.stats.smarts < 25) ? "SMAN" : "SMKN";
+            const num = next.profile.city === "Jakarta" ? Math.floor(rng() * (sman === "SMAN" ? 117 : 74)) + 1 : Math.floor(rng() * (sman === "SMAN" ? 5 : 3)) + 1;
+            next.education.level = sman === "SMAN" ? "sma" : "smk";
+            next.education.yearsStudied = 0;
+            next.education.schoolName = `${sman} ${num} ${next.profile.city}`;
+            const gradMsg = `Selamat! Kamu lulus SMP dan melanjutkan ke ${next.education.schoolName}.`;
+            pushLog(next, gradMsg);
+            pushNotification(next, { title: "Lulus SMP", message: gradMsg, icon: "success" });
+          } else if (isPaket) {
+            const paketType = oldLevel.split("_")[1].toUpperCase();
+            const gradMsg = `Selamat! Kamu telah lulus ${edu.name}. Kini kamu memegang ijazah setara ${paketType === "B" ? "SMP" : "SMA"}.`;
+            pushLog(next, gradMsg);
+            pushNotification(next, { title: "Kelulusan Kejar Paket", message: gradMsg, icon: "success" });
+          }
         }
       }
     }
@@ -837,8 +915,10 @@ export function ageUpYear(state, rng = Math.random) {
     // Age 6: Start SD
     if (next.age === 6 && next.education.level === "none") {
       const num = Math.floor(rng() * 300) + 1;
+      const classGroup = ["A", "B", "C", "D", "E", "F", "G", "H"][Math.floor(rng() * 8)];
       next.education.level = "elementary";
       next.education.yearsStudied = 0;
+      next.education.classGroup = classGroup;
       next.education.schoolName = `SDN ${num} ${next.profile.city}`;
 
       pushLog(next, `Saya bersekolah di ${next.education.schoolName}.`);
@@ -854,8 +934,10 @@ export function ageUpYear(state, rng = Math.random) {
         pushLog(next, `Lulus! Kamu telah menyelesaikan pendidikan di ${next.education.schoolName}.`);
       }
       let num = next.profile.city === "Jakarta" ? Math.floor(rng() * 295) + 1 : Math.floor(rng() * 9) + 1;
+      const classGroup = ["A", "B", "C", "D", "E", "F", "G", "H"][Math.floor(rng() * 8)];
       next.education.level = "junior_high";
       next.education.yearsStudied = 0;
+      next.education.classGroup = classGroup;
       next.education.schoolName = `SMPN ${num} ${next.profile.city}`;
 
       pushLog(next, `Saya bersekolah di ${next.education.schoolName}.`);
@@ -863,7 +945,7 @@ export function ageUpYear(state, rng = Math.random) {
     }
     // Milestone: Graduate SMP -> Start SMA
     else if ((next.age >= 15 && next.education.level === "junior_high" && next.education.yearsStudied >= 3) ||
-      (next.age >= 15 && next.age < 18 && next.education.level === "none" && !next.education.completed.includes("high_school") && next.education.completed.includes("junior_high"))) {
+      (next.age >= 15 && next.age < 18 && next.education.level === "none" && !next.education.completed.includes("sma") && !next.education.completed.includes("smk") && next.education.completed.includes("junior_high"))) {
       if (next.education.level === "junior_high") {
         if (!next.education.completed.includes("junior_high")) {
           next.education.completed.push("junior_high");
@@ -872,25 +954,27 @@ export function ageUpYear(state, rng = Math.random) {
       }
       let sman = (rng() < 0.5 || next.stats.smarts < 25) ? "SMAN" : "SMKN";
       let num = next.profile.city === "Jakarta" ? Math.floor(rng() * (sman === "SMAN" ? 117 : 74)) + 1 : Math.floor(rng() * (sman === "SMAN" ? 5 : 3)) + 1;
-      next.education.level = "high_school";
+      next.education.level = sman === "SMAN" ? "sma" : "smk";
       next.education.yearsStudied = 0;
+      next.education.classGroup = ""; // No group for SMA/SMK
       next.education.schoolName = `${sman} ${num} ${next.profile.city}`;
 
       pushLog(next, `Saya bersekolah di ${next.education.schoolName}.`);
       pushNotification(next, { title: "Sekolah", message: `Kamu bersekolah di ${next.education.schoolName}.`, icon: "info" });
     }
     // Milestone: Graduate SMA (Decision Phase)
-    else if ((next.age >= 18 && next.education.level === "high_school" && next.education.yearsStudied >= 3) ||
-      (next.age >= 18 && next.age <= 22 && next.education.level === "none" && !next.education.completed.includes("university") && next.education.completed.includes("high_school"))) {
-      const isGraduationYear = next.education.level === "high_school";
-      const title = isGraduationYear ? "Kelulusan SMA" : "Keputusan Masa Depan";
+    else if ((next.age >= 18 && (next.education.level === "sma" || next.education.level === "smk") && next.education.yearsStudied >= 3) ||
+      (next.age >= 18 && next.age <= 22 && next.education.level === "none" && !next.education.completed.includes("university") && (next.education.completed.includes("sma") || next.education.completed.includes("smk")))) {
+      const isGraduationYear = next.education.level === "sma" || next.education.level === "smk";
+      const eduName = isGraduationYear ? (next.education.level === "sma" ? "SMA" : "SMK") : "Sekolah Menengah";
+      const title = isGraduationYear ? `Kelulusan ${eduName}` : "Keputusan Masa Depan";
       const message = isGraduationYear
-        ? `Selamat! Kamu lulus dari SMA. Apa langkahmu selanjutnya?`
+        ? `Selamat! Kamu lulus dari ${eduName}. Apa langkahmu selanjutnya?`
         : `Kamu masih dalam masa Gap Year. Apa rencanamu tahun ini?`;
 
       if (isGraduationYear) {
-        if (!next.education.completed.includes("high_school")) {
-          next.education.completed.push("high_school");
+        if (!next.education.completed.includes(next.education.level)) {
+          next.education.completed.push(next.education.level);
         }
         next.education.graduationYear = Number(next.profile.birthDate.year) + next.age;
         next.education.yearsStudied = 0;
@@ -902,7 +986,7 @@ export function ageUpYear(state, rng = Math.random) {
       // PTN Eligibility Check (Max 2 years after graduation)
       const currentYear = Number(next.profile.birthDate.year) + next.age;
       const yearsSinceGrad = currentYear - (next.education.graduationYear || 0);
-      const canApplyPTN = yearsSinceGrad <= 2;
+      const canApplyPTN = yearsSinceGrad <= 2 && (next.education.completed.includes("sma") || next.education.completed.includes("smk"));
 
       const availableOptions = [
         { id: "swasta", label: "Daftar Swasta (Langsung)" },
@@ -966,67 +1050,7 @@ export function ageUpYear(state, rng = Math.random) {
         }
       }
 
-      // Graduation Check (Universal for catalog entries)
-      if (next.education.yearsStudied >= yearsToComplete) {
-        otherEvents = true;
-        next.education.completed.push(next.education.level);
-        next.education.level = "none";
-        next.education.yearsStudied = 0;
-        next.stats.smarts = clamp(next.stats.smarts + 10);
-
-        if (isInUni) {
-          const gradMsg = "Selamat! Kamu telah resmi menyandang gelar sarjana. Bagaimana rencana hidupmu selanjutnya?";
-          pushLog(next, gradMsg);
-          pushNotification(next, {
-            title: "Kelulusan Universitas",
-            message: gradMsg,
-            icon: "success",
-            type: "confirm",
-            eventId: "graduation_university",
-            options: [
-              { id: "independent", label: "Hidup Mandiri (Pindah Keluar)" },
-              { id: "with_parents", label: isAnyParentAlive ? "Tinggal Bareng Ortu (Hemat Biaya)" : "Tetap di Rumah (Tanpa Ortu)" }
-            ]
-          });
-        } else if (eduEntry.id === "high_school" || eduEntry.id === "paket_c") {
-          const isPaket = eduEntry.id === "paket_c";
-          const gradMsg = `Selamat! Kamu telah lulus ${isPaket ? "Kejar Paket C" : "SMA"}. Ijazah setara SMA kini ada di tanganmu.`;
-          pushLog(next, gradMsg);
-
-          pushNotification(next, {
-            title: isPaket ? "Lulus Paket C" : "Lulus SMA",
-            message: "Selamat! Kamu telah menyelesaikan masa pendidikan menengah. Pilih langkahmu selanjutnya untuk masa depan.",
-            icon: "success",
-            type: "confirm",
-            eventId: "graduation_path_selection",
-            options: [
-              { id: "snbp", label: "Ikut Jalur SNBP (Prestasi)", color: "green" },
-              { id: "snbt", label: next.age <= 25 ? "Ikut Jalur SNBT (UTBK)" : "UTBK (Hanya < 25 thn)", color: "blue", disabled: next.age > 25 },
-              { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
-              { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
-              { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" },
-              { id: "work", label: "Langsung Cari Kerja", color: "gray" }
-            ]
-          });
-        } else if (eduEntry.id === "junior_high") {
-          const num = Math.floor(rng() * 100) + 1;
-          next.education.level = "high_school";
-          next.education.yearsStudied = 0;
-          next.education.schoolName = `SMAN ${num} ${next.profile.city}`;
-          const gradMsg = `Selamat! Kamu lulus SMP dan melanjutkan ke ${next.education.schoolName}.`;
-          pushLog(next, gradMsg);
-          pushNotification(next, { title: "Lulus SMP", message: gradMsg, icon: "success" });
-        } else if (isPaket) {
-          const paketType = eduEntry.id.split("_")[1].toUpperCase();
-          const gradMsg = `Selamat! Kamu telah lulus ${eduEntry.name}. Kini kamu memegang ijazah setara ${paketType === "B" ? "SMP" : "SMA"}.`;
-          pushLog(next, gradMsg);
-          pushNotification(next, {
-            title: "Kelulusan Kejar Paket",
-            message: gradMsg,
-            icon: "success"
-          });
-        }
-      }
+      // Graduation check handled at the top of education progression section
     }
   }
 

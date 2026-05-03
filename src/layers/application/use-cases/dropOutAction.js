@@ -14,7 +14,7 @@ export function dropOutAction(state, reason = "voluntary") {
   }
 
   const levelName = next.education.level === "university" ? "Universitas" : 
-                    next.education.level === "high_school" ? "SMA" :
+                    (next.education.level === "sma" || next.education.level === "smk") ? (next.education.level === "sma" ? "SMA" : "SMK") :
                     next.education.level === "junior_high" ? "SMP" : "SD";
 
   const schoolName = next.education.schoolName || levelName;

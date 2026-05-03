@@ -96,12 +96,9 @@ export function setupCharacter(state, { name, city, gender, birthDate }) {
 
   // Determine Zodiac
   const getZodiac = (day, month) => {
-    const map = {
-      "Januari": 1, "Februari": 2, "Maret": 3, "April": 4, "Mei": 5, "Juni": 6,
-      "Juli": 7, "Agustus": 8, "September": 9, "Oktober": 10, "November": 11, "Desember": 12
-    };
-    const m = map[month] || 0;
-    const d = day;
+    const monthMap = { "Januari": 1, "Februari": 2, "Maret": 3, "April": 4, "Mei": 5, "Juni": 6, "Juli": 7, "Agustus": 8, "September": 9, "Oktober": 10, "November": 11, "Desember": 12 };
+    const m = monthMap[month] || Number(month);
+    const d = Number(day);
     if ((m === 3 && d >= 21) || (m === 4 && d <= 19)) return "Aries";
     if ((m === 4 && d >= 20) || (m === 5 && d <= 20)) return "Taurus";
     if ((m === 5 && d >= 21) || (m === 6 && d <= 20)) return "Gemini";
@@ -117,8 +114,10 @@ export function setupCharacter(state, { name, city, gender, birthDate }) {
     return "";
   };
   const zodiac = getZodiac(birthDate.day, birthDate.month);
+  const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  const birthMonthLabel = monthNames[Number(birthDate.month) - 1] || birthDate.month;
 
-  let initialLog = `Perkenalkan nama saya ${next.profile.name}. Saya terlahir sebagai ${gender === 'male' ? 'laki-laki' : 'perempuan'}. Saya lahir di ${next.profile.city}, Indonesia pada tanggal ${birthDate.day} ${birthDate.month} ${birthDate.year}. Saya adalah ${pregnancyStatus}. Saya seorang ${zodiac}.<br><br>Bapak saya ${fatherName} (umur ${fatherAge}), Ibu saya ${motherName} (umur ${motherAge}). Kami berasal dari keluarga yang ${familyWealth === "rich" ? "sangat kaya" : familyWealth === "poor" ? "miskin" : "sederhana"}.`;
+  let initialLog = `Perkenalkan nama saya ${next.profile.name}. Saya terlahir sebagai ${gender === 'male' ? 'laki-laki' : 'perempuan'}. Saya lahir di ${next.profile.city}, Indonesia pada tanggal ${birthDate.day} ${birthMonthLabel} ${birthDate.year}. Saya adalah ${pregnancyStatus}. Saya seorang ${zodiac}.<br><br>Bapak saya ${fatherName} (umur ${fatherAge}), Ibu saya ${motherName} (umur ${motherAge}). Kami berasal dari keluarga yang ${familyWealth === "rich" ? "sangat kaya" : familyWealth === "poor" ? "miskin" : "sederhana"}.`;
 
   if (next.hasBPJS === "PBI") {
     initialLog += `<br>Pemerintah memberikan bantuan kesehatan gratis (BPJS PBI) untuk keluargamu.`;

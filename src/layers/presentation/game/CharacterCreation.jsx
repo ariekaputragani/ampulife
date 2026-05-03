@@ -52,7 +52,7 @@ export default function CharacterCreation({ onSetup }) {
   const monthOptions = [
     "Januari", "Februari", "Maret", "April", "Mei", "Juni",
     "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-  ].map(m => ({ value: m, label: m }));
+  ].map((m, i) => ({ value: i + 1, label: m }));
 
   const yearOptions = [...Array(37)].map((_, i) => ({ value: String(2026 - i), label: String(2026 - i) }));
 
@@ -66,10 +66,7 @@ export default function CharacterCreation({ onSetup }) {
     return 31;
   };
 
-  const validMonthMap = {
-    "Januari": 1, "Februari": 2, "Maret": 3, "April": 4, "Mei": 5, "Juni": 6,
-    "Juli": 7, "Agustus": 8, "September": 9, "Oktober": 10, "November": 11, "Desember": 12
-  };
+  // validMonthMap is no longer needed since month values are already numbers
 
   const updateDayOptions = (maxDay) => {
     const newOptions = [...Array(maxDay)].map((_, i) => ({ value: String(i + 1), label: String(i + 1) }));
@@ -94,11 +91,8 @@ export default function CharacterCreation({ onSetup }) {
   useEffect(() => {
     const { month, year } = form.birthDate;
     if (month && year) {
-      const monNum = validMonthMap[month];
-      if (monNum) {
-        const maxDay = getMaxDay(monNum, parseInt(year, 10));
-        updateDayOptions(maxDay);
-      }
+      const maxDay = getMaxDay(month, parseInt(year, 10));
+      updateDayOptions(maxDay);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.birthDate.month, form.birthDate.year]);

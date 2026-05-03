@@ -92,9 +92,10 @@ export function createInitialGameState() {
       pensionAmount: 0,
     },
     education: {
-      level: "none", // elementary, junior_high, high_school, university
+      level: "none", // elementary, junior_high, sma, smk, university
       major: null,
       yearsStudied: 0,
+      classGroup: "", // A, B, C, D, E, F, G, or H
       completed: [],
       schoolName: "", // Nama sekolah acak
     },

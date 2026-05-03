@@ -114,13 +114,13 @@ export default function LayeredGameView() {
           selectedJobDetail ? (
             <JobDetailView job={selectedJobDetail} onBack={() => setSelectedJobDetail(null)} />
           ) : (
-            <CareerTab 
-              state={state} 
-              options={options} 
-              actions={actions} 
-              promotionInfo={promotionInfo} 
+            <CareerTab
+              state={state}
+              options={options}
+              actions={actions}
+              promotionInfo={promotionInfo}
               onViewDetail={(job) => setSelectedJobDetail(job)}
-              onBack={() => setActiveTab("journal")} 
+              onBack={() => setActiveTab("journal")}
             />
           )
         )}
@@ -526,7 +526,7 @@ function RelationsTab({ state, actions, onBack }) {
           didOpen: () => {
             const input = swal.getInput();
             const parent = input.parentNode;
-            
+
             // Container utama harus bersih
             parent.style.display = 'flex';
             parent.style.flexDirection = 'column';
@@ -535,7 +535,7 @@ function RelationsTab({ state, actions, onBack }) {
             parent.style.width = '100%';
             parent.style.margin = '0';
             parent.style.padding = '0';
-            
+
             // Slider (Input)
             input.style.width = 'calc(100% - 20px)';
             input.style.margin = '20px 0';
@@ -557,10 +557,10 @@ function RelationsTab({ state, actions, onBack }) {
             output.style.border = '1px solid #e9ecef';
             output.style.width = 'calc(100% - 20px)';
             output.style.boxSizing = 'border-box';
-            
+
             output.innerText = `Rp${Number(input.value).toLocaleString("id-ID")}`;
             parent.appendChild(output);
-            
+
             input.addEventListener('input', () => {
               output.innerText = `Rp${Number(input.value).toLocaleString("id-ID")}`;
             });
@@ -621,13 +621,13 @@ function RelationsTab({ state, actions, onBack }) {
                     {rel.name} {currentGender === "male" ? "♂️" : currentGender === "female" ? "♀️" : ""}
                     {isDead && <span style={{ color: "#fa5252", fontSize: "10px", marginLeft: "5px" }}>(Wafat)</span>}
                   </div>
-                  {!isDead && <div className={styles.itemValue}>{currentRel}%</div>}
+                  {!isDead && <div className={styles.itemValue}></div>}
                 </div>
                 <div className={styles.itemSubtitle}>
-                  {rel.label} • {statusLabels[rel.status] || rel.status} • 
+                  {rel.label} • {statusLabels[rel.status] || rel.status} •
                   {rel.livingStatus === "stay_home" && "🏠 Tinggal Bersama • "}
                   {rel.livingStatus === "moved_out" && "✈️ Merantau • "}
-                  {rel.education ? `${rel.education} • ` : ""}
+                  {rel.education ? `${rel.education} • ` : " "}
                   {rel.age} Th
                 </div>
 
@@ -806,7 +806,20 @@ function EducationTab({ state, options, actions, onBack }) {
       <div className={styles.itemCard} style={{ borderLeft: "4px solid #4dabf7", marginBottom: "15px" }}>
         <h4>Status Pendidikan Saat Ini</h4>
         {state.education.level !== "none" ? (
-          <p>Sedang menempuh: <strong>{currentEdu?.name || (state.education.level === "university" ? "Universitas" : state.education.level)}</strong> (Tahun {state.education.yearsStudied}/{currentEdu?.yearsToComplete || 4})</p>
+          <p>Sedang menempuh: <strong>{(() => {
+            const edu = educationCatalog.find(e => e.id === state.education.level);
+            if (edu?.level === "university" || state.education.level.startsWith("university_")) return "S1";
+            if (state.education.level === "sma" || state.education.level === "smk") return state.education.level.toUpperCase();
+            return edu?.name || state.education.level;
+          })()}</strong> {(() => {
+            const edu = educationCatalog.find(e => e.id === state.education.level);
+            const yrs = state.education.yearsStudied + 1;
+            const group = state.education.classGroup || "";
+            if (state.education.level === "elementary") return `(Kelas ${yrs}${group})`;
+            if (state.education.level === "junior_high") return `(Kelas ${yrs + 6}${group})`;
+            if (state.education.level === "sma" || state.education.level === "smk") return `(Kelas ${yrs + 9})`;
+            return `(Tahun ${yrs}/${edu?.yearsToComplete || 4})`;
+          })()}</p>
         ) : (
           <p>Tidak sedang menempuh pendidikan.</p>
         )}
@@ -817,7 +830,13 @@ function EducationTab({ state, options, actions, onBack }) {
             <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginTop: "5px" }}>
               {state.education.completed.map((id, index) => (
                 <span key={`${id}-${index}`} style={{ fontSize: "10px", background: "#e7f5ff", color: "#228be6", padding: "2px 8px", borderRadius: "10px", border: "1px solid #a5d8ff" }}>
-                  {educationCatalog.find(e => e.id === id)?.name}
+                  {(() => {
+                    const edu = educationCatalog.find(e => e.id === id);
+                    if (edu?.level === "university") return "S1";
+                    if (id === "sma" || id === "smk") return id.toUpperCase();
+                    if (id === "high_school") return "SMA";
+                    return edu?.name || id;
+                  })()}
                 </span>
               ))}
             </div>
@@ -912,7 +931,7 @@ function JobDetailView({ job, onBack }) {
   const allJobs = jobsCatalog;
   let startNode = job;
   let foundPrev = true;
-  while(foundPrev) {
+  while (foundPrev) {
     const prev = allJobs.find(j => j.nextJobId === startNode.id);
     if (prev) startNode = prev;
     else foundPrev = false;
@@ -920,7 +939,7 @@ function JobDetailView({ job, onBack }) {
 
   // Trace forwards to build the roadmap
   let trace = startNode;
-  while(trace) {
+  while (trace) {
     roadmap.push(trace);
     if (trace.nextJobId) {
       trace = allJobs.find(j => j.id === trace.nextJobId);
@@ -940,7 +959,7 @@ function JobDetailView({ job, onBack }) {
         <h2 style={{ margin: "0 0 5px 0", color: "#1864ab" }}>{job.name}</h2>
         <div style={{ fontSize: "14px", color: "#2f9e44", fontWeight: "bold" }}>Gaji Dasar: Rp{job.salaryPerYear.toLocaleString("id-ID")}/thn</div>
         <p style={{ fontSize: "12px", color: "#666", marginTop: "10px", lineHeight: "1.5" }}>
-          Pekerjaan ini berada di jalur <strong>{job.track.toUpperCase()}</strong>. 
+          Pekerjaan ini berada di jalur <strong>{job.track.toUpperCase()}</strong>.
           {job.maxWealthStatus && ` Batas kekayaan untuk melamar: ${job.maxWealthStatus.toUpperCase()}.`}
         </p>
       </div>
@@ -962,8 +981,8 @@ function JobDetailView({ job, onBack }) {
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           {roadmap.map((r, idx) => (
             <div key={r.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div style={{ 
-                width: "24px", height: "24px", borderRadius: "50%", 
+              <div style={{
+                width: "24px", height: "24px", borderRadius: "50%",
                 background: r.id === job.id ? "#228be6" : "#e9ecef",
                 color: r.id === job.id ? "#fff" : "#adb5bd",
                 display: "flex", alignItems: "center", justifyContent: "center",
@@ -972,7 +991,7 @@ function JobDetailView({ job, onBack }) {
               }}>
                 {idx + 1}
               </div>
-              <div style={{ 
+              <div style={{
                 flex: 1, padding: "10px", borderRadius: "8px",
                 background: r.id === job.id ? "#e7f5ff" : "#fff",
                 border: "1px solid",
@@ -1021,9 +1040,9 @@ function CareerTab({ state, options, actions, promotionInfo, onViewDetail, onBac
             <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
               <button onClick={() => actions.promote()} className={styles.primaryButton} style={{ flex: 1 }}>Cek Promosi</button>
               <button onClick={() => actions.resignJob()} className={styles.secondaryButton} style={{ flex: 1, backgroundColor: "#fff5f5", color: "#fa5252", borderColor: "#ffa8a8" }}>Resign</button>
-              
+
               {state.age >= 55 && (
-                <button 
+                <button
                   onClick={() => {
                     Swal.fire({
                       title: 'Pensiun Dini?',
@@ -1037,8 +1056,8 @@ function CareerTab({ state, options, actions, promotionInfo, onViewDetail, onBac
                         actions.retireEarly();
                       }
                     });
-                  }} 
-                  className={styles.secondaryButton} 
+                  }}
+                  className={styles.secondaryButton}
                   style={{ flex: "1 0 100%", marginTop: "5px", backgroundColor: "#e7f5ff", color: "#228be6", borderColor: "#a5d8ff" }}
                 >
                   👴 Pensiun Dini
@@ -1084,10 +1103,10 @@ function CareerTab({ state, options, actions, promotionInfo, onViewDetail, onBac
               <div
                 key={job.id}
                 className={styles.jobItemCard}
-                style={{ 
+                style={{
                   textAlign: "left", padding: "12px", marginBottom: "10px",
                   background: "#fff", borderRadius: "8px", border: "1px solid #e9ecef",
-                  opacity: state.career.jobId ? 0.6 : 1 
+                  opacity: state.career.jobId ? 0.6 : 1
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -1101,10 +1120,10 @@ function CareerTab({ state, options, actions, promotionInfo, onViewDetail, onBac
                     <span style={{ fontSize: "10px", background: job.type === "part-time" ? "#e7f5ff" : "#f8f9fa", padding: "2px 6px", borderRadius: "4px" }}>
                       {job.type === "part-time" ? "Part-time" : "Full-time"}
                     </span>
-                    <button 
+                    <button
                       onClick={(e) => { e.stopPropagation(); onViewDetail(job); }}
-                      style={{ 
-                        padding: "4px 8px", fontSize: "10px", background: "#f1f3f5", 
+                      style={{
+                        padding: "4px 8px", fontSize: "10px", background: "#f1f3f5",
                         border: "1px solid #dee2e6", borderRadius: "4px", color: "#495057",
                         width: "auto", minWidth: "30px", cursor: "pointer"
                       }}
@@ -1152,7 +1171,7 @@ function FinanceTab({ state, actions, onBack }) {
           <p>Status: <strong>{state.family.wealthStatus.toUpperCase()}</strong></p>
           <p>Tabungan Keluarga: <strong>Rp{state.family.savings.toLocaleString("id-ID")}</strong></p>
           {state.family.monthlyIncome > 0 && <p>Gaji Orang Tua: <strong>Rp{state.family.monthlyIncome.toLocaleString("id-ID")}/bln</strong></p>}
-          
+
           <div style={{ marginTop: "10px", borderTop: "1px solid #dee2e6", paddingTop: "10px" }}>
             <div style={{ fontSize: "12px", fontWeight: "bold", color: "#495057", marginBottom: "5px" }}>Beasiswa/Subsidi Aktif:</div>
             {state.family.activeScholarships && state.family.activeScholarships.length > 0 ? (
@@ -1180,7 +1199,7 @@ function FinanceTab({ state, actions, onBack }) {
               <span style={{ fontSize: "10px", background: "#40c057", color: "#fff", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold" }}>{state.profile?.isIndependent ? "MANDIRI" : "TABUNGAN"}</span>
             )}
           </div>
-          
+
           <div style={{ marginBottom: "15px" }}>
             <div style={{ fontSize: "12px", color: "#666" }}>Uang Tersedia:</div>
             <div style={{ fontSize: "20px", fontWeight: "bold", color: "#2b8a3e" }}>Rp{state.money.toLocaleString("id-ID")}</div>
@@ -1189,11 +1208,11 @@ function FinanceTab({ state, actions, onBack }) {
           {!state.legal?.inJail && (
             <div style={{ borderTop: "1px solid #d3f9d8", paddingTop: "10px" }}>
               <div style={{ fontSize: "12px", fontWeight: "bold", color: "#2b8a3e", marginBottom: "8px" }}>Rincian Pendapatan Bulanan:</div>
-              
+
               {(() => {
                 const currentJob = jobsCatalog.find(j => j.id === state.career.jobId);
                 const playerMonthly = currentJob ? Math.floor(currentJob.salaryPerYear / 12) : 0;
-                
+
                 const spouse = state.relations.find(r => r.status === "spouse" && !r.isDead);
                 let spouseMonthly = 0;
                 if (spouse) {
@@ -1228,7 +1247,7 @@ function FinanceTab({ state, actions, onBack }) {
               })()}
             </div>
           )}
-          
+
           <div style={{ fontSize: "11px", color: "#666", marginTop: "12px", fontStyle: "italic" }}>
             {state.legal?.inJail ? "Selama di penjara, kamu tidak bisa bekerja atau menerima pendapatan rutin." : "Kamu bertanggung jawab penuh atas biaya hidup dan kebutuhan pribadimu."}
           </div>
@@ -1266,32 +1285,68 @@ function FinanceTab({ state, actions, onBack }) {
 function IdentityTab({ state, onBack }) {
   const getZodiac = (day, month) => {
     const d = Number(day);
-    const m = Number(month);
-    if ((m === 1 && d >= 20) || (m === 2 && d <= 18)) return "Aquarius ♒";
-    if ((m === 2 && d >= 19) || (m === 3 && d <= 20)) return "Pisces ♓";
-    if ((m === 3 && d >= 21) || (m === 4 && d <= 19)) return "Aries ♈";
-    if ((m === 4 && d >= 20) || (m === 5 && d <= 20)) return "Taurus ♉";
-    if ((m === 5 && d >= 21) || (m === 6 && d <= 20)) return "Gemini ♊";
-    if ((m === 6 && d >= 21) || (m === 7 && d <= 22)) return "Cancer ♋";
-    if ((m === 7 && d >= 23) || (m === 8 && d <= 22)) return "Leo ♌";
-    if ((m === 8 && d >= 23) || (m === 9 && d <= 22)) return "Virgo ♍";
-    if ((m === 9 && d >= 23) || (m === 10 && d <= 22)) return "Libra ♎";
-    if ((m === 10 && d >= 23) || (m === 11 && d <= 21)) return "Scorpio ♏";
-    if ((m === 11 && d >= 22) || (m === 12 && d <= 21)) return "Sagittarius ♐";
-    return "Capricorn ♑";
+    const monthMap = { "Januari": 1, "Februari": 2, "Maret": 3, "April": 4, "Mei": 5, "Juni": 6, "Juli": 7, "Agustus": 8, "September": 9, "Oktober": 10, "November": 11, "Desember": 12 };
+    const m = monthMap[month] || Number(month);
+
+    if ((m === 3 && d >= 21) || (m === 4 && d <= 19)) return "Aries";
+    if ((m === 4 && d >= 20) || (m === 5 && d <= 20)) return "Taurus";
+    if ((m === 5 && d >= 21) || (m === 6 && d <= 20)) return "Gemini";
+    if ((m === 6 && d >= 21) || (m === 7 && d <= 22)) return "Cancer";
+    if ((m === 7 && d >= 23) || (m === 8 && d <= 22)) return "Leo";
+    if ((m === 8 && d >= 23) || (m === 9 && d <= 22)) return "Virgo";
+    if ((m === 9 && d >= 23) || (m === 10 && d <= 22)) return "Libra";
+    if ((m === 10 && d >= 23) || (m === 11 && d <= 21)) return "Scorpio";
+    if ((m === 11 && d >= 22) || (m === 12 && d <= 21)) return "Sagittarius";
+    if ((m === 12 && d >= 22) || (m === 1 && d <= 19)) return "Capricorn";
+    if ((m === 1 && d >= 20) || (m === 2 && d <= 18)) return "Aquarius";
+    if ((m === 2 && d >= 19) || (m === 3 && d <= 20)) return "Pisces";
+    return "";
   };
 
   const birthDate = state.profile.birthDate;
   const zodiac = getZodiac(birthDate.day, birthDate.month);
   const birthPlace = state.profile.birthPlace || "Rumah Sakit Umum";
 
+  // Get current or latest education level for ID card
+  const getDisplayEdu = (level) => {
+    if (!level || level === "none") return null;
+    const edu = educationCatalog.find(e => e.id === level);
+    
+    // Check for University IDs (including fallbacks)
+    if (level.startsWith("university_") || level.startsWith("college_") || level === "university") {
+      return "S1";
+    }
+
+    if (edu) {
+      if (level === "sma") return "SMA";
+      if (level === "smk") return "SMK";
+      if (level === "paket_c") return "Paket C";
+      if (level === "paket_b") return "Paket B";
+      if (level === "elementary") return "SD";
+      if (level === "junior_high") return "SMP";
+      return edu.name;
+    }
+    
+    // Fallback for legacy IDs
+    if (level === "high_school") return "SMA";
+    return null;
+  };
+
+  const currentLevel = state.education.level;
+  const completedLevels = state.education.completed || [];
+  const latestLevel = (currentLevel !== "none") 
+    ? currentLevel 
+    : (completedLevels.length > 0 ? completedLevels[completedLevels.length - 1] : null);
+
+  const college_cs = getDisplayEdu(latestLevel) || "-";
+
   return (
     <div className={styles.tabPane}>
       <h3>Kartu Identitas (KTP)</h3>
-      <div 
-        className={styles.itemCard} 
-        style={{ 
-          background: "linear-gradient(135deg, #e7f5ff 0%, #ffffff 100%)", 
+      <div
+        className={styles.itemCard}
+        style={{
+          background: "linear-gradient(135deg, #e7f5ff 0%, #ffffff 100%)",
           border: "2px solid #a5d8ff",
           padding: "20px",
           borderRadius: "12px",
@@ -1315,7 +1370,7 @@ function IdentityTab({ state, onBack }) {
             <div>
               <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Jenis Kelamin</label>
               <div style={{ fontSize: "14px", fontWeight: "600" }}>
-                {state.profile.gender === "male" ? "Laki-laki (♂️)" : "Perempuan (♀️)"}
+                {state.profile.gender === "male" ? "Laki-laki" : "Perempuan"}
               </div>
             </div>
             <div>
@@ -1331,22 +1386,36 @@ function IdentityTab({ state, onBack }) {
             </div>
             <div>
               <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Tanggal Lahir</label>
-              <div style={{ fontSize: "14px", fontWeight: "600" }}>{birthDate.day}/{birthDate.month}/{birthDate.year}</div>
+              <div style={{ fontSize: "14px", fontWeight: "600" }}>
+                {(() => {
+                  const monthMap = { "Januari": 1, "Februari": 2, "Maret": 3, "April": 4, "Mei": 5, "Juni": 6, "Juli": 7, "Agustus": 8, "September": 9, "Oktober": 10, "November": 11, "Desember": 12 };
+                  const m = monthMap[birthDate.month] || birthDate.month;
+                  const pad = (n) => String(n).padStart(2, '0');
+                  return `${pad(birthDate.day)}-${pad(m)}-${birthDate.year}`;
+                })()}
+              </div>
             </div>
           </div>
 
           <div style={{ borderTop: "1px solid #d0ebff", pt: "10px", marginTop: "5px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
             <div>
+              <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Pendidikan</label>
+              <div style={{ fontSize: "14px", fontWeight: "600" }}>{college_cs}</div>
+            </div>
+            <div>
               <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Kewarganegaraan</label>
               <div style={{ fontSize: "14px", fontWeight: "600" }}>WNI</div>
             </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
             <div>
               <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Domisili</label>
               <div style={{ fontSize: "14px", fontWeight: "600", color: state.legal?.inJail ? "#fa5252" : "#1864ab" }}>
-                {state.legal?.inJail 
-                  ? "Lapas" 
-                  : state.profile?.livingWithParents 
-                    ? "Rumah Ortu" 
+                {state.legal?.inJail
+                  ? "Lapas"
+                  : state.profile?.livingWithParents
+                    ? "Rumah Ortu"
                     : "Mandiri/Kos"}
               </div>
             </div>

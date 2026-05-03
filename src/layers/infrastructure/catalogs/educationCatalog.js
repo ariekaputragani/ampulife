@@ -1,7 +1,7 @@
 export const educationCatalog = [
   {
     id: "elementary",
-    name: "Sekolah Dasar (SD)",
+    name: "SD",
     minAge: 6,
     maxAge: 12,
     costPerYear: 0,
@@ -20,8 +20,18 @@ export const educationCatalog = [
     jobBoost: 2,
   },
   {
-    id: "high_school",
+    id: "sma",
     name: "SMA",
+    minAge: 15,
+    maxAge: 18,
+    costPerYear: 0,
+    yearsToComplete: 3,
+    smartsPerYear: 5,
+    jobBoost: 8,
+  },
+  {
+    id: "smk",
+    name: "SMK",
     minAge: 15,
     maxAge: 18,
     costPerYear: 0,
@@ -47,7 +57,7 @@ export const educationCatalog = [
     yearsToComplete: 1,
     smartsPerYear: 3,
     jobBoost: 6,
-    requirement: (state) => !state.education.completed.includes("high_school") && state.education.completed.includes("junior_high"),
+    requirement: (state) => (!state.education.completed.includes("sma") && !state.education.completed.includes("smk")) && state.education.completed.includes("junior_high"),
   },
   {
     id: "university_ptn_snbp",

@@ -242,7 +242,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     // Education Boost
     let eduBoost = 0;
     if (next.education.completed.includes("university")) eduBoost = 0.15;
-    else if (next.education.completed.includes("high_school") || next.education.completed.includes("paket_c")) eduBoost = 0.05;
+    else if (next.education.completed.includes("sma") || next.education.completed.includes("smk") || next.education.completed.includes("paket_c")) eduBoost = 0.05;
     
     baseChance += eduBoost;
 
@@ -330,7 +330,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
 
     if (choiceId === "parents") {
       if (next.family.savings >= tuition) {
-        next.education.level = isPTN ? "university_ptn" : "university_swasta";
+        next.education.level = isPTN ? "university_ptn_snbt" : "university_swasta";
         next.education.yearsStudied = 0;
         next.education.schoolName = isPTN ? "Universitas Negeri" : "Universitas Swasta";
         next.education.isPTNPass = false; // Reset flag after use
