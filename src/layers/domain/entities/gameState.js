@@ -99,6 +99,7 @@ export function createInitialGameState() {
       classGroup: "", // A, B, C, D, E, F, G, or H
       completed: [],
       schoolName: "", // Nama sekolah acak
+      fundingSource: "parents", // parents or self
     },
     socialMedia: {
       isJoined: false,

@@ -394,21 +394,29 @@ export function ageUpYear(state, rng = Math.random) {
       pushLog(next, `Beasiswa memotong biaya sekolahmu sebesar Rp${totalDiscount.toLocaleString("id-ID")}.`);
     }
 
-    if (!next.profile.isIndependent) {
+    if (next.education.fundingSource === "parents") {
       next.family.savings -= yearlyFee;
       if (yearlyFee > 0) {
         pushLog(next, `Keluargamu membayar biaya sekolah sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
       } else {
         pushLog(next, `Kamu bersekolah secara gratis tahun ini.`);
       }
+    } else {
+      next.money -= yearlyFee;
+      if (yearlyFee > 0) {
+        pushLog(next, `Kamu membayar biaya sekolah secara mandiri sebesar Rp${yearlyFee.toLocaleString("id-ID")}.`);
+      } else {
+        pushLog(next, `Kamu bersekolah secara gratis (beasiswa penuh) tahun ini.`);
+      }
     }
 
     // Financial Crisis check
     const isBasicEdu = ["elementary", "junior_high"].includes(next.education.level);
-    const debtLimit = isBasicEdu ? -10_000_000 : -(yearlyFee * 2);
+    const checkBalance = next.education.fundingSource === "self" ? next.money : next.family.savings;
+    const debtLimit = next.education.fundingSource === "self" ? 0 : (isBasicEdu ? -10_000_000 : -(yearlyFee * 2));
 
     // If scholarship covers the fee (yearlyFee is 0), don't force DO for financial reasons
-    if (yearlyFee > 0 && next.family.savings < debtLimit) {
+    if (yearlyFee > 0 && checkBalance < debtLimit) {
       const updated = dropOutAction(next, "financial");
       Object.assign(next, updated);
       return next;
@@ -863,8 +871,12 @@ export function ageUpYear(state, rng = Math.random) {
 
           next.education.completed.push(next.education.level);
           const oldLevel = next.education.level;
-          next.education.level = "none";
-          next.education.yearsStudied = 0;
+          const isSM = oldLevel === "sma" || oldLevel === "smk";
+          
+          if (!isSM) {
+            next.education.level = "none";
+            next.education.yearsStudied = 0;
+          }
           next.stats.smarts = clamp(next.stats.smarts + 10);
 
           if (isInUni) {
@@ -879,26 +891,6 @@ export function ageUpYear(state, rng = Math.random) {
               options: [
                 { id: "independent", label: "Hidup Mandiri (Pindah Keluar)" },
                 { id: "with_parents", label: "Tinggal Bareng Ortu (Hemat Biaya)" }
-              ]
-            });
-          } else if (oldLevel === "sma" || oldLevel === "smk" || oldLevel === "paket_c") {
-            const isPaketC = oldLevel === "paket_c";
-            const gradMsg = `Selamat! Kamu telah lulus ${isPaketC ? "Paket C" : oldLevel.toUpperCase()}. Ijazah setara ${isPaketC ? "SMA" : oldLevel.toUpperCase()} kini ada di tanganmu.`;
-            pushLog(next, gradMsg);
-
-            pushNotification(next, {
-              title: isPaketC ? "Lulus Paket C" : `Lulus ${oldLevel.toUpperCase()}`,
-              message: "Selamat! Kamu telah menyelesaikan masa pendidikan menengah. Pilih langkahmu selanjutnya untuk masa depan.",
-              icon: "success",
-              type: "confirm",
-              eventId: "graduation_path_selection",
-              options: [
-                { id: "snbp", label: "Ikut Jalur SNBP (Prestasi)", color: "green" },
-                { id: "snbt", label: next.age <= 25 ? "Ikut Jalur SNBT (UTBK)" : "UTBK (Hanya < 25 thn)", color: "blue", disabled: next.age > 25 },
-                { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
-                { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
-                { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" },
-                { id: "work", label: "Langsung Cari Kerja", color: "gray" }
               ]
             });
           } else if (oldLevel === "junior_high") {
@@ -999,21 +991,21 @@ export function ageUpYear(state, rng = Math.random) {
       const canApplyPTN = yearsSinceGrad <= 2 && (next.education.completed.includes("sma") || next.education.completed.includes("smk"));
 
       const availableOptions = [
-        { id: "swasta", label: "Daftar Swasta (Langsung)" },
-        { id: "job", label: isAnyParentAlive ? "Cari Kerja & Mandiri" : "Cari Kerja" },
-        { id: "gap_year", label: "Ambil Gap Year" }
-      ];
-
-      if (canApplyPTN) {
-        availableOptions.unshift({ id: "ptn", label: "Ikut Seleksi PTN (Negeri)" });
-      }
+        { id: "snbp", label: "Jalur SNBP (Prestasi)", color: "green", condition: canApplyPTN },
+        { id: "snbt", label: "Jalur SNBT (UTBK)", color: "blue", condition: canApplyPTN && next.age <= 25 },
+        { id: "mandiri", label: "Jalur Mandiri (PTN)", color: "orange", condition: canApplyPTN },
+        { id: "swasta", label: "Daftar Swasta", color: "purple" },
+        { id: "terbuka", label: "Universitas Terbuka", color: "cyan" },
+        { id: "job", label: isAnyParentAlive ? "Cari Kerja & Mandiri" : "Cari Kerja", color: "gray" },
+        { id: "gap_year", label: "Ambil Gap Year", color: "yellow" }
+      ].filter(opt => opt.condition !== false);
 
       pushNotification(next, {
         title,
         message,
         icon: isGraduationYear ? "success" : "question",
         type: "confirm",
-        eventId: "graduation_sma",
+        eventId: "graduation_path_selection",
         options: availableOptions,
         payload: {}
       });
