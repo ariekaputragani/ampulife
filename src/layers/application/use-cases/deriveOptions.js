@@ -37,7 +37,8 @@ export function getAvailableEducation(state) {
   }
 
   return educationCatalog.filter((item) => {
-    const isAgeValid = state.age >= item.minAge && (!item.maxAge || state.age <= item.maxAge);
+    const minAge = item.minAge || 0;
+    const isAgeValid = state.age >= minAge && (!item.maxAge || state.age <= item.maxAge);
     const isNotCompleted = !state.education.completed.includes(item.id);
     
     // Check for any university degree already completed
@@ -45,8 +46,16 @@ export function getAvailableEducation(state) {
     const isUniOption = item.id.startsWith("university_");
     
     if (isUniOption && hasAnyUniDegree) return false;
-
+    
     const meetsRequirement = item.requirement ? item.requirement(state) : true;
+
+    // SNBP and SNBT are only available via the annual seasonal popup
+    if (item.id === "university_ptn_snbp" || item.id === "university_ptn_snbt") return false;
+    
+    // Prevent showing SMA if SMK completed and vice versa
+    if (item.id === "sma" && state.education.completed.includes("smk")) return false;
+    if (item.id === "smk" && state.education.completed.includes("sma")) return false;
+
     return isAgeValid && isNotCompleted && meetsRequirement;
   });
 }

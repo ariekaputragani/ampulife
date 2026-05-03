@@ -33,6 +33,7 @@ export function takeEducationAction(state, educationId) {
   next.education.level = program.id;
   next.education.major = program.major ?? next.education.major;
   next.education.yearsStudied = 0;
+  next.education.isFocusingOnWork = false;
   next.stats.smarts = clamp(next.stats.smarts + program.smartsPerYear);
   next.stats.happy = clamp(next.stats.happy + 2);
 

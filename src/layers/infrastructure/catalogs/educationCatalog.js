@@ -63,40 +63,70 @@ export const educationCatalog = [
     id: "university_ptn_snbp",
     name: "Universitas Negeri (Jalur SNBP)",
     level: "university",
+    minAge: 18,
     yearsToComplete: 4,
     costPerYear: 500_000,
     delta: { happy: 10, health: -2, smarts: 15, looks: 5 },
+    requirement: (state) => {
+      const currentYear = Number(state.profile.birthDate.year) + state.age;
+      const gradYear = state.education.graduationYear || (currentYear - 1);
+      const yearsSinceGrad = currentYear - gradYear;
+      const isFreshGrad = yearsSinceGrad === 0;
+      const isSMA_SMK = state.education.completed.includes("sma") || state.education.completed.includes("smk");
+      return isFreshGrad && isSMA_SMK;
+    },
   },
   {
     id: "university_ptn_snbt",
     name: "Universitas Negeri (Jalur SNBT)",
     level: "university",
+    minAge: 18,
     yearsToComplete: 4,
     costPerYear: 6_000_000,
     delta: { happy: 5, health: -2, smarts: 15, looks: 5 },
+    requirement: (state) => {
+      const currentYear = Number(state.profile.birthDate.year) + state.age;
+      const gradYear = state.education.graduationYear || (currentYear - 1);
+      const yearsSinceGrad = currentYear - gradYear;
+      const isSMA_SMK = state.education.completed.includes("sma") || state.education.completed.includes("smk");
+      const isPaketC = state.education.completed.includes("paket_c");
+      return (isSMA_SMK && yearsSinceGrad <= 2) || (isPaketC && state.age <= 25);
+    },
   },
   {
     id: "university_ptn_mandiri",
     name: "Universitas Negeri (Jalur Mandiri)",
     level: "university",
+    minAge: 18,
     yearsToComplete: 4,
     costPerYear: 20_000_000,
     delta: { happy: 2, health: -2, smarts: 15, looks: 5 },
+    requirement: (state) => {
+      const currentYear = Number(state.profile.birthDate.year) + state.age;
+      const gradYear = state.education.graduationYear || (currentYear - 1);
+      const yearsSinceGrad = currentYear - gradYear;
+      const hasSecondary = state.education.completed.includes("sma") || state.education.completed.includes("smk") || state.education.completed.includes("paket_c");
+      return yearsSinceGrad <= 10 && hasSecondary;
+    },
   },
   {
     id: "university_terbuka",
     name: "Universitas Terbuka (UT)",
     level: "university",
+    minAge: 18,
     yearsToComplete: 4,
     costPerYear: 2_500_000,
     delta: { happy: 0, health: 0, smarts: 10, looks: 2 },
+    requirement: (state) => state.education.completed.includes("sma") || state.education.completed.includes("smk") || state.education.completed.includes("paket_c"),
   },
   {
     id: "university_swasta",
     name: "Universitas Swasta",
     level: "university",
+    minAge: 18,
     yearsToComplete: 4,
     costPerYear: 45_000_000,
     delta: { happy: 15, health: -2, smarts: 12, looks: 15 },
+    requirement: (state) => state.education.completed.includes("sma") || state.education.completed.includes("smk") || state.education.completed.includes("paket_c"),
   },
 ];

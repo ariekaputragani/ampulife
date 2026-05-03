@@ -965,7 +965,7 @@ export function ageUpYear(state, rng = Math.random) {
     }
     // Milestone: Graduate SMA (Decision Phase)
     else if ((next.age >= 18 && (next.education.level === "sma" || next.education.level === "smk") && next.education.yearsStudied >= 3) ||
-      (next.age >= 18 && next.age <= 22 && next.education.level === "none" && !next.education.completed.includes("university") && (next.education.completed.includes("sma") || next.education.completed.includes("smk")))) {
+      (next.age >= 18 && next.age <= 22 && next.education.level === "none" && !next.education.completed.includes("university") && (next.education.completed.includes("sma") || next.education.completed.includes("smk")) && !next.education.isFocusingOnWork && !next.career.jobId)) {
       const isGraduationYear = next.education.level === "sma" || next.education.level === "smk";
       const eduName = isGraduationYear ? (next.education.level === "sma" ? "SMA" : "SMK") : "Sekolah Menengah";
       const title = isGraduationYear ? `Kelulusan ${eduName}` : "Keputusan Masa Depan";
@@ -984,18 +984,22 @@ export function ageUpYear(state, rng = Math.random) {
         next.family.isScholarshipActive = false;
       }
 
-      // PTN Eligibility Check (Max 2 years after graduation)
+      // Realistic Eligibility Rules
       const currentYear = Number(next.profile.birthDate.year) + next.age;
-      const gradYear = next.education.graduationYear || (currentYear - (isGraduationYear ? 0 : 3));
+      const gradYear = next.education.graduationYear || (currentYear - (isGraduationYear ? 0 : 1));
       const yearsSinceGrad = currentYear - gradYear;
-      const canApplyPTN = yearsSinceGrad <= 2 && (next.education.completed.includes("sma") || next.education.completed.includes("smk"));
+      
+      const isSMA_SMK = next.education.completed.includes("sma") || next.education.completed.includes("smk");
+      const isPaketC = next.education.completed.includes("paket_c");
+      const hasSecondaryEdu = isSMA_SMK || isPaketC;
+      const isFreshGrad = yearsSinceGrad === 0;
 
       const availableOptions = [
-        { id: "snbp", label: "Jalur SNBP (Prestasi)", color: "green", condition: canApplyPTN },
-        { id: "snbt", label: "Jalur SNBT (UTBK)", color: "blue", condition: canApplyPTN && next.age <= 25 },
-        { id: "mandiri", label: "Jalur Mandiri (PTN)", color: "orange", condition: canApplyPTN },
-        { id: "swasta", label: "Daftar Swasta", color: "purple" },
-        { id: "terbuka", label: "Universitas Terbuka", color: "cyan" },
+        { id: "snbp", label: "Jalur SNBP (Prestasi)", color: "green", condition: isFreshGrad && isSMA_SMK },
+        { id: "snbt", label: "Jalur SNBT (UTBK)", color: "blue", condition: (isSMA_SMK && yearsSinceGrad <= 2) || (isPaketC && next.age <= 25) },
+        { id: "mandiri", label: "Jalur Mandiri (PTN)", color: "orange", condition: yearsSinceGrad <= 10 && hasSecondaryEdu },
+        { id: "swasta", label: "Daftar Swasta", color: "purple", condition: hasSecondaryEdu },
+        { id: "terbuka", label: "Universitas Terbuka", color: "cyan", condition: hasSecondaryEdu },
         { id: "job", label: isAnyParentAlive ? "Cari Kerja & Mandiri" : "Cari Kerja", color: "gray" },
         { id: "gap_year", label: "Ambil Gap Year", color: "yellow" }
       ].filter(opt => opt.condition !== false);

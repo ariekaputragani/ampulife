@@ -26,30 +26,35 @@ export default function LayeredGameView() {
       const notif = state.notificationQueue[0];
 
       if (notif.type === "confirm") {
+        const buttonsHtml = notif.options.map((opt) => {
+          const colorMap = {
+            green: "#28a745", blue: "#007bff", orange: "#fd7e14",
+            purple: "#6f42c1", cyan: "#17a2b8", gray: "#6c757d",
+            yellow: "#ffc107", red: "#dc3545", default: "#3085d6",
+          };
+          const bg = colorMap[opt.color] || colorMap.default;
+          return `<button class="swal-custom-btn" data-choice="${opt.id}" style="background:${bg};color:#fff;border:none;padding:10px 18px;margin:5px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;min-width:140px;">${opt.label}</button>`;
+        }).join("");
+
         Swal.fire({
           title: notif.title,
-          text: notif.message,
           icon: notif.icon,
-          showCancelButton: true,
-          showDenyButton: notif.options.length > 2,
-          confirmButtonText: notif.options[0]?.label || "Ya",
-          denyButtonText: notif.options[1]?.label || "Tidak",
-          cancelButtonText: notif.options[notif.options.length - 1]?.label || "Batal",
-        }).then((result) => {
-          let choiceId = null;
-          if (result.isConfirmed) {
-            choiceId = notif.options[0].id;
-          } else if (result.isDenied) {
-            choiceId = notif.options[1].id;
-          } else if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
-            choiceId = notif.options[notif.options.length - 1].id;
-          }
-
-          if (choiceId) {
-            actions.resolveChoice(notif.eventId, choiceId, notif.payload);
-          }
-          actions.popNotification();
+          html: `<div style="margin-top:4px"><p style="margin-bottom:12px;color:#555;font-size:15px">${notif.message || ""}</p><div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px">${buttonsHtml}</div></div>`,
+          showConfirmButton: false,
+          showCancelButton: false,
+          allowOutsideClick: false,
+          didOpen: () => {
+            document.querySelectorAll(".swal-custom-btn").forEach((btn) => {
+              btn.addEventListener("click", () => {
+                const choiceId = btn.getAttribute("data-choice");
+                Swal.close();
+                actions.resolveChoice(notif.eventId, choiceId, notif.payload);
+                actions.popNotification();
+              });
+            });
+          },
         });
+
       } else {
         Swal.fire({
           title: notif.title,

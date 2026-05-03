@@ -7,22 +7,42 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
 
   if (eventId === "graduation_path_selection") {
     if (choiceId === "job" || choiceId === "work") {
+      next.profile.isIndependent = true;
+      next.education.isFocusingOnWork = true;
       pushLog(next, "Kamu memutuskan untuk tidak melanjutkan kuliah dan langsung fokus mencari kerja. Semoga sukses!");
       return next;
     }
 
     if (choiceId === "gap_year") {
       next.stats.happy = clamp(next.stats.happy + 10);
-      pushLog(next, "Saya memutuskan untuk mengambil Gap Year. Saya akan mencoba lagi tahun depan.");
+      next.education.isFocusingOnWork = false;
+      pushLog(next, "Kamu memutuskan untuk mengambil Gap Year. Kamu akan mencoba lagi tahun depan.");
       return next;
     }
+
+    // Helper: trigger funding popup after successful admission
+    const triggerFundingPopup = (title) => {
+      pushNotification(next, {
+        title,
+        message: "Selamat! Kamu resmi diterima. Siapa yang akan membiayai kuliah kamu?",
+        icon: "success",
+        type: "confirm",
+        eventId: "university_funding",
+        options: [
+          { id: "parents", label: "Dibayarin Orang Tua" },
+          { id: "self", label: "Bayar Sendiri (Mandiri)" }
+        ]
+      });
+    };
 
     if (choiceId === "terbuka") {
       next.education.level = "university_terbuka";
       next.education.yearsStudied = 0;
       next.education.schoolName = "Universitas Terbuka";
+      next.education.isPTNPass = false;
+      next.education.isFocusingOnWork = false;
       pushLog(next, "Kamu mendaftar di Universitas Terbuka agar bisa belajar secara fleksibel sambil melakukan aktivitas lain.");
-      pushNotification(next, { title: "Daftar UT", message: "Kamu resmi menjadi mahasiswa Universitas Terbuka.", icon: "success" });
+      triggerFundingPopup("Daftar Universitas Terbuka");
       return next;
     }
 
@@ -30,8 +50,10 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       next.education.level = "university_swasta";
       next.education.yearsStudied = 0;
       next.education.schoolName = "Universitas Swasta";
+      next.education.isPTNPass = false;
+      next.education.isFocusingOnWork = false;
       pushLog(next, "Kamu mendaftar di Universitas Swasta. Biaya kuliah mungkin lebih tinggi, namun fasilitasnya cukup memadai.");
-      pushNotification(next, { title: "Daftar Swasta", message: "Kamu resmi terdaftar di Universitas Swasta.", icon: "success" });
+      triggerFundingPopup("Daftar Universitas Swasta");
       return next;
     }
 
@@ -41,23 +63,23 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
         next.education.level = "university_ptn_snbp";
         next.education.yearsStudied = 0;
         next.education.schoolName = "Universitas Negeri (SNBP)";
-        const msg = "LUAR BIASA! Kamu lulus jalur SNBP. Kamu masuk universitas negeri tanpa tes dan biaya semester sangat murah!";
-        pushLog(next, msg);
-        pushNotification(next, { title: "Lolos SNBP!", message: msg, icon: "success" });
+        next.education.isPTNPass = true;
+        pushLog(next, "LUAR BIASA! Kamu lulus jalur SNBP. Kamu masuk universitas negeri tanpa tes dan biaya semester sangat murah!");
+        triggerFundingPopup("Lolos SNBP!");
       } else {
-        const failMsg = "Maaf, kamu tidak lolos seleksi SNBP. Jangan menyerah, masih ada jalur tes (SNBT) atau Mandiri.";
+        const failMsg = "Maaf, kamu tidak lolos seleksi SNBP. Jangan menyerah, masih ada jalur lain.";
         pushLog(next, failMsg);
-        pushNotification(next, { 
-          title: "Gagal SNBP", 
-          message: failMsg, 
+        pushNotification(next, {
+          title: "Gagal SNBP",
+          message: failMsg,
           icon: "error",
           type: "confirm",
           eventId: "graduation_path_selection",
           options: [
-            { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue", disabled: next.age > 25 },
+            { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue" },
             { id: "mandiri", label: "Daftar Jalur Mandiri", color: "orange" },
             { id: "swasta", label: "Daftar Swasta", color: "purple" },
-            { id: "work", label: "Langsung Kerja", color: "gray" }
+            { id: "job", label: "Langsung Kerja", color: "gray" }
           ]
         });
       }
@@ -70,15 +92,15 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
         next.education.level = "university_ptn_snbt";
         next.education.yearsStudied = 0;
         next.education.schoolName = "Universitas Negeri (SNBT)";
-        const msg = "SELAMAT! Kamu lulus UTBK dan diterima di PTN impianmu melalui jalur SNBT.";
-        pushLog(next, msg);
-        pushNotification(next, { title: "Lulus UTBK!", message: msg, icon: "success" });
+        next.education.isPTNPass = true;
+        pushLog(next, "SELAMAT! Kamu lulus UTBK dan diterima di PTN impianmu melalui jalur SNBT.");
+        triggerFundingPopup("Lulus UTBK!");
       } else {
         const failMsg = "Kamu gagal dalam seleksi UTBK. Nilaimu belum mencukupi untuk bersaing di PTN tujuanmu.";
         pushLog(next, failMsg);
-        pushNotification(next, { 
-          title: "Gagal SNBT", 
-          message: failMsg, 
+        pushNotification(next, {
+          title: "Gagal SNBT",
+          message: failMsg,
           icon: "error",
           type: "confirm",
           eventId: "graduation_path_selection",
@@ -86,7 +108,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
             { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
             { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
             { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" },
-            { id: "work", label: "Langsung Kerja", color: "gray" }
+            { id: "job", label: "Langsung Kerja", color: "gray" }
           ]
         });
       }
@@ -96,24 +118,44 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     if (choiceId === "mandiri") {
       const upInitial = 35_000_000;
       const currentMoney = next.profile.isIndependent ? next.money : next.family.savings;
-      
+
       if (currentMoney < upInitial) {
-        pushNotification(next, { title: "Dana Kurang", message: "Tabunganmu tidak mencukupi untuk membayar uang pangkal jalur Mandiri (Rp35jt).", icon: "warning" });
+        pushNotification(next, {
+          title: "Dana Kurang",
+          message: "Tabunganmu tidak mencukupi untuk membayar uang pangkal jalur Mandiri (Rp35jt).",
+          icon: "warning"
+        });
         return next;
       }
 
+      // Deduct uang pangkal upfront
       if (next.profile.isIndependent) next.money -= upInitial;
       else next.family.savings -= upInitial;
 
       next.education.level = "university_ptn_mandiri";
       next.education.yearsStudied = 0;
       next.education.schoolName = "Universitas Negeri (Mandiri)";
-      const msg = `Kamu masuk PTN melalui jalur Mandiri dengan membayar uang pangkal Rp${upInitial.toLocaleString("id-ID")}.`;
-      pushLog(next, msg);
-      pushNotification(next, { title: "Berhasil Masuk", message: msg, icon: "success" });
+      next.education.isPTNPass = true;
+      next.education.isFocusingOnWork = false;
+      next.education.fundingSource = next.profile.isIndependent ? "self" : "parents";
+      pushLog(next, `Kamu masuk PTN melalui jalur Mandiri dengan membayar uang pangkal Rp${upInitial.toLocaleString("id-ID")}.`);
+
+      // Mandiri skips funding (already paid), go straight to housing
+      pushNotification(next, {
+        title: "Berhasil Masuk PTN (Mandiri)",
+        message: "Uang pangkal sudah dibayar. Di mana kamu akan tinggal selama kuliah?",
+        icon: "question",
+        type: "confirm",
+        eventId: "housing_decision_18",
+        options: [
+          { id: "stay_home", label: "Tetap di Rumah Orang Tua" },
+          { id: "move_out", label: "Pindah Keluar / Kos" }
+        ]
+      });
       return next;
     }
   }
+
 
   if (eventId === "graduation_sma") {
     if (choiceId === "ptn") {
@@ -124,7 +166,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       if (Math.random() < passChance) {
         next.education.isPTNPass = true; // Mark as PTN passer
         pushLog(next, "LUAR BIASA! Kamu lulus seleksi PTN (Negeri). Biaya kuliahmu akan jauh lebih terjangkau.");
-        
+
         if (!isAnyParentAlive) {
           next.education.fundingSource = "self";
           next.profile.isIndependent = true;
@@ -160,7 +202,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     } else if (choiceId === "swasta") {
       next.education.isPTNPass = false; // Ensure it's marked as swasta
       pushLog(next, "Kamu memutuskan untuk mendaftar di universitas Swasta.");
-      
+
       if (!isAnyParentAlive) {
         next.profile.isIndependent = true;
         next.education.level = "university_swasta";
@@ -223,7 +265,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       next.family.savings = Math.floor(next.family.savings * 0.2); // Most assets lost or tied up
       next.family.monthlyIncome = 3_500_000; // Relative's basic support
       next.family.wealthStatus = "middle";
-      next.family.isBankrupt = false; 
+      next.family.isBankrupt = false;
       next.profile.isIndependent = false;
       next.profile.livingWithParents = true; // Living with extended family
       next.stats.happy = clamp(next.stats.happy - 15);
@@ -240,15 +282,15 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
   if (eventId === "job_interview") {
     const { jobId, jobName } = payload;
     const job = jobsCatalog.find(j => j.id === jobId);
-    
+
     // Base chance from stats
     let baseChance = 0.35 + (next.stats.smarts / 300) + (next.stats.looks / 600);
-    
+
     // Education Boost
     let eduBoost = 0;
     if (next.education.completed.includes("university")) eduBoost = 0.15;
     else if (next.education.completed.includes("sma") || next.education.completed.includes("smk") || next.education.completed.includes("paket_c")) eduBoost = 0.05;
-    
+
     baseChance += eduBoost;
 
     const track = job?.track || "informal";
@@ -279,28 +321,28 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     const prefersPoliteness = ["service", "education", "medical"].includes(track);
 
     if (choiceId === "confident") {
-       if (next.stats.smarts < 40) {
-         // Arrogant without brains
-         baseChance -= 0.25;
-         pushLog(next, "HRD merasa kamu terlalu sombong padahal kualifikasimu meragukan.");
-       } else if (prefersConfidence || isHighLevel) {
-         baseChance += 0.30;
-       } else if (prefersPoliteness) {
-         baseChance -= 0.10; // Arrogant for a service job
-       } else {
-         baseChance += 0.10;
-       }
+      if (next.stats.smarts < 40) {
+        // Arrogant without brains
+        baseChance -= 0.25;
+        pushLog(next, "HRD merasa kamu terlalu sombong padahal kualifikasimu meragukan.");
+      } else if (prefersConfidence || isHighLevel) {
+        baseChance += 0.30;
+      } else if (prefersPoliteness) {
+        baseChance -= 0.10; // Arrogant for a service job
+      } else {
+        baseChance += 0.10;
+      }
     } else if (choiceId === "polite") {
-       if (prefersPoliteness) {
-         baseChance += 0.30;
-       } else if (prefersConfidence) {
-         baseChance += 0.10; // Safe but not exciting
-       } else {
-         baseChance += 0.15;
-       }
+      if (prefersPoliteness) {
+        baseChance += 0.30;
+      } else if (prefersConfidence) {
+        baseChance += 0.10; // Safe but not exciting
+      } else {
+        baseChance += 0.15;
+      }
     } else if (choiceId === "nervous") {
-       baseChance -= 0.25;
-       pushLog(next, "Kamu terlihat sangat gugup saat wawancara, membuat HRD ragu.");
+      baseChance -= 0.25;
+      pushLog(next, "Kamu terlihat sangat gugup saat wawancara, membuat HRD ragu.");
     }
 
     if (Math.random() < baseChance) {
@@ -320,7 +362,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
   if (eventId === "prison_release_choice") {
     if (choiceId === "parents") {
       next.profile.livingWithParents = true;
-      next.profile.isIndependent = false; 
+      next.profile.isIndependent = false;
       pushLog(next, "Kamu memutuskan untuk kembali ke rumah keluarga untuk menata kembali hidupmu setelah bebas.");
     } else if (choiceId === "independent") {
       next.profile.isIndependent = true;
@@ -335,12 +377,24 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
 
     if (choiceId === "parents") {
       if (next.family.savings >= tuition) {
-        next.education.level = isPTN ? "university_ptn_snbt" : "university_swasta";
+        // education.level & schoolName already set by admission path
         next.education.yearsStudied = 0;
-        next.education.schoolName = isPTN ? "Universitas Negeri" : "Universitas Swasta";
         next.education.fundingSource = "parents";
         next.education.isPTNPass = false; // Reset flag after use
         pushLog(next, `Orang tuamu setuju membiayai kuliahmu di ${next.education.schoolName}.`);
+
+        // Trigger Housing Decision
+        pushNotification(next, {
+          title: "Tempat Tinggal",
+          message: "Kamu sudah resmi menjadi mahasiswa. Di mana kamu akan tinggal selama kuliah?",
+          icon: "info",
+          type: "confirm",
+          eventId: "housing_decision_18",
+          options: [
+            { id: "stay_home", label: "Tetap di Rumah Ortu (Gratis)" },
+            { id: "move_out", label: "Pindah Keluar / Kos (Butuh Biaya)" }
+          ]
+        });
       } else {
         pushLog(next, "Orang tuamu minta maaf karena tabungan mereka tidak cukup untuk membiayai kuliahmu.");
         // Fallback to self-funded or dropout
@@ -358,12 +412,24 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       }
     } else if (choiceId === "self") {
       next.profile.isIndependent = true;
-      next.education.level = isPTN ? "university_ptn_snbt" : "university_swasta";
+      // education.level & schoolName already set by admission path
       next.education.yearsStudied = 0;
-      next.education.schoolName = isPTN ? "Universitas Negeri" : "Universitas Swasta";
       next.education.fundingSource = "self";
       next.education.isPTNPass = false; // Reset flag after use
       pushLog(next, `Kamu memutuskan untuk kuliah di ${next.education.schoolName} dengan biaya sendiri. Kamu sekarang mandiri secara finansial.`);
+
+      // Trigger Housing Decision
+      pushNotification(next, {
+        title: "Tempat Tinggal",
+        message: "Kamu sudah resmi menjadi mahasiswa. Di mana kamu akan tinggal selama kuliah?",
+        icon: "info",
+        type: "confirm",
+        eventId: "housing_decision_18",
+        options: [
+          { id: "stay_home", label: "Tetap di Rumah Ortu (Lebih Hemat)" },
+          { id: "move_out", label: "Pindah Keluar / Kos (Mandiri Sepenuhnya)" }
+        ]
+      });
     } else if (choiceId === "job") {
       next.profile.isIndependent = true;
       next.education.level = "none";
@@ -371,6 +437,18 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       next.education.fundingSource = "parents"; // Reset
       pushLog(next, "Karena kendala biaya, kamu terpaksa membatalkan niat kuliah dan langsung mencari kerja.");
     }
+  }
+
+  if (eventId === "housing_decision_18") {
+    if (choiceId === "stay_home") {
+      next.profile.livingWithParents = true;
+      pushLog(next, "Kamu memilih untuk tetap tinggal di rumah orang tua selama masa kuliah agar bisa lebih fokus belajar dan menghemat biaya.");
+    } else if (choiceId === "move_out") {
+      next.profile.livingWithParents = false;
+      next.profile.isIndependent = true; // Moving out always requires independence
+      pushLog(next, "Kamu memutuskan untuk pindah ke kos-kosan dekat kampus. Kamu ingin belajar hidup mandiri sepenuhnya sejak dini.");
+    }
+    return next;
   }
 
   if (eventId === "driving_test") {
@@ -435,7 +513,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       next.stats.happy = clamp(next.stats.happy - 15);
       next.relations = next.relations.map(r => {
         if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
-          r.relationship = clamp( (r.relationship || 0) - 12);
+          r.relationship = clamp((r.relationship || 0) - 12);
         }
         return r;
       });
@@ -444,7 +522,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       next.stats.happy = clamp(next.stats.happy + 10);
       next.relations = next.relations.map(r => {
         if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
-          r.relationship = clamp( (r.relationship || 0) + 8);
+          r.relationship = clamp((r.relationship || 0) + 8);
         }
         return r;
       });
