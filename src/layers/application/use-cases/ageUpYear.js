@@ -110,13 +110,14 @@ export function ageUpYear(state, rng = Math.random) {
   let playerChildcareCost = 0;
   myChildren.forEach(child => {
     let cost = 0;
-    if (child.age <= 4) cost = 4_000_000;
-    else if (child.age <= 12) cost = 2_000_000;
-    else if (child.age <= 18) cost = 5_000_000;
+    if (child.age <= 4) cost = 15_000_000;
+    else if (child.age <= 12) cost = 12_000_000;
+    else if (child.age <= 18) cost = 18_000_000;
 
-    // Scale by player lifestyle
+    // Scale by player lifestyle (Synced with Family Wealth logic)
     if (lifestyle === "mewah") cost *= 5;
     else if (lifestyle === "hemat") cost *= 0.5;
+    else cost *= 2.5; // Normal lifestyle matches Middle Class feel (2.5x)
 
     playerChildcareCost += cost;
   });
@@ -280,13 +281,13 @@ export function ageUpYear(state, rng = Math.random) {
 
   // Childcare
   let childcareCost = 0;
-  if (next.age <= 4) childcareCost = 4_000_000;
-  else if (next.age <= 12) childcareCost = 2_000_000;
-  else if (next.age <= 18) childcareCost = 5_000_000;
+  if (next.age <= 4) childcareCost = 15_000_000;
+  else if (next.age <= 12) childcareCost = 12_000_000;
+  else if (next.age <= 18) childcareCost = 18_000_000;
 
-  if (next.family.wealthStatus === "rich") childcareCost *= 15;
+  if (next.family.wealthStatus === "rich") childcareCost *= 5;
   else if (next.family.wealthStatus === "middle") childcareCost *= 2.5;
-  else if (next.family.wealthStatus === "poor") childcareCost *= 0.25;
+  else if (next.family.wealthStatus === "poor") childcareCost *= 0.5;
 
   childcareCost = Math.floor(childcareCost * lifestyleMult);
 
@@ -821,9 +822,9 @@ export function ageUpYear(state, rng = Math.random) {
   if (!next.legal.inJail && next.life.isAlive) {
     // Education Progression (Increment years and smarts for any active level)
     if (next.education.level !== "none") {
-      const edu = educationCatalog.find(e => e.id === next.education.level) || 
-                  (next.education.level.startsWith("university_") ? { id: next.education.level, smartsPerYear: 5, yearsToComplete: 4, name: "Universitas" } : 
-                  (next.education.level === "university" ? { id: "university", smartsPerYear: 5, yearsToComplete: 4 } : null));
+      const edu = educationCatalog.find(e => e.id === next.education.level) ||
+        (next.education.level.startsWith("university_") ? { id: next.education.level, smartsPerYear: 5, yearsToComplete: 4, name: "Universitas" } :
+          (next.education.level === "university" ? { id: "university", smartsPerYear: 5, yearsToComplete: 4 } : null));
       if (edu) {
         // Randomize class group every year for SD and SMP only
         const isBasicSchool = ["elementary", "junior_high"].includes(next.education.level);

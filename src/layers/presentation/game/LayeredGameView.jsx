@@ -1193,11 +1193,26 @@ function FinanceTab({ state, actions, onBack }) {
         <div className={styles.itemCard} style={{ background: "#ebfbee", borderLeft: "4px solid #40c057", padding: "15px", marginBottom: "10px", color: "#333" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
             <h4 style={{ margin: 0 }}>Ekonomi Pribadi</h4>
-            {state.legal?.inJail ? (
-              <span style={{ fontSize: "10px", background: "#fa5252", color: "#fff", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold" }}>DI PENJARA</span>
-            ) : (
-              <span style={{ fontSize: "10px", background: "#40c057", color: "#fff", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold" }}>{state.profile?.isIndependent ? "MANDIRI" : "TABUNGAN"}</span>
-            )}
+            <div style={{ display: "flex", gap: "5px" }}>
+              <span style={{ fontSize: "10px", background: (() => {
+                const money = state.money;
+                if (money >= 500_000_000) return "#fcc419"; 
+                if (money >= 10_000_000) return "#4dabf7"; 
+                return "#adb5bd"; 
+              })(), color: "#fff", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold" }}>
+                {(() => {
+                  const money = state.money;
+                  if (money >= 500_000_000) return "EKONOMI: KAYA";
+                  if (money >= 10_000_000) return "EKONOMI: MENENGAH";
+                  return "EKONOMI: MISKIN";
+                })()}
+              </span>
+              {state.legal?.inJail ? (
+                <span style={{ fontSize: "10px", background: "#fa5252", color: "#fff", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold" }}>DI PENJARA</span>
+              ) : (
+                <span style={{ fontSize: "10px", background: "#40c057", color: "#fff", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold" }}>{state.profile?.isIndependent ? "MANDIRI" : "TABUNGAN"}</span>
+              )}
+            </div>
           </div>
 
           <div style={{ marginBottom: "15px" }}>
@@ -1403,8 +1418,15 @@ function IdentityTab({ state, onBack }) {
               <div style={{ fontSize: "14px", fontWeight: "600" }}>{college_cs}</div>
             </div>
             <div>
-              <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Kewarganegaraan</label>
-              <div style={{ fontSize: "14px", fontWeight: "600" }}>WNI</div>
+              <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Status Ekonomi</label>
+              <div style={{ fontSize: "14px", fontWeight: "600", color: "#2f9e44" }}>
+                {(() => {
+                  const money = state.money;
+                  if (money >= 500_000_000) return "Kaya";
+                  if (money >= 10_000_000) return "Menengah";
+                  return "Miskin";
+                })()}
+              </div>
             </div>
           </div>
 
@@ -1418,6 +1440,10 @@ function IdentityTab({ state, onBack }) {
                     ? "Rumah Ortu"
                     : "Mandiri/Kos"}
               </div>
+            </div>
+            <div>
+              <label style={{ fontSize: "10px", color: "#868e96", textTransform: "uppercase", fontWeight: "bold" }}>Kewarganegaraan</label>
+              <div style={{ fontSize: "14px", fontWeight: "600" }}>WNI</div>
             </div>
           </div>
         </div>
