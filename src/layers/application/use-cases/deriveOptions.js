@@ -190,6 +190,21 @@ export function getAvailableTreatments(state) {
     return [];
   }
 
+  if (state.legal.inJail) {
+    return [{
+      id: "prison_clinic",
+      name: "Klinik Penjara",
+      cost: 0,
+      effectiveCost: 0,
+      effect: { health: 10 },
+      description: "Berobat ke klinik lapas. Pelayanan seadanya tapi gratis.",
+      canCure: true,
+      disabled: false,
+      isFreeWithBPJS: false,
+      isCoveredByParents: false
+    }];
+  }
+
   return treatmentCatalog
     .filter((item) => state.age >= item.minAge)
     .map((item) => {

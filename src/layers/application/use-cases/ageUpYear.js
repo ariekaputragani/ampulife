@@ -542,23 +542,32 @@ export function ageUpYear(state, rng = Math.random) {
   if (!next.legal.inJail && next.career.jobId) {
     const job = jobsCatalog.find((item) => item.id === next.career.jobId);
     if (job) {
-      // --- RETIREMENT LOGIC (Automatic at 60) ---
-      if (next.age >= 60 && !next.career.isRetired) {
+      // --- RETIREMENT LOGIC (Interactive at 65) ---
+      if (next.age >= 65 && !next.career.isRetired && next.career.jobId) {
         const salaryWithBoost = computeYearlySalary(next, job);
         const pesangon = Math.floor(salaryWithBoost * next.career.yearsWorked * 0.5);
-        const pensionYearly = Math.floor(salaryWithBoost * 0.3);
+        const pensionYearly = Math.floor(salaryWithBoost * 0.6); // Increased to 60%
 
-        next.money += pesangon;
-        next.career.isRetired = true;
-        next.career.pensionAmount = pensionYearly;
-        next.career.jobId = null; // No longer employed
-
-        pushLog(next, `Selamat! Kamu telah mencapai usia pensiun (60 tahun). Kamu berhenti bekerja sebagai ${job.name} dan menerima uang pesangon sebesar Rp${pesangon.toLocaleString("id-ID")}.`);
+        // Instead of automatic, we push a notification with choices
         pushNotification(next, {
-          title: "Pensiun",
-          message: `Kamu resmi pensiun! Nikmati masa tuamu dengan uang pensiun tahunan Rp${pensionYearly.toLocaleString("id-ID")}.`,
-          icon: "success"
+          title: "Masa Pensiun",
+          message: `Kamu telah mencapai usia 65 tahun. Apakah kamu ingin pensiun dari pekerjaan sebagai ${job.name} sekarang? Kamu akan menerima pesangon Rp${pesangon.toLocaleString("id-ID")} dan uang pensiun tahunan Rp${pensionYearly.toLocaleString("id-ID")}.`,
+          icon: "question",
+          type: "confirm",
+          eventId: "retirement_choice",
+          payload: { pesangon, pensionYearly, jobName: job.name },
+          options: [
+            { id: "retire", label: "Pensiun & Nikmati Masa Tua", color: "green" },
+            { id: "continue", label: "Tetap Bekerja (Jika Mampu)", color: "blue" }
+          ]
         });
+        
+        // While waiting for choice, we still pay salary for this year
+        grossIncome += salaryWithBoost;
+        next.career.yearsWorked += 1;
+        next.career.yearsInRole += 1;
+        next.stats = applyStatDelta(next.stats, job.delta);
+        pushLog(next, `Kamu mencapai usia 65 tahun. Kamu sedang mempertimbangkan untuk pensiun.`);
       } else {
         // --- SALARY INCREASE (Legacy script.js line 2114) ---
         next.career.yearsWorked += 1;
@@ -841,108 +850,66 @@ export function ageUpYear(state, rng = Math.random) {
 
   // --- 4. MILESTONES & EDUCATION ---
   if (!next.legal.inJail && next.life.isAlive) {
-    // 4a. Yearly Progression (Growth)
-    if (next.education.level !== "none") {
-      const isUni = next.education.level.startsWith("university_") || next.education.level === "university";
-      const isPaket = next.education.level?.startsWith("paket_");
-      const edu = educationCatalog.find(e => e.id === next.education.level) ||
-        (isUni ? { id: next.education.level, smartsPerYear: 5, yearsToComplete: 4, name: "Universitas" } : null);
-
-      if (edu) {
-        const isBasicSchool = ["elementary", "junior_high"].includes(next.education.level);
-        const maxYears = (next.education.level === "elementary") ? 6 : (isUni ? 4 : 3);
-
-        if (isBasicSchool) {
-          next.education.classGroup = ["A", "B", "C", "D", "E", "F", "G", "H"][Math.floor(rng() * 8)];
-        } else {
-          next.education.classGroup = "";
-        }
-
-        if (next.education.yearsStudied < maxYears) {
-          next.education.yearsStudied += 1;
-          next.stats.smarts = clamp(next.stats.smarts + (edu.smartsPerYear || 3));
-
-          if (isUni) {
-            pushLog(next, `Saya sedang menjalani tahun ke-${next.education.yearsStudied} kuliah (S1) di ${next.education.schoolName}.`);
-          } else if (!isPaket) {
-            let classNum = next.education.yearsStudied;
-            if (next.education.level === "junior_high") classNum += 6;
-            if (next.education.level === "sma" || next.education.level === "smk") classNum += 9;
-            pushLog(next, `Saya sekarang naik ke Kelas ${classNum} di ${next.education.schoolName}.`);
-          }
-        }
-
-        // University Graduation: trigger when study years reach the limit
-        if (isUni && next.education.yearsStudied >= maxYears) {
-          const uniName = next.education.schoolName || "Universitas";
-          next.education.completed.push(next.education.level);
-          next.education.graduationYear = Number(next.profile.birthDate.year) + next.age;
-
-          const gradMsg = `Selamat! Kamu berhasil menyelesaikan S1 di ${uniName}! Ini adalah pencapaian luar biasa. Apa rencanamu selanjutnya?`;
-          pushLog(next, gradMsg);
-          pushNotification(next, {
-            title: "🎓 Lulus S1!",
-            message: gradMsg,
-            icon: "success",
-            type: "confirm",
-            eventId: "graduation_university",
-            options: [
-              { id: "independent", label: "Hidup Mandiri & Cari Kerja" },
-              { id: "with_parents", label: "Tetap di Rumah Orang Tua Dulu" }
-            ]
-          });
-
-          // Reset education level so the player is now a graduate
-          next.education.level = "none";
-          next.education.yearsStudied = 0;
-          next.education.schoolName = "";
-          next.profile.isIndependent = true;
-        }
-
-        // Drop-out check for university if can't afford tuition
-        if (isUni || isPaket) {
-          if (!next.profile.isIndependent && isAnyParentAlive) {
-            if (yearlyFee > 0 && next.family.savings < -(yearlyFee * 2)) {
-              const updated = dropOutAction(next, "financial");
-              Object.assign(next, updated);
-            }
-          } else if (next.profile.isIndependent) {
-            if (yearlyFee > 0 && next.money < -(yearlyFee * 2)) {
-              const updated = dropOutAction(next, "financial");
-              Object.assign(next, updated);
-            }
-          }
-        }
-      }
-    }
-
-    // 4b. Milestones (Starting / Graduating) — all in one if-else chain
+    // 4a. Milestones (Starting / Graduating) — RUN BEFORE PROGRESSION
     // 1. Age 6: Start SD
     if (next.age === 6 && next.education.level === "none" && !next.education.completed.includes("elementary")) {
       const num = Math.floor(rng() * 300) + 1;
       next.education.level = "elementary";
-      next.education.yearsStudied = 1;
+      next.education.yearsStudied = 0; // Set to 0 so Progression adds +1
       next.education.schoolName = `SDN ${num} ${next.profile.city}`;
-      pushLog(next, `Saya mulai bersekolah di ${next.education.schoolName}.`);
+      const msg = `Selamat! Saya mulai bersekolah di ${next.education.schoolName}.`;
+      pushLog(next, msg);
+      pushNotification(next, { title: "Masuk Sekolah", message: msg, icon: "success" });
     }
-    // 2. Age 12: Graduate SD -> Start SMP
-    else if (next.age === 12 && next.education.level === "elementary" && next.education.yearsStudied >= 6) {
-      next.education.completed.push("elementary");
-      const num = next.profile.city === "Jakarta" ? Math.floor(rng() * 295) + 1 : Math.floor(rng() * 9) + 1;
-      next.education.level = "junior_high";
-      next.education.yearsStudied = 1;
-      next.education.schoolName = `SMPN ${num} ${next.profile.city}`;
-      pushLog(next, `Lulus SD! Sekarang saya mulai Kelas 7 di ${next.education.schoolName}.`);
+    // 2. Age 12: Graduate SD or if has Elementary Cert but not in school -> Choice for SMP
+    else if (next.age === 12 && !next.legal.inJail) {
+      const hasElementaryCert = next.education.completed.includes("elementary") || next.education.completed.includes("paket_a");
+      const isGraduatingSD = next.education.level === "elementary" && next.education.yearsStudied >= 6;
+      
+      if (isGraduatingSD || (next.education.level === "none" && hasElementaryCert && !next.education.completed.includes("junior_high"))) {
+        if (isGraduatingSD) next.education.completed.push("elementary");
+        
+        next.education.level = "none";
+        next.education.yearsStudied = 0;
+        next.education.schoolName = "";
+
+        const msg = `Kamu sudah berumur 12 tahun dan memiliki ijazah pendidikan dasar. Apakah kamu ingin melanjutkan ke SMP?`;
+        pushLog(next, msg);
+        pushNotification(next, {
+          title: "🎓 Pendidikan Dasar Selesai",
+          message: msg,
+          icon: "success",
+          type: "confirm",
+          eventId: "graduation_sd_selection",
+          options: [
+            { id: "smp", label: "Masuk SMP (Reguler)", color: "blue" },
+            { id: "job", label: "Mulai Cari Kerja", color: "gray" }
+          ]
+        });
+      }
     }
-    // 3. Age 15: Graduate SMP -> Start SMA/SMK
+    // 3. Age 15: Graduate SMP -> Choice for SMA/SMK/Job
     else if (next.age === 15 && next.education.level === "junior_high" && next.education.yearsStudied >= 3) {
       next.education.completed.push("junior_high");
-      let sman = (rng() < 0.5 || next.stats.smarts < 25) ? "SMAN" : "SMKN";
-      let num = next.profile.city === "Jakarta" ? Math.floor(rng() * (sman === "SMAN" ? 117 : 74)) + 1 : Math.floor(rng() * (sman === "SMAN" ? 5 : 3)) + 1;
-      next.education.level = sman === "SMAN" ? "sma" : "smk";
-      next.education.yearsStudied = 1;
-      next.education.schoolName = `${sman} ${num} ${next.profile.city}`;
-      pushLog(next, `Lulus SMP! Sekarang saya mulai Kelas 10 di ${next.education.schoolName}.`);
+      const oldSchool = next.education.schoolName;
+      next.education.level = "none";
+      next.education.yearsStudied = 0;
+      next.education.schoolName = "";
+
+      const msg = `Lulus SMP! Selamat, kamu telah menyelesaikan pendidikan di ${oldSchool}. Apa rencana pendidikan jenjang menengahmu?`;
+      pushLog(next, msg);
+      pushNotification(next, {
+        title: "🎓 Lulus SMP!",
+        message: msg,
+        icon: "success",
+        type: "confirm",
+        eventId: "graduation_smp_selection",
+        options: [
+          { id: "sma", label: "Masuk SMA (Akademik)", color: "blue" },
+          { id: "smk", label: "Masuk SMK (Kejuruan)", color: "orange" },
+          { id: "job", label: "Mulai Cari Kerja", color: "gray" }
+        ]
+      });
     }
     // 4. Age 18: Graduate SMA/SMK -> University Decision
     else if (next.age === 18 && (next.education.level === "sma" || next.education.level === "smk") && next.education.yearsStudied >= 3) {
@@ -955,44 +922,61 @@ export function ageUpYear(state, rng = Math.random) {
 
       const gradMsg = `Selamat! Kamu telah lulus dari ${oldSchool}. Apa langkahmu selanjutnya?`;
       pushLog(next, gradMsg);
+
+      const hasJob = !!next.career?.jobId;
+      const smaOptions = [
+        { id: "snbp", label: "Daftar Jalur SNBP (Prestasi)", color: "green" },
+        { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue" },
+        { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
+        { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
+        { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" }
+      ];
+
+      if (hasJob) {
+        smaOptions.push({ id: "job", label: "Fokus Karir Saat Ini", color: "gray" });
+      } else {
+        smaOptions.push({ id: "job", label: "Langsung Cari Kerja", color: "gray" });
+      }
+      
+      smaOptions.push({ id: "gap_year", label: "Ambil Gap Year", color: "yellow" });
+
       pushNotification(next, {
         title: `Kelulusan ${eduName}`,
         message: gradMsg,
         icon: "success",
         type: "confirm",
         eventId: "graduation_path_selection",
-        options: [
-          { id: "snbp", label: "Daftar Jalur SNBP (Prestasi)", color: "green" },
-          { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue" },
-          { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
-          { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
-          { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" },
-          { id: "job", label: "Langsung Kerja", color: "gray" },
-          { id: "gap_year", label: "Ambil Gap Year", color: "yellow" }
-        ]
+        options: smaOptions
       });
     }
-    // Age 19–22: Annual nudge for SMA/SMK grads who haven't enrolled yet (Bug 6 fix)
+    // Age 19–22: Nudge for SMA grads
     else if (next.age >= 19 && next.age <= 22 && next.education.level === "none") {
       const hasSecondaryEdu = next.education.completed.includes("sma") || next.education.completed.includes("smk") || next.education.completed.includes("paket_c");
       const hasUniDegree = next.education.completed.some(id => id.startsWith("university_"));
       const isFocusingOnWork = next.education.isFocusingOnWork;
 
       if (hasSecondaryEdu && !hasUniDegree && !isFocusingOnWork) {
-        const snbtAvailable = (next.age - (next.education.graduationYear ? next.age - (Number(next.profile.birthDate.year) + 18) : 0)) <= 2;
+        const hasJob = !!next.career?.jobId;
+        const nudgeOptions = [
+          { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue" },
+          { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
+          { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
+          { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" }
+        ];
+
+        if (hasJob) {
+          nudgeOptions.push({ id: "job", label: "Tetap Fokus Berkarir", color: "gray" });
+        } else {
+          nudgeOptions.push({ id: "job", label: "Tetap Cari Kerja", color: "gray" });
+        }
+
         pushNotification(next, {
-          title: "Rencana Setelah Lulus SMA?",
-          message: `Kamu sudah ${next.age} tahun dan belum melanjutkan pendidikan. Masih mau mencoba masuk universitas?`,
+          title: "Rencana Kuliah?",
+          message: `Kamu sudah ${next.age} tahun. Masih mau mencoba masuk universitas atau tetap fokus dengan jalanmu saat ini?`,
           icon: "question",
           type: "confirm",
           eventId: "graduation_path_selection",
-          options: [
-            { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue" },
-            { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
-            { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
-            { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" },
-            { id: "job", label: "Tidak, Fokus Kerja Saja", color: "gray" }
-          ]
+          options: nudgeOptions
         });
       }
     }
@@ -1010,341 +994,485 @@ export function ageUpYear(state, rng = Math.random) {
         ]
       });
     }
-  }
 
-// --- 5. ASSET PURCHASES BY PARENTS ---
-if (!next.profile.isIndependent && !next.legal.inJail && next.life.isAlive && isAnyParentAlive) {
-  if (!next.family.assets) next.family.assets = { motor: false, car: false };
-  const { assets: famAssets, savings } = next.family;
-  const rngVal = rng();
-  if (next.family.wealthStatus === "poor") {
-    if (!famAssets.motor && savings > 12_000_000 && rngVal < 0.10 && next.age > 4) {
-      otherEvents = true;
-      next.family.savings -= 8_000_000;
-      next.family.assets.motor = true;
-      const msg = `Orang tua ku membeli motor bekas agar bisa menghemat ongkos harian (Rp8.000.000).`;
-      pushLog(next, msg);
-      pushNotification(next, { title: "Kabar Baik", message: msg, icon: "success" });
-    }
-  } else {
-    if (!famAssets.motor && !famAssets.car && savings > 40_000_000 && rngVal < 0.15 && next.age > 4) {
-      otherEvents = true;
-      const cost = next.family.wealthStatus === "rich" ? 65_000_000 : 25_000_000;
-      next.family.savings -= cost;
-      next.family.assets.motor = true;
-      const msg = `Orang tua ku baru saja membeli motor baru untuk transportasi keluarga (Rp${cost.toLocaleString("id-ID")}).`;
-      pushLog(next, msg);
-      pushNotification(next, { title: "Kabar Baik", message: msg, icon: "success" });
-    }
-    const carThreshold = next.family.wealthStatus === "rich" ? 800_000_000 : 250_000_000;
-    if (!famAssets.car && savings > carThreshold && rngVal < 0.10 && next.age > 6) {
-      otherEvents = true;
-      const cost = next.family.wealthStatus === "rich" ? 750_000_000 : 280_000_000;
-      next.family.savings -= cost;
-      next.family.assets.car = true;
-      const dreamMsg = isFatherAlive ? "Impian Ayah akhirnya tercapai." : "Alhamdulillah, akhirnya kita punya mobil.";
-      const msg = `Keluargaku baru saja membeli mobil baru! ${dreamMsg} (Rp${cost.toLocaleString("id-ID")}).`;
-      pushLog(next, msg);
-      pushNotification(next, { title: "Kabar Baik", message: msg, icon: "success" });
-    }
-  }
-}
+    // 4b. Yearly Progression (Growth) — RUN AFTER MILESTONES
+    if (next.education.level !== "none") {
+      const isUni = next.education.level.startsWith("university_") || next.education.level === "university";
+      const isPaket = next.education.level?.startsWith("paket_");
+      const edu = educationCatalog.find(e => e.id === next.education.level) ||
+        (isUni ? { id: next.education.level, smartsPerYear: 5, yearsToComplete: 4, name: "Universitas" } : null);
 
+      if (edu) {
+        const isBasicSchool = ["elementary", "junior_high"].includes(next.education.level);
+        const maxYears = edu.yearsToComplete || 3; // Use catalog value
 
-// --- 9. RELATIONS & FRIENDS (Death & Inheritance) ---
-next.relations = next.relations.map(rel => {
-  if (rel.isDead) return rel;
-  // rel.age is already incremented at the top of ageUpYear in section 1.1
-
-  // Death probability check
-  const deathProb = rel.age < 18 ? 0.001 : rel.age < 45 ? 0.005 : rel.age < 65 ? 0.01 : rel.age < 75 ? 0.02 : rel.age < 85 ? 0.04 : rel.age < 90 ? 0.10 : 0.20;
-
-  if (rng() < deathProb) {
-    otherEvents = true;
-    rel.isDead = true;
-
-    // Stats penalty for death
-    next.stats.happy = clamp(next.stats.happy - 50);
-
-    let inheritanceMsg;
-    const canInherit = ["father", "mother"].includes(rel.id) || ["spouse", "husband", "wife"].includes(rel.status);
-
-    const firstName = rel.name ? rel.name.split(" ")[0] : "Keluarga";
-    if (canInherit && rel.relationship > 30) {
-      const mult = next.family.wealthStatus === "rich" ? 10 : next.family.wealthStatus === "poor" ? 0.2 : 1;
-      const amount = Math.floor((rng() * 90_000_000 + 10_000_000) * mult);
-      next.money += amount;
-      next.stats.happy = clamp(next.stats.happy + 10);
-      inheritanceMsg = `${rel.label}mu, ${firstName} sudah meninggal! Kamu diwariskan Rp${amount.toLocaleString("id-ID")}.`;
-    }
-    else {
-      inheritanceMsg = `${rel.label}mu, ${firstName} sudah meninggal!`
-    }
-    pushLog(next, inheritanceMsg);
-
-    // Reset KB if spouse dies
-    if (rel.status === "spouse" || ["husband", "wife"].includes(rel.status)) {
-      if (next.family) next.family.isKB = false;
-    }
-
-    // --- NEW: Income Reduction Logic ---
-    if (rel.id === "father") {
-      const oldIncome = next.family.monthlyIncome;
-      next.family.monthlyIncome = Math.floor(next.family.monthlyIncome * 0.4); // Loss of 60%
-      pushLog(next, `Ekonomi keluarga menurun drastis karena Bapak sudah tidak bekerja. (Pendapatan: Rp${next.family.monthlyIncome.toLocaleString("id-ID")}/bln)`);
-    } else if (rel.id === "mother") {
-      const oldIncome = next.family.monthlyIncome;
-      next.family.monthlyIncome = Math.floor(next.family.monthlyIncome * 0.6); // Loss of 40%
-      pushLog(next, `Ekonomi keluarga menurun karena Ibu sudah tidak bekerja. (Pendapatan: Rp${next.family.monthlyIncome.toLocaleString("id-ID")}/bln)`);
-    }
-
-
-    next.currentEvent = {
-      id: "funeral_decision",
-      label: "Kematian",
-      summary: inheritanceMsg,
-      isInteractive: true,
-      options: [
-        {
-          id: "attend",
-          label: "Hadiri Pemakaman",
-          color: "blue"
-        },
-        {
-          id: "ignore",
-          label: "Abaikan Pemakaman"
+        if (isBasicSchool) {
+          next.education.classGroup = ["A", "B", "C", "D", "E", "F", "G", "H"][Math.floor(rng() * 8)];
+        } else {
+          next.education.classGroup = "";
         }
-      ],
-      payload: { relationId: rel.id, relationName: rel.name }
-    };
+
+        if (next.education.yearsStudied < maxYears) {
+          next.education.yearsStudied += 1;
+          next.stats.smarts = clamp(next.stats.smarts + (edu.smartsPerYear || 3));
+
+          if (isUni) {
+            pushLog(next, `Saya sedang menjalani tahun ke-${next.education.yearsStudied} kuliah (S1) di ${next.education.schoolName}.`);
+          } else if (isPaket) {
+            pushLog(next, `Saya sedang menjalani program ${edu.name} tahun ke-${next.education.yearsStudied}.`);
+          } else {
+            let classNum = next.education.yearsStudied;
+            if (next.education.level === "junior_high") classNum += 6;
+            if (next.education.level === "sma" || next.education.level === "smk") classNum += 9;
+            pushLog(next, `Saya sekarang naik ke Kelas ${classNum} di ${next.education.schoolName}.`);
+          }
+        }
+
+        // Graduation for University or Kejar Paket
+        if ((isUni || isPaket) && next.education.yearsStudied >= maxYears) {
+          const eduName = edu.name;
+          next.education.completed.push(next.education.level);
+          next.education.graduationYear = Number(next.profile.birthDate.year) + next.age;
+
+          if (isUni) {
+            const hasJob = !!next.career?.jobId;
+            const gradOptions = [];
+            if (hasJob) {
+              gradOptions.push({ id: "independent", label: "Fokus Karir & Hidup Mandiri", color: "blue" });
+            } else {
+              gradOptions.push({ id: "independent", label: "Hidup Mandiri & Cari Kerja", color: "blue" });
+            }
+
+            if (isAnyParentAlive) {
+              gradOptions.push({ id: "with_parents", label: "Tetap di Rumah Orang Tua Dulu", color: "green" });
+            } else {
+              gradOptions.push({ id: "with_parents", label: "Tetap Tinggal di Rumah Keluarga", color: "green" });
+            }
+
+            const gradMsg = `Selamat! Kamu berhasil menyelesaikan S1 di ${next.education.schoolName || "Universitas"}! Ini adalah pencapaian luar biasa. Apa rencanamu selanjutnya?`;
+            pushLog(next, gradMsg);
+            pushNotification(next, {
+              title: "🎓 Lulus S1!",
+              message: gradMsg,
+              icon: "success",
+              type: "confirm",
+              eventId: "graduation_university",
+              options: gradOptions
+            });
+            next.profile.isIndependent = true;
+          } else {
+            const setaraName = next.education.level === "paket_a" ? "SD" : (next.education.level === "paket_b" ? "SMP" : "SMA");
+            const gradMsg = `Selamat! Kamu berhasil menyelesaikan ${eduName}! Sekarang kamu memiliki ijazah setara ${setaraName}.`;
+            pushLog(next, gradMsg);
+
+            if (next.education.level === "paket_a") {
+              const options = [
+                { id: "paket_b", label: "Lanjut Kejar Paket B (Setara SMP)", color: "cyan" },
+                { id: "job", label: "Mulai Cari Kerja", color: "gray" }
+              ];
+              if (next.age <= 15) {
+                options.unshift({ id: "smp", label: "Daftar SMP Reguler", color: "blue" });
+              }
+              pushNotification(next, {
+                title: "🎓 Lulus Paket A",
+                message: `${gradMsg} Apa langkahmu selanjutnya?`,
+                icon: "success",
+                type: "confirm",
+                eventId: "graduation_paket_a_selection",
+                options: options
+              });
+            } else if (next.education.level === "paket_b") {
+              const options = [
+                { id: "paket_c", label: "Lanjut Kejar Paket C (Setara SMA)", color: "cyan" },
+                { id: "job", label: "Mulai Cari Kerja", color: "gray" }
+              ];
+              // If still young enough for regular SMA
+              if (next.age <= 18) {
+                options.unshift({ id: "sma", label: "Daftar SMA Reguler", color: "blue" });
+                options.unshift({ id: "smk", label: "Daftar SMK Reguler", color: "orange" });
+              }
+
+              pushNotification(next, {
+                title: "🎓 Lulus Paket B",
+                message: `${gradMsg} Apa langkahmu selanjutnya?`,
+                icon: "success",
+                type: "confirm",
+                eventId: "graduation_paket_b_selection",
+                options: options
+              });
+            } else {
+              // Paket C graduation
+              let waitMsg = "";
+              if (next.age < 18) {
+                waitMsg = " Namun, kamu harus menunggu hingga usia 18 tahun untuk dapat mendaftar kuliah.";
+              } else {
+                waitMsg = " Sekarang kamu sudah bisa mendaftar kuliah melalui jalur SNBT atau Mandiri!";
+              }
+
+              pushNotification(next, {
+                title: "🎓 Lulus Paket C",
+                message: `${gradMsg}${waitMsg}`,
+                icon: "success"
+              });
+            }
+          }
+
+          next.education.level = "none";
+          next.education.yearsStudied = 0;
+          next.education.schoolName = "";
+        }
+
+        // Drop-out check
+        if (isUni || isPaket) {
+          if (!next.profile.isIndependent && isAnyParentAlive) {
+            if (yearlyFee > 0 && next.family.savings < -(yearlyFee * 2)) {
+              const updated = dropOutAction(next, "financial");
+              Object.assign(next, updated);
+            }
+          } else if (next.profile.isIndependent) {
+            if (yearlyFee > 0 && next.money < -(yearlyFee * 2)) {
+              const updated = dropOutAction(next, "financial");
+              Object.assign(next, updated);
+            }
+          }
+        }
+      }
+    }
   }
-  return rel;
-});
 
-// --- 9.1 ORPHAN CHECK (Automatic vs Relative Support) ---
-const isFatherDead = next.relations.find(r => r.id === "father")?.isDead === true;
-const isMotherDead = next.relations.find(r => r.id === "mother")?.isDead === true;
-
-if (isFatherDead && isMotherDead && !next.profile.isIndependent) {
-  if (next.age >= 18) {
-    // Adult: Automatic Independence
-    next.profile.isIndependent = true;
-    next.profile.livingWithParents = false;
-    const orphanMsg = "Sangat menyedihkan, kini kedua orang tuamu telah tiada. Kamu harus hidup mandiri dan berjuang sendiri demi masa depanmu.";
-    pushLog(next, orphanMsg);
-    pushNotification(next, {
-      title: "Duka Mendalam",
-      message: "Kedua orang tuamu telah meninggal. Kamu kini resmi hidup mandiri.",
-      icon: "info"
-    });
-  } else {
-    // Underage: Trigger Adoption/Relative Choice
-    otherEvents = true; // Block other random events
-    pushNotification(next, {
-      title: "Tragedi Keluarga",
-      message: "Kedua orang tuamu telah tiada. Sebagai anak di bawah umur, apa yang akan kamu lakukan?",
-      icon: "error",
-      type: "confirm",
-      eventId: "orphan_crisis",
-      options: [
-        { id: "relative", label: "Ikut Keluarga Besar (Paman/Bibi)" },
-        { id: "street", label: "Hidup di Jalanan (Mandiri)" }
-      ]
-    });
-  }
-}
-
-// --- 9. NEW RELATIONSHIPS (School, Campus, & Workplace) ---
-const isInSchool = next.education.level && next.education.level !== "none";
-const hasJob = !!next.career.jobId;
-const friendChance = isInSchool ? 0.30 : (hasJob ? 0.25 : 0.10);
-
-if (next.age >= 6 && rng() < friendChance) {
-  // Smart Gender Balancing: If player has too many of one gender, increase chance for the other
-  const maleCount = next.relations.filter(r => r.gender === "male" && !r.isDead && r.status === "friend").length;
-  const femaleCount = next.relations.filter(r => r.gender === "female" && !r.isDead && r.status === "friend").length;
-
-  let genderChance = 0.5;
-  if (maleCount > femaleCount + 2) genderChance = 0.8; // More likely to get female
-  else if (femaleCount > maleCount + 2) genderChance = 0.2; // More likely to get male
-
-  const gender = rng() < genderChance ? "female" : "male";
-  const newName = generateRandomName(gender);
-
-  let friendLabel = "Teman";
-  if (isInSchool) {
-    const isUni = next.education.level.startsWith("university_") || next.education.level.startsWith("college_");
-    friendLabel = isUni ? "Teman Kampus" : "Teman Sekolah";
-  } else if (hasJob) {
-    friendLabel = "Rekan Kantor";
+  // --- 5. ASSET PURCHASES BY PARENTS ---
+  if (!next.profile.isIndependent && !next.legal.inJail && next.life.isAlive && isAnyParentAlive) {
+    if (!next.family.assets) next.family.assets = { motor: false, car: false };
+    const { assets: famAssets, savings } = next.family;
+    const rngVal = rng();
+    if (next.family.wealthStatus === "poor") {
+      if (!famAssets.motor && savings > 12_000_000 && rngVal < 0.10 && next.age > 4) {
+        otherEvents = true;
+        next.family.savings -= 8_000_000;
+        next.family.assets.motor = true;
+        const msg = `Orang tua ku membeli motor bekas agar bisa menghemat ongkos harian (Rp8.000.000).`;
+        pushLog(next, msg);
+        pushNotification(next, { title: "Kabar Baik", message: msg, icon: "success" });
+      }
+    } else {
+      if (!famAssets.motor && !famAssets.car && savings > 40_000_000 && rngVal < 0.15 && next.age > 4) {
+        otherEvents = true;
+        const cost = next.family.wealthStatus === "rich" ? 65_000_000 : 25_000_000;
+        next.family.savings -= cost;
+        next.family.assets.motor = true;
+        const msg = `Orang tua ku baru saja membeli motor baru untuk transportasi keluarga (Rp${cost.toLocaleString("id-ID")}).`;
+        pushLog(next, msg);
+        pushNotification(next, { title: "Kabar Baik", message: msg, icon: "success" });
+      }
+      const carThreshold = next.family.wealthStatus === "rich" ? 800_000_000 : 250_000_000;
+      if (!famAssets.car && savings > carThreshold && rngVal < 0.10 && next.age > 6) {
+        otherEvents = true;
+        const cost = next.family.wealthStatus === "rich" ? 750_000_000 : 280_000_000;
+        next.family.savings -= cost;
+        next.family.assets.car = true;
+        const dreamMsg = isFatherAlive ? "Impian Ayah akhirnya tercapai." : "Alhamdulillah, akhirnya kita punya mobil.";
+        const msg = `Keluargaku baru saja membeli mobil baru! ${dreamMsg} (Rp${cost.toLocaleString("id-ID")}).`;
+        pushLog(next, msg);
+        pushNotification(next, { title: "Kabar Baik", message: msg, icon: "success" });
+      }
+    }
   }
 
-  next.relations.push({
-    id: `friend_${next.age}_${Date.now()}`,
-    label: friendLabel,
-    name: newName,
-    age: next.age + (Math.floor(rng() * 5) - 2), // Friends around same age
-    relationship: 45,
-    support: 45,
-    gender,
-    status: "friend",
-    lastInteractionAge: -1
+
+  // --- 9. RELATIONS & FRIENDS (Death & Inheritance) ---
+  next.relations = next.relations.map(rel => {
+    if (rel.isDead) return rel;
+    // rel.age is already incremented at the top of ageUpYear in section 1.1
+
+    // Death probability check
+    const deathProb = rel.age < 18 ? 0.001 : rel.age < 45 ? 0.005 : rel.age < 65 ? 0.01 : rel.age < 75 ? 0.02 : rel.age < 85 ? 0.04 : rel.age < 90 ? 0.10 : 0.20;
+
+    if (rng() < deathProb) {
+      otherEvents = true;
+      rel.isDead = true;
+
+      // Stats penalty for death
+      next.stats.happy = clamp(next.stats.happy - 50);
+
+      let inheritanceMsg;
+      const canInherit = ["father", "mother"].includes(rel.id) || ["spouse", "husband", "wife"].includes(rel.status);
+
+      const firstName = rel.name ? rel.name.split(" ")[0] : "Keluarga";
+      if (canInherit && rel.relationship > 30) {
+        const mult = next.family.wealthStatus === "rich" ? 10 : next.family.wealthStatus === "poor" ? 0.2 : 1;
+        const amount = Math.floor((rng() * 90_000_000 + 10_000_000) * mult);
+        next.money += amount;
+        next.stats.happy = clamp(next.stats.happy + 10);
+        inheritanceMsg = `${rel.label}mu, ${firstName} sudah meninggal! Kamu diwariskan Rp${amount.toLocaleString("id-ID")}.`;
+      }
+      else {
+        inheritanceMsg = `${rel.label}mu, ${firstName} sudah meninggal!`
+      }
+      pushLog(next, inheritanceMsg);
+
+      // Reset KB if spouse dies
+      if (rel.status === "spouse" || ["husband", "wife"].includes(rel.status)) {
+        if (next.family) next.family.isKB = false;
+      }
+
+      // --- NEW: Income Reduction Logic ---
+      if (rel.id === "father") {
+        const oldIncome = next.family.monthlyIncome;
+        next.family.monthlyIncome = Math.floor(next.family.monthlyIncome * 0.4); // Loss of 60%
+        pushLog(next, `Ekonomi keluarga menurun drastis karena Bapak sudah tidak bekerja. (Pendapatan: Rp${next.family.monthlyIncome.toLocaleString("id-ID")}/bln)`);
+      } else if (rel.id === "mother") {
+        const oldIncome = next.family.monthlyIncome;
+        next.family.monthlyIncome = Math.floor(next.family.monthlyIncome * 0.6); // Loss of 40%
+        pushLog(next, `Ekonomi keluarga menurun karena Ibu sudah tidak bekerja. (Pendapatan: Rp${next.family.monthlyIncome.toLocaleString("id-ID")}/bln)`);
+      }
+
+
+      next.currentEvent = {
+        id: "funeral_decision",
+        label: "Kematian",
+        summary: inheritanceMsg,
+        isInteractive: true,
+        options: [
+          {
+            id: "attend",
+            label: "Hadiri Pemakaman",
+            color: "blue"
+          },
+          {
+            id: "ignore",
+            label: "Abaikan Pemakaman"
+          }
+        ],
+        payload: { relationId: rel.id, relationName: rel.name }
+      };
+    }
+    return rel;
   });
 
-  pushLog(next, `Kamu berkenalan dengan ${friendLabel} baru bernama ${newName}.`);
-}
+  // --- 9.1 ORPHAN CHECK (Automatic vs Relative Support) ---
+  const isFatherDead = next.relations.find(r => r.id === "father")?.isDead === true;
+  const isMotherDead = next.relations.find(r => r.id === "mother")?.isDead === true;
 
-// --- 10. FEATURE UNLOCKS (ABSOLUTE BOTTOM) ---
-if (next.age === 6) pushLog(next, "FITUR TERBUKA: Kamu sekarang sudah cukup umur untuk berteman. Menu [Hubungan] kini tersedia!");
-if (next.age === 10) pushLog(next, "FITUR TERBUKA: Kamu mulai menginginkan barang-barang pribadi. Menu [Aset] kini tersedia!");
-if (next.age === 12) pushLog(next, "FITUR TERBUKA: Kehidupan sosial dimulai. Kamu sekarang bisa ikut Ekstrakurikuler di menu Aktivitas!");
-if (next.age === 15) pushLog(next, "FITUR TERBUKA: Kamu sudah cukup besar untuk mencari uang saku sendiri. Menu [Karir] kini tersedia!");
+  if (isFatherDead && isMotherDead && !next.profile.isIndependent) {
+    if (next.age >= 18) {
+      // Adult: Automatic Independence
+      next.profile.isIndependent = true;
+      next.profile.livingWithParents = false;
+      const orphanMsg = "Sangat menyedihkan, kini kedua orang tuamu telah tiada. Kamu harus hidup mandiri dan berjuang sendiri demi masa depanmu.";
+      pushLog(next, orphanMsg);
+      pushNotification(next, {
+        title: "Duka Mendalam",
+        message: "Kedua orang tuamu telah meninggal. Kamu kini resmi hidup mandiri.",
+        icon: "info"
+      });
+    } else {
+      // Underage: Trigger Adoption/Relative Choice
+      otherEvents = true; // Block other random events
+      pushNotification(next, {
+        title: "Tragedi Keluarga",
+        message: "Kedua orang tuamu telah tiada. Sebagai anak di bawah umur, apa yang akan kamu lakukan?",
+        icon: "error",
+        type: "confirm",
+        eventId: "orphan_crisis",
+        options: [
+          { id: "relative", label: "Ikut Keluarga Besar (Paman/Bibi)" },
+          { id: "street", label: "Hidup di Jalanan (Mandiri)" }
+        ]
+      });
+    }
+  }
 
-// --- 10b. SCRIPTED DISEASE: CORONAVIRUS (2020-2022) ---
-if (next.life.isAlive && next.healthStatus.condition === "healthy") {
-  const currentYear = Number(next.profile.birthDate.year) + next.age;
-  let covidChance = 0;
-  if (currentYear === 2020) covidChance = 0.05;
-  else if (currentYear === 2021) covidChance = 0.15;
-  else if (currentYear === 2022) covidChance = 0.10;
+  // --- 9. NEW RELATIONSHIPS (School, Campus, & Workplace) ---
+  const isInSchool = next.education.level && next.education.level !== "none";
+  const hasJob = !!next.career.jobId;
+  const friendChance = isInSchool ? 0.30 : (hasJob ? 0.25 : 0.10);
 
-  if (rng() < covidChance) {
-    otherEvents = true;
-    next.healthStatus.condition = "ill";
-    next.healthStatus.illnessId = "coronavirus";
-    next.healthStatus.severity = "severe";
-    next.healthStatus.untreatedYears = 0;
-    pushNotification(next, {
-      title: "Penyakit",
-      message: "Kamu terkena Coronavirus.",
-      icon: "warning"
+  if (next.age >= 6 && rng() < friendChance) {
+    // Smart Gender Balancing: If player has too many of one gender, increase chance for the other
+    const maleCount = next.relations.filter(r => r.gender === "male" && !r.isDead && r.status === "friend").length;
+    const femaleCount = next.relations.filter(r => r.gender === "female" && !r.isDead && r.status === "friend").length;
+
+    let genderChance = 0.5;
+    if (maleCount > femaleCount + 2) genderChance = 0.8; // More likely to get female
+    else if (femaleCount > maleCount + 2) genderChance = 0.2; // More likely to get male
+
+    const gender = rng() < genderChance ? "female" : "male";
+    const newName = generateRandomName(gender);
+
+    let friendLabel = "Teman";
+    if (isInSchool) {
+      const isUni = next.education.level.startsWith("university_") || next.education.level.startsWith("college_");
+      friendLabel = isUni ? "Teman Kampus" : "Teman Sekolah";
+    } else if (hasJob) {
+      friendLabel = "Rekan Kantor";
+    }
+
+    next.relations.push({
+      id: `friend_${next.age}_${Date.now()}`,
+      label: friendLabel,
+      name: newName,
+      age: next.age + (Math.floor(rng() * 5) - 2), // Friends around same age
+      relationship: 45,
+      support: 45,
+      gender,
+      status: "friend",
+      lastInteractionAge: -1
     });
-    pushLog(next, "Saya didiagnosis menderita Coronavirus.");
-  }
-}
 
-if (!otherEvents && next.life.isAlive) {
-  triggerRandomEvent(next, rng);
-  if (next.currentEvent && !next.currentEvent.payload) {
-    next.currentEvent.payload = {};
+    pushLog(next, `Kamu berkenalan dengan ${friendLabel} baru bernama ${newName}.`);
   }
-}
 
-// --- 11. FAMILY EVENTS (Independent of otherEvents) ---
-if (!next.profile.isIndependent && next.life.isAlive && isAnyParentAlive) {
-  // A. Masalah Rumah Tangga (Household Crisis)
-  if (next.age >= 5 && next.age <= 25) {
-    if (rng() < 0.08) {
-      const repairs = [];
-      if (isFatherAlive) {
-        repairs.push({ msg: "Atap rumah kami bocor dan Ayah harus memanggil tukang untuk memperbaikinya.", cost: 2_500_000 });
-        repairs.push({ msg: "Motor Bapak tiba-tiba mogok dan butuh servis besar agar bisa dipakai kerja lagi.", cost: 1_500_000 });
-        repairs.push({ msg: "Pompa air di rumah mati, Bapak harus menggantinya dengan yang baru.", cost: 1_200_000 });
+  // --- 10. FEATURE UNLOCKS (ABSOLUTE BOTTOM) ---
+  if (next.age === 6) pushLog(next, "FITUR TERBUKA: Kamu sekarang sudah cukup umur untuk berteman. Menu [Hubungan] kini tersedia!");
+  if (next.age === 10) pushLog(next, "FITUR TERBUKA: Kamu mulai menginginkan barang-barang pribadi. Menu [Aset] kini tersedia!");
+  if (next.age === 12) pushLog(next, "FITUR TERBUKA: Kehidupan sosial dimulai. Kamu sekarang bisa ikut Ekstrakurikuler di menu Aktivitas!");
+  if (next.age === 15) pushLog(next, "FITUR TERBUKA: Kamu sudah cukup besar untuk mencari uang saku sendiri. Menu [Karir] kini tersedia!");
+
+  // --- 10b. SCRIPTED DISEASE: CORONAVIRUS (2020-2022) ---
+  if (next.life.isAlive && next.healthStatus.condition === "healthy") {
+    const currentYear = Number(next.profile.birthDate.year) + next.age;
+    let covidChance = 0;
+    if (currentYear === 2020) covidChance = 0.05;
+    else if (currentYear === 2021) covidChance = 0.15;
+    else if (currentYear === 2022) covidChance = 0.10;
+
+    if (rng() < covidChance) {
+      otherEvents = true;
+      next.healthStatus.condition = "ill";
+      next.healthStatus.illnessId = "coronavirus";
+      next.healthStatus.severity = "severe";
+      next.healthStatus.untreatedYears = 0;
+      pushNotification(next, {
+        title: "Penyakit",
+        message: "Kamu terkena Coronavirus.",
+        icon: "warning"
+      });
+      pushLog(next, "Saya didiagnosis menderita Coronavirus.");
+    }
+  }
+
+  if (!otherEvents && next.life.isAlive) {
+    triggerRandomEvent(next, rng);
+    if (next.currentEvent && !next.currentEvent.payload) {
+      next.currentEvent.payload = {};
+    }
+  }
+
+  // --- 11. FAMILY EVENTS (Independent of otherEvents) ---
+  if (!next.profile.isIndependent && next.life.isAlive && isAnyParentAlive) {
+    // A. Masalah Rumah Tangga (Household Crisis)
+    if (next.age >= 5 && next.age <= 25) {
+      if (rng() < 0.08) {
+        const repairs = [];
+        if (isFatherAlive) {
+          repairs.push({ msg: "Atap rumah kami bocor dan Ayah harus memanggil tukang untuk memperbaikinya.", cost: 2_500_000 });
+          repairs.push({ msg: "Motor Bapak tiba-tiba mogok dan butuh servis besar agar bisa dipakai kerja lagi.", cost: 1_500_000 });
+          repairs.push({ msg: "Pompa air di rumah mati, Bapak harus menggantinya dengan yang baru.", cost: 1_200_000 });
+        }
+        if (isMotherAlive) {
+          repairs.push({ msg: "Pipa air di rumah kami pecah, Ibu sibuk membersihkan air yang menggenang.", cost: 800_000 });
+          repairs.push({ msg: "Kulkas keluarga rusak, Ibu langsung membelinya yang baru agar makanan tidak basi.", cost: 2_000_000 });
+        }
+        // Possible double crisis (must be different events)
+        const count = rng() < 0.2 ? 2 : 1;
+        const availableRepairs = [...repairs];
+        for (let i = 0; i < count; i++) {
+          if (availableRepairs.length === 0) break;
+          const idx = Math.floor(rng() * availableRepairs.length);
+          const picked = availableRepairs.splice(idx, 1)[0];
+          next.family.savings -= picked.cost;
+          pushLog(next, picked.msg);
+          pushNotification(next, {
+            title: "Masalah Rumah Tangga",
+            message: `${picked.msg} (Tabungan berkurang Rp${picked.cost.toLocaleString("id-ID")})`,
+            icon: "warning"
+          });
+        }
       }
-      if (isMotherAlive) {
-        repairs.push({ msg: "Pipa air di rumah kami pecah, Ibu sibuk membersihkan air yang menggenang.", cost: 800_000 });
-        repairs.push({ msg: "Kulkas keluarga rusak, Ibu langsung membelinya yang baru agar makanan tidak basi.", cost: 2_000_000 });
-      }
-      // Possible double crisis (must be different events)
-      const count = rng() < 0.2 ? 2 : 1;
-      const availableRepairs = [...repairs];
-      for (let i = 0; i < count; i++) {
-        if (availableRepairs.length === 0) break;
-        const idx = Math.floor(rng() * availableRepairs.length);
-        const picked = availableRepairs.splice(idx, 1)[0];
-        next.family.savings -= picked.cost;
-        pushLog(next, picked.msg);
+    }
+
+    // B. Orang Tua Sakit (Parent Sick)
+    const sicknessChance = next.family.wealthStatus === "poor" ? 0.08 : 0.04;
+    ["Bapak", "Ibu"].forEach(person => {
+      const isAlive = person === "Bapak" ? isFatherAlive : isMotherAlive;
+      if (isAlive && rng() < sicknessChance) {
+        let cost = 5_000_000;
+        if (next.family.wealthStatus === "rich") cost = 35_000_000;
+        if (next.family.wealthStatus === "poor") cost = 500_000;
+
+        next.family.savings -= cost;
+        next.stats.happy = clamp(next.stats.happy - 10);
+        const sickMsg = `${person} ku jatuh sakit dan harus dirawat di rumah sakit. Biaya berobat sebesar Rp${cost.toLocaleString("id-ID")} ditanggung keluarga.`;
+        pushLog(next, sickMsg);
         pushNotification(next, {
-          title: "Masalah Rumah Tangga",
-          message: `${picked.msg} (Tabungan berkurang Rp${picked.cost.toLocaleString("id-ID")})`,
+          title: `${person} Sakit`,
+          message: sickMsg,
           icon: "warning"
         });
       }
-    }
-  }
+    });
 
-  // B. Orang Tua Sakit (Parent Sick)
-  const sicknessChance = next.family.wealthStatus === "poor" ? 0.08 : 0.04;
-  ["Bapak", "Ibu"].forEach(person => {
-    const isAlive = person === "Bapak" ? isFatherAlive : isMotherAlive;
-    if (isAlive && rng() < sicknessChance) {
-      let cost = 5_000_000;
-      if (next.family.wealthStatus === "rich") cost = 35_000_000;
-      if (next.family.wealthStatus === "poor") cost = 500_000;
+    // C. Krisis Ekonomi (PHK) & Pemulihan Karier (Exclusive per year)
+    let careerTriggered = false;
+    // PHK
+    if (!next.family.isBankrupt && next.family.wealthStatus !== "poor") {
+      if (rng() < 0.03) {
+        const availableParents = [];
+        if (isFatherAlive) availableParents.push("Ayah");
+        if (isMotherAlive) availableParents.push("Ibu");
 
-      next.family.savings -= cost;
-      next.stats.happy = clamp(next.stats.happy - 10);
-      const sickMsg = `${person} ku jatuh sakit dan harus dirawat di rumah sakit. Biaya berobat sebesar Rp${cost.toLocaleString("id-ID")} ditanggung keluarga.`;
-      pushLog(next, sickMsg);
-      pushNotification(next, {
-        title: `${person} Sakit`,
-        message: sickMsg,
-        icon: "warning"
-      });
-    }
-  });
-
-  // C. Krisis Ekonomi (PHK) & Pemulihan Karier (Exclusive per year)
-  let careerTriggered = false;
-  // PHK
-  if (!next.family.isBankrupt && next.family.wealthStatus !== "poor") {
-    if (rng() < 0.03) {
-      const availableParents = [];
-      if (isFatherAlive) availableParents.push("Ayah");
-      if (isMotherAlive) availableParents.push("Ibu");
-
-      if (availableParents.length > 0) {
-        careerTriggered = true;
-        next.family.isBankrupt = true;
-        next.family.monthlyIncome = 1_500_000;
-        next.stats.happy = clamp(next.stats.happy - 25);
-        const person = availableParents[Math.floor(rng() * availableParents.length)];
-        const phkMsg = `${person} mu terkena PHK mendadak akibat perusahaannya bangkrut. Ekonomi keluargamu kini dalam krisis besar.`;
-        pushLog(next, phkMsg);
-        pushNotification(next, {
-          title: "PHK Mendadak!",
-          message: phkMsg,
-          icon: "error"
-        });
-      }
-    }
-  }
-  // Recovery (Only if PHK didn't happen this year)
-  if (!careerTriggered && next.family.isBankrupt) {
-    if (rng() < 0.15) {
-      const availableParents = [];
-      if (isFatherAlive) availableParents.push("Ayah");
-      if (isMotherAlive) availableParents.push("Ibu");
-
-      if (availableParents.length > 0) {
-        next.family.isBankrupt = false;
-        const isSerabutan = rng() > 0.4;
-        const person = availableParents[Math.floor(rng() * availableParents.length)];
-        let recoveryMsg = "";
-        if (isSerabutan) {
-          next.family.monthlyIncome = 3_500_000;
-          next.stats.happy = clamp(next.stats.happy + 10);
-          recoveryMsg = `${person} mu akhirnya mendapat pekerjaan baru, meski gajinya lebih kecil dari sebelumnya. Paling tidak keluarga kita bisa bernapas lega.`;
-        } else {
-          next.family.monthlyIncome = 8_000_000 + Math.floor(rng() * 5_000_000);
-          next.stats.happy = clamp(next.stats.happy + 20);
-          recoveryMsg = `Kabar gembira! ${person} mu diterima bekerja di perusahaan besar dengan gaji yang mapan. Masa krisis telah berlalu.`;
+        if (availableParents.length > 0) {
+          careerTriggered = true;
+          next.family.isBankrupt = true;
+          next.family.monthlyIncome = 1_500_000;
+          next.stats.happy = clamp(next.stats.happy - 25);
+          const person = availableParents[Math.floor(rng() * availableParents.length)];
+          const phkMsg = `${person} mu terkena PHK mendadak akibat perusahaannya bangkrut. Ekonomi keluargamu kini dalam krisis besar.`;
+          pushLog(next, phkMsg);
+          pushNotification(next, {
+            title: "PHK Mendadak!",
+            message: phkMsg,
+            icon: "error"
+          });
         }
-        pushLog(next, recoveryMsg);
-        pushNotification(next, {
-          title: "Kabar Baik dari Keluarga",
-          message: recoveryMsg,
-          icon: "success"
-        });
+      }
+    }
+    // Recovery (Only if PHK didn't happen this year)
+    if (!careerTriggered && next.family.isBankrupt) {
+      if (rng() < 0.15) {
+        const availableParents = [];
+        if (isFatherAlive) availableParents.push("Ayah");
+        if (isMotherAlive) availableParents.push("Ibu");
+
+        if (availableParents.length > 0) {
+          next.family.isBankrupt = false;
+          const isSerabutan = rng() > 0.4;
+          const person = availableParents[Math.floor(rng() * availableParents.length)];
+          let recoveryMsg = "";
+          if (isSerabutan) {
+            next.family.monthlyIncome = 3_500_000;
+            next.stats.happy = clamp(next.stats.happy + 10);
+            recoveryMsg = `${person} mu akhirnya mendapat pekerjaan baru, meski gajinya lebih kecil dari sebelumnya. Paling tidak keluarga kita bisa bernapas lega.`;
+          } else {
+            next.family.monthlyIncome = 8_000_000 + Math.floor(rng() * 5_000_000);
+            next.stats.happy = clamp(next.stats.happy + 20);
+            recoveryMsg = `Kabar gembira! ${person} mu diterima bekerja di perusahaan besar dengan gaji yang mapan. Masa krisis telah berlalu.`;
+          }
+          pushLog(next, recoveryMsg);
+          pushNotification(next, {
+            title: "Kabar Baik dari Keluarga",
+            message: recoveryMsg,
+            icon: "success"
+          });
+        }
       }
     }
   }
-}
 
-const hasNewLogs = (next.logs ? next.logs.length : 0) > initialLogCount;
-if (!hasNewLogs && !next.currentEvent && next.life.isAlive) {
-  pushLog(next, `Kamu bertambah umur menjadi ${next.age} tahun.`);
-}
+  const hasNewLogs = (next.logs ? next.logs.length : 0) > initialLogCount;
+  if (!hasNewLogs && !next.currentEvent && next.life.isAlive) {
+    pushLog(next, `Kamu bertambah umur menjadi ${next.age} tahun.`);
+  }
 
-return next;
+  return next;
 }

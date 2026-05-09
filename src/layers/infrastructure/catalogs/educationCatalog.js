@@ -18,6 +18,17 @@ export const educationCatalog = [
     yearsToComplete: 3,
     smartsPerYear: 4,
     jobBoost: 2,
+    requirement: (state) => (state.education.completed.includes("elementary") || state.education.completed.includes("paket_a")) && !state.education.completed.includes("junior_high") && !state.education.completed.includes("paket_b"),
+  },
+  {
+    id: "paket_a",
+    name: "Program Paket A (Setara SD)",
+    minAge: 11,
+    costPerYear: 3_000_000,
+    yearsToComplete: 1,
+    smartsPerYear: 2,
+    jobBoost: 0,
+    requirement: (state) => !state.education.completed.includes("elementary") && !state.education.completed.includes("paket_a"),
   },
   {
     id: "sma",
@@ -28,6 +39,7 @@ export const educationCatalog = [
     yearsToComplete: 3,
     smartsPerYear: 5,
     jobBoost: 8,
+    requirement: (state) => (state.education.completed.includes("junior_high") || state.education.completed.includes("paket_b")) && !state.education.completed.includes("sma") && !state.education.completed.includes("smk"),
   },
   {
     id: "smk",
@@ -38,26 +50,27 @@ export const educationCatalog = [
     yearsToComplete: 3,
     smartsPerYear: 5,
     jobBoost: 8,
+    requirement: (state) => (state.education.completed.includes("junior_high") || state.education.completed.includes("paket_b")) && !state.education.completed.includes("sma") && !state.education.completed.includes("smk"),
   },
   {
     id: "paket_b",
     name: "Program Paket B (Setara SMP)",
-    minAge: 17,
+    minAge: 14,
     costPerYear: 5_000_000,
     yearsToComplete: 1,
     smartsPerYear: 2,
     jobBoost: 2,
-    requirement: (state) => !state.education.completed.includes("junior_high") && state.education.completed.includes("elementary"),
+    requirement: (state) => !state.education.completed.includes("junior_high") && !state.education.completed.includes("paket_b") && state.education.completed.includes("elementary"),
   },
   {
     id: "paket_c",
     name: "Program Paket C (Setara SMA)",
-    minAge: 20,
+    minAge: 17,
     costPerYear: 8_000_000,
     yearsToComplete: 1,
     smartsPerYear: 3,
     jobBoost: 6,
-    requirement: (state) => (!state.education.completed.includes("sma") && !state.education.completed.includes("smk")) && state.education.completed.includes("junior_high"),
+    requirement: (state) => (!state.education.completed.includes("sma") && !state.education.completed.includes("smk") && !state.education.completed.includes("paket_c")) && (state.education.completed.includes("junior_high") || state.education.completed.includes("paket_b")),
   },
   {
     id: "university_ptn_snbp",
@@ -72,8 +85,9 @@ export const educationCatalog = [
       const gradYear = state.education.graduationYear || (currentYear - 1);
       const yearsSinceGrad = currentYear - gradYear;
       const isFreshGrad = yearsSinceGrad === 0;
-      const isSMA_SMK = state.education.completed.includes("sma") || state.education.completed.includes("smk");
-      return isFreshGrad && isSMA_SMK;
+      // SNBP is ONLY for regular SMA/SMK fresh grads
+      const isRegularGrad = state.education.completed.includes("sma") || state.education.completed.includes("smk");
+      return isFreshGrad && isRegularGrad;
     },
   },
   {

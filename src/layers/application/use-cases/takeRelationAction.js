@@ -32,8 +32,8 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
     relation.relationship = clamp(relation.relationship + 5);
     relation.lastInteractionAge = next.age;
     pushLog(next, `Kamu mengobrol santai dengan ${displayName}. Kedekatan meningkat.`);
-  } 
-  
+  }
+
   else if (actionKey === "rant") {
     relation.relationship = clamp(relation.relationship + 8);
     next.stats.happy = clamp(next.stats.happy + 5);
@@ -91,19 +91,19 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
     relation.relationship = clamp(relation.relationship + 15);
     relation.lastInteractionAge = next.age;
     pushLog(next, `Kamu memberikan hadiah spesial kepada ${displayName}. Dia terlihat sangat senang!`);
-  } 
+  }
 
   else if (actionKey === "give_money") {
     const amount = Number(payload?.amount || payload);
     if (isNaN(amount) || amount <= 0) return next;
-    
+
     if (next.money < amount) {
       pushLog(next, "Uangmu tidak cukup untuk memberikan jumlah tersebut.");
       return next;
     }
 
     next.money -= amount;
-    
+
     // Only gain relationship once per year per person
     if (relation.lastMoneyInteractionAge !== next.age) {
       // Improved Calculation
@@ -119,18 +119,24 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
       } else {
         gain = 100;
       }
-      
+
       relation.relationship = clamp(relation.relationship + gain);
       relation.lastMoneyInteractionAge = next.age;
     }
-    
+
     // We do NOT update relation.lastInteractionAge here, so social actions remain open!
     pushLog(next, `Saya memberi uang ke ${displayName} sebesar Rp${amount.toLocaleString("id-ID")}`);
   }
 
   else if (actionKey === "ask_out") {
-    if (next.age < 14) {
+    if (next.age < 12) {
       pushLog(next, "Kamu masih terlalu kecil untuk memikirkan pacaran.");
+      return next;
+    }
+
+    const hasPartnerOrSpouse = next.relations.some(r => r.status === "partner" || r.status === "spouse");
+    if (hasPartnerOrSpouse) {
+      pushLog(next, "Kamu sudah memiliki pasangan. Kamu harus memutuskan hubunganmu terlebih dahulu jika ingin berpaling ke orang lain.");
       return next;
     }
     if (relation.gender === next.profile.gender) {

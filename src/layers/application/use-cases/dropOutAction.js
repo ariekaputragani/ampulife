@@ -21,7 +21,6 @@ export function dropOutAction(state, reason = "voluntary") {
 
   // Clear education status
   next.education.level = "none";
-  next.education.yearsStudied = 0;
   next.education.schoolName = "";
 
   // Revoke scholarships if any

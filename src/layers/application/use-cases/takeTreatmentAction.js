@@ -13,7 +13,18 @@ function downgradeSeverity(severity) {
 
 export function takeTreatmentAction(state, treatmentId) {
   const next = cloneState(state);
-  const treatment = treatmentCatalog.find((item) => item.id === treatmentId);
+  let treatment = treatmentCatalog.find((item) => item.id === treatmentId);
+
+  // Special case for prison clinic (not in catalog)
+  if (!treatment && treatmentId === "prison_clinic") {
+    treatment = {
+      id: "prison_clinic",
+      name: "Klinik Penjara",
+      cost: 0,
+      effect: { health: 10, happy: 0 },
+      canCure: true
+    };
+  }
 
   if (!treatment) {
     return next;

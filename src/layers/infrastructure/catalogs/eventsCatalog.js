@@ -150,20 +150,29 @@ export const eventsCatalog = [
     isInteractive: true,
     apply: (state) => {
       const animals = ["anjing", "babi hutan", "badak", "buaya", "gajah", "harimau", "ular", "tawon", "kalajengking", "kuda nil", "tokek"];
-
-      // Get from existing payload if we're resolving, otherwise pick new
-      let animal = state.currentEvent?.payload?.animal;
-      if (!animal) {
-        animal = animals[Math.floor(Math.random() * animals.length)];
-      }
+      
+      // Pick animal once and store it in payload
+      const animal = animals[Math.floor(Math.random() * animals.length)];
 
       return {
-        summary: `Kamu menemui ${animal}.`,
-        payload: { animal }, // Send payload back to be saved in state
+        summary: `Kamu menemui seekor ${animal}. Apa yang akan kamu lakukan?`,
+        payload: { animal }, 
         options: [
-          { id: "retreat", label: "Mundur Perlahan", resolve: () => `Saya bertemu seekor ${animal}. Saya mundur perlahan.` },
-          { id: "pet", label: "Peliharalah", resolve: () => `Saya bertemu seekor ${animal}. Saya memeliharanya.` },
-          { id: "run", label: "Lari!", resolve: () => `Saya bertemu seekor ${animal}. Saya menghindarinya.` }
+          { 
+            id: "retreat", 
+            label: "Mundur Perlahan", 
+            resolve: (s) => `Saya bertemu seekor ${s.currentEvent.payload.animal}. Saya mundur perlahan.` 
+          },
+          { 
+            id: "pet", 
+            label: "Peliharalah", 
+            resolve: (s) => `Saya bertemu seekor ${s.currentEvent.payload.animal}. Saya mencoba membelainya, namun dia malah menjauh.` 
+          },
+          { 
+            id: "run", 
+            label: "Lari!", 
+            resolve: (s) => `Saya bertemu seekor ${s.currentEvent.payload.animal}. Saya lari sekencang mungkin untuk menghindarinya.` 
+          }
         ],
       };
     },
@@ -466,7 +475,11 @@ export const eventsCatalog = [
     label: "Dinamika Sosial",
     minAge: 12,
     maxAge: 16,
-    weight: (state) => (state.relations.some(r => !r.isDead && r.status === "friend") && !state.legal.inJail ? 0.25 : 0),
+    weight: (state) => {
+      const hasPartner = state.relations.some(r => !r.isDead && (r.status === "partner" || r.status === "spouse"));
+      const hasFriends = state.relations.some(r => !r.isDead && r.status === "friend");
+      return (hasFriends && !hasPartner && !state.legal.inJail) ? 0.25 : 0;
+    },
     isInteractive: true,
     apply: (state) => {
       const friends = state.relations.filter(r => !r.isDead && r.status === "friend");

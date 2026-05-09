@@ -199,6 +199,35 @@ export function takeActivityAction(state, activityId) {
       }
       break;
 
+    // --- PRISON ACTIVITIES ---
+    case "prison_workout":
+      newState.stats.health = Math.min(100, newState.stats.health + 5);
+      newState.stats.looks = Math.min(100, newState.stats.looks + 2);
+      message = "Kamu melakukan latihan fisik intens di dalam sel. Tubuhmu terasa lebih kuat.";
+      break;
+
+    case "prison_good_behavior":
+      newState.stats.smarts = Math.min(100, newState.stats.smarts + 2);
+      if (Math.random() < 0.2 && newState.legal.jailYearsLeft > 1) {
+        newState.legal.jailYearsLeft -= 1;
+        message = "Petugas terkesan dengan kelakuan baikmu. Masa tahananmu dikurangi 1 tahun!";
+      } else {
+        message = "Kamu menunjukkan perilaku yang baik. Petugas mulai mempercayaimu.";
+      }
+      break;
+
+    case "prison_pray":
+      newState.stats.happy = Math.min(100, newState.stats.happy + 10);
+      newState.stats.smarts = Math.min(100, newState.stats.smarts + 3);
+      message = "Kamu menghabiskan waktu dengan berdoa dan merenungi kesalahanmu. Hatimu terasa lebih damai.";
+      break;
+
+    case "prison_fight":
+      newState.stats.health = Math.max(0, newState.stats.health - 15);
+      newState.stats.happy = Math.min(100, newState.stats.happy + 10);
+      message = "Kamu berkelahi dengan napi lain untuk mempertahankan harga dirimu. Kamu menang, tapi babak belur.";
+      break;
+
     default:
       message = "Aktivitas tidak dikenal.";
   }

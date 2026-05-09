@@ -205,7 +205,7 @@ export default function LayeredGameView() {
                   <button
                     className={styles.navButton2}
                     onClick={() => setActiveTab("education")}
-                    disabled={state.age < 6}
+                    disabled={state.age < 6 || state.legal?.inJail}
                   >
                     <i className="fa-solid fa-school"></i> Sekolah
                   </button>
@@ -213,7 +213,7 @@ export default function LayeredGameView() {
                   <button
                     className={styles.navButton2}
                     onClick={() => setActiveTab("jobs")}
-                    disabled={state.age < 15}
+                    disabled={state.age < 15 || state.legal?.inJail}
                   >
                     <i className="fa-solid fa-briefcase"></i> Karir
                   </button>
@@ -221,7 +221,7 @@ export default function LayeredGameView() {
                   <button
                     className={styles.navButton1}
                     onClick={() => setActiveTab("assets")}
-                    disabled={state.age < 10}
+                    disabled={state.age < 10 || state.legal?.inJail}
                   >
                     <i className="fa-solid fa-house-chimney-user"></i> Aset
                   </button>
@@ -490,7 +490,7 @@ function RelationsTab({ state, actions, onBack }) {
     { id: "ask_money", name: "💰 Minta Uang", desc: "Minta uang saku.", effect: "💸 +Uang, 📉 -5%", familyOnly: true },
     { id: "give_money", name: "💸 Memberi Uang", desc: "Beri uang saku.", effect: "📈 +Kedekatan, 💸 -Uang" },
     { id: "gift", name: "🎁 Hadiah", desc: "Memberi kado (Rp1jt).", effect: "📈 +15%" },
-    { id: "ask_out", name: "❤️ Pacaran", desc: "Ajak pacaran.", effect: "Status: Pacar", oppositeOnly: true, minAge: 12, hideIfPartner: true, nonFamilyOnly: true },
+    { id: "ask_out", name: "❤️ Pacaran", desc: "Ajak pacaran.", effect: "Status: Pacar", oppositeOnly: true, hideIfPartner: true, nonFamilyOnly: true },
     { id: "propose", name: "💍 Lamar", desc: "Ajak menikah (Rp50jt).", effect: "Status: Pasangan", partnerOnly: true, nonFamilyOnly: true },
     { id: "toggle_kb", name: "🍼 Program KB", desc: "Tunda/Atur anak.", effect: "Peluang Anak: 0%", spouseOnly: true }
   ];
@@ -714,56 +714,118 @@ function RelationsTab({ state, actions, onBack }) {
 }
 
 function ActivitiesTab({ state, options, actions, onBack }) {
+  const inJail = state.legal?.inJail;
+
+  const prisonActivities = [
+    { id: "prison_workout", name: "Olahraga di Sel", description: "Lakukan push-up dan sit-up untuk menjaga kebugaran di dalam jeruji besi.", effects: "+Kesehatan", icon: "💪" },
+    { id: "prison_good_behavior", name: "Berkelakuan Baik", description: "Membantu petugas dan tidak membuat onar untuk mempercepat masa tahanan.", effects: "+Reputasi Baik", icon: "🙏" },
+    { id: "prison_pray", name: "Berdoa & Renungan", description: "Mendekatkan diri pada Tuhan dan menyesali perbuatan masa lalu.", effects: "+Kebahagiaan & Kecerdasan", icon: "📖" },
+    { id: "prison_fight", name: "Berkelahi dengan Napi", description: "Tunjukkan siapa bosnya di blok ini agar tidak ada yang berani macam-macam.", effects: "-Kesehatan & +Kebahagiaan", icon: "👊" }
+  ];
+
   return (
     <div className={styles.tabPane}>
-      <h3>Aktivitas Umum</h3>
+      <h3>{inJail ? "Aktivitas Penjara" : "Aktivitas Umum"}</h3>
       <div className={styles.optionsList}>
-        {options.activities.map((act) => {
-          const isDone = state.lastActivityAges?.[act.id] === state.age;
-          return (
-            <button
-              key={act.id}
-              onClick={() => actions.takeActivity(act.id)}
-              disabled={isDone || act.disabled || (act.cost && state.money < act.cost)}
-              style={{
-                textAlign: "left",
-                padding: "12px",
-                marginBottom: "8px",
-                display: "block",
-                width: "100%",
-                background: isDone ? "#f1f3f5" : "#fff",
-                color: isDone ? "#adb5bd" : "inherit"
-              }}
-            >
-              <div style={{ fontWeight: "bold", fontSize: "14px" }}>
-                {isDone ? "✅ " : ""}{act.name} {act.cost > 0 ? `(Rp${act.cost.toLocaleString("id-ID")})` : ""}
-              </div>
-              {act.description && (
+        {inJail ? (
+          prisonActivities.map((act) => {
+            const isDone = state.lastActivityAges?.[act.id] === state.age;
+            return (
+              <button
+                key={act.id}
+                onClick={() => actions.takeActivity(act.id)}
+                disabled={isDone}
+                style={{
+                  textAlign: "left",
+                  padding: "12px",
+                  marginBottom: "8px",
+                  display: "block",
+                  width: "100%",
+                  background: isDone ? "#f1f3f5" : "#fff",
+                  color: isDone ? "#adb5bd" : "inherit",
+                  borderLeft: "4px solid #fa5252"
+                }}
+              >
+                <div style={{ fontWeight: "bold", fontSize: "14px" }}>
+                  {act.icon} {act.name}
+                </div>
                 <div style={{ fontSize: "11px", color: isDone ? "#adb5bd" : "#666", marginTop: "4px", lineHeight: "1.4" }}>
                   💡 {act.description}
                 </div>
-              )}
-              {act.effects && (
-                <div style={{ fontSize: "11px", color: isDone ? "#adb5bd" : (act.disabled ? "#e03131" : "#2f9e44"), fontWeight: "bold", marginTop: "4px" }}>
-                  {isDone ? "Sudah dilakukan tahun ini" : (act.disabled ? `🚫 ${act.disabledReason}` : `✨ ${act.effects}`)}
+                <div style={{ fontSize: "11px", color: isDone ? "#adb5bd" : "#2f9e44", fontWeight: "bold", marginTop: "4px" }}>
+                  {isDone ? "✅ Sudah dilakukan tahun ini" : `✨ ${act.effects}`}
                 </div>
-              )}
-            </button>
-          );
-        })}
+              </button>
+            );
+          })
+        ) : (
+          <>
+            {options.activities.map((act) => {
+              const isDone = state.lastActivityAges?.[act.id] === state.age;
+              return (
+                <button
+                  key={act.id}
+                  onClick={() => actions.takeActivity(act.id)}
+                  disabled={isDone || act.disabled || (act.cost && state.money < act.cost)}
+                  style={{
+                    textAlign: "left",
+                    padding: "12px",
+                    marginBottom: "8px",
+                    display: "block",
+                    width: "100%",
+                    background: isDone ? "#f1f3f5" : "#fff",
+                    color: isDone ? "#adb5bd" : "inherit"
+                  }}
+                >
+                  <div style={{ fontWeight: "bold", fontSize: "14px" }}>
+                    {isDone ? "✅ " : ""}{act.name} {act.cost > 0 ? `(Rp${act.cost.toLocaleString("id-ID")})` : ""}
+                  </div>
+                  {act.description && (
+                    <div style={{ fontSize: "11px", color: isDone ? "#adb5bd" : "#666", marginTop: "4px", lineHeight: "1.4" }}>
+                      💡 {act.description}
+                    </div>
+                  )}
+                  {act.effects && (
+                    <div style={{ fontSize: "11px", color: isDone ? "#adb5bd" : (act.disabled ? "#e03131" : "#2f9e44"), fontWeight: "bold", marginTop: "4px" }}>
+                      {isDone ? "Sudah dilakukan tahun ini" : (act.disabled ? `🚫 ${act.disabledReason}` : `✨ ${act.effects}`)}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
 
-        {options.crimes.length > 0 && (
+            {options.crimes.length > 0 && (
+              <>
+                <div className={styles.divider} style={{ margin: "15px 0" }} />
+                <h4 style={{ marginBottom: "10px", color: "#e03131" }}>Aktivitas Berisiko</h4>
+                {options.crimes.map((crime) => (
+                  <button
+                    key={crime.id}
+                    onClick={() => actions.doCrime(crime.id)}
+                    style={{ textAlign: "left", padding: "12px", marginBottom: "8px", borderLeft: "4px solid #e03131", width: "100%" }}
+                  >
+                    <div style={{ fontWeight: "bold" }}>⚠️ {crime.name}</div>
+                    <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>Hati-hati, aksi ini bisa membuatmu berurusan dengan polisi.</div>
+                  </button>
+                ))}
+              </>
+            )}
+          </>
+        )}
+
+        {/* Jail Crimes (Escape/Riot) - only show here if inJail is true and they aren't already shown above */}
+        {inJail && options.crimes.length > 0 && (
           <>
             <div className={styles.divider} style={{ margin: "15px 0" }} />
-            <h4 style={{ marginBottom: "10px", color: "#e03131" }}>Aktivitas Berisiko</h4>
+            <h4 style={{ marginBottom: "10px", color: "#e03131" }}>Aksi Berbahaya (Penjara)</h4>
             {options.crimes.map((crime) => (
               <button
                 key={crime.id}
                 onClick={() => actions.doCrime(crime.id)}
-                style={{ textAlign: "left", padding: "12px", marginBottom: "8px", borderLeft: "4px solid #e03131" }}
+                style={{ textAlign: "left", padding: "12px", marginBottom: "8px", borderLeft: "4px solid #e03131", width: "100%" }}
               >
                 <div style={{ fontWeight: "bold" }}>⚠️ {crime.name}</div>
-                <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>Hati-hati, aksi ini bisa membuatmu berurusan dengan polisi.</div>
+                <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>Hati-hati, gagal melakukan ini akan menambah masa hukumanmu.</div>
               </button>
             ))}
           </>
@@ -773,6 +835,7 @@ function ActivitiesTab({ state, options, actions, onBack }) {
     </div>
   );
 }
+
 
 function HealthTab({ state, options, actions, onBack }) {
   return (
@@ -818,7 +881,7 @@ function EducationTab({ state, options, actions, onBack }) {
             return edu?.name || state.education.level;
           })()}</strong> {(() => {
             const edu = educationCatalog.find(e => e.id === state.education.level);
-            const yrs = state.education.yearsStudied + 1;
+            const yrs = state.education.yearsStudied;
             const group = state.education.classGroup || "";
             if (state.education.level === "elementary") return `(Kelas ${yrs}${group})`;
             if (state.education.level === "junior_high") return `(Kelas ${yrs + 6}${group})`;
@@ -904,24 +967,84 @@ function EducationTab({ state, options, actions, onBack }) {
 
       <h4>Daftar Sekolah / Kursus Tersedia</h4>
       <div className={styles.optionsList}>
-        {options.education.length > 0 ? (
-          options.education.map((edu) => (
-            <button
-              key={edu.id}
-              onClick={() => actions.study(edu.id)}
-              disabled={state.money < edu.costPerYear}
-              style={{ textAlign: "left", padding: "12px" }}
-            >
-              <div style={{ fontWeight: "bold" }}>{edu.name}</div>
-              <div style={{ fontSize: "11px", color: "#666" }}>Durasi: {edu.yearsToComplete} Tahun</div>
-              <div style={{ fontSize: "12px", color: state.money < edu.costPerYear ? "#e03131" : "#2f9e44", fontWeight: "bold", marginTop: "4px" }}>
-                Biaya: {edu.costPerYear === 0 ? "GRATIS" : `Rp${edu.costPerYear.toLocaleString("id-ID")}/thn`}
-              </div>
-            </button>
-          ))
-        ) : (
-          <p style={{ fontSize: "12px", color: "#adb5bd", fontStyle: "italic" }}>Tidak ada program pendidikan yang tersedia saat ini.</p>
-        )}
+        {(() => {
+          const regularSchools = options.education.filter(edu => 
+            (edu.id === "elementary" || edu.id === "junior_high" || edu.id === "sma" || edu.id === "smk") &&
+            state.age >= edu.minAge && state.age <= (edu.maxAge || 999)
+          );
+          
+          const kejarPaket = options.education.filter(edu => 
+            (edu.id === "paket_a" || edu.id === "paket_b" || edu.id === "paket_c") &&
+            !state.education.completed.includes(edu.id.replace("paket_", "")) // simplified check
+          );
+
+          // Fix check for Paket
+          const filteredPaket = options.education.filter(edu => {
+            if (edu.id === "paket_a") return !state.education.completed.includes("elementary") && !state.education.completed.includes("paket_a");
+            if (edu.id === "paket_b") return !state.education.completed.includes("junior_high") && !state.education.completed.includes("paket_b");
+            if (edu.id === "paket_c") return !state.education.completed.includes("sma") && !state.education.completed.includes("smk") && !state.education.completed.includes("paket_c");
+            return false;
+          });
+
+          const universities = options.education.filter(edu => 
+            (edu.level === "university" || edu.id.startsWith("university_")) && state.age >= 18
+          );
+
+          const allVisible = [...regularSchools, ...filteredPaket, ...universities];
+
+          if (allVisible.length === 0) {
+            return <p style={{ fontSize: "12px", color: "#adb5bd", fontStyle: "italic" }}>Tidak ada program pendidikan yang tersedia untuk umurmu saat ini.</p>;
+          }
+
+          return (
+            <>
+              {regularSchools.length > 0 && (
+                <div style={{ width: "100%" }}>
+                  <div style={{ fontSize: "11px", fontWeight: "bold", color: "#868e96", marginBottom: "8px", textTransform: "uppercase" }}>Sekolah Reguler</div>
+                  {regularSchools.map(edu => (
+                    <button key={edu.id} onClick={() => actions.study(edu.id)} disabled={state.money < edu.costPerYear} style={{ textAlign: "left", padding: "12px", marginBottom: "10px", width: "100%" }}>
+                      <div style={{ fontWeight: "bold" }}>{edu.name}</div>
+                      <div style={{ fontSize: "11px", color: "#666" }}>Target: {edu.yearsToComplete} Tahun</div>
+                      <div style={{ fontSize: "12px", color: state.money < edu.costPerYear ? "#e03131" : "#2f9e44", fontWeight: "bold", marginTop: "4px" }}>
+                        Biaya: {edu.costPerYear === 0 ? "GRATIS" : `Rp${edu.costPerYear.toLocaleString("id-ID")}/thn`}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {filteredPaket.length > 0 && (
+                <div style={{ width: "100%", marginTop: "10px" }}>
+                  <div style={{ fontSize: "11px", fontWeight: "bold", color: "#868e96", marginBottom: "8px", textTransform: "uppercase" }}>Program Kesetaraan (Kejar Paket)</div>
+                  {filteredPaket.map(edu => (
+                    <button key={edu.id} onClick={() => actions.study(edu.id)} disabled={state.money < edu.costPerYear} style={{ textAlign: "left", padding: "12px", marginBottom: "10px", width: "100%", borderLeft: "4px solid #fab005" }}>
+                      <div style={{ fontWeight: "bold" }}>{edu.name}</div>
+                      <div style={{ fontSize: "11px", color: "#666" }}>Lama Studi: {edu.yearsToComplete} Tahun</div>
+                      <div style={{ fontSize: "12px", color: state.money < edu.costPerYear ? "#e03131" : "#2f9e44", fontWeight: "bold", marginTop: "4px" }}>
+                        Biaya: Rp{edu.costPerYear.toLocaleString("id-ID")}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {universities.length > 0 && (
+                <div style={{ width: "100%", marginTop: "10px" }}>
+                  <div style={{ fontSize: "11px", fontWeight: "bold", color: "#868e96", marginBottom: "8px", textTransform: "uppercase" }}>Pendidikan Tinggi / Kuliah</div>
+                  {universities.map(edu => (
+                    <button key={edu.id} onClick={() => actions.study(edu.id)} disabled={state.money < edu.costPerYear} style={{ textAlign: "left", padding: "12px", marginBottom: "10px", width: "100%", borderLeft: "4px solid #228be6" }}>
+                      <div style={{ fontWeight: "bold" }}>{edu.name}</div>
+                      <div style={{ fontSize: "11px", color: "#666" }}>Durasi: {edu.yearsToComplete} Tahun</div>
+                      <div style={{ fontSize: "12px", color: state.money < edu.costPerYear ? "#e03131" : "#2f9e44", fontWeight: "bold", marginTop: "4px" }}>
+                        Biaya: Rp{edu.costPerYear.toLocaleString("id-ID")}/thn
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          );
+        })()}
       </div>
       <button onClick={onBack} className={styles.secondaryButton} style={{ marginTop: "15px" }}>Kembali</button>
     </div>
@@ -1199,12 +1322,14 @@ function FinanceTab({ state, actions, onBack }) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
             <h4 style={{ margin: 0 }}>Ekonomi Pribadi</h4>
             <div style={{ display: "flex", gap: "5px" }}>
-              <span style={{ fontSize: "10px", background: (() => {
-                const money = state.money;
-                if (money >= 500_000_000) return "#fcc419"; 
-                if (money >= 10_000_000) return "#4dabf7"; 
-                return "#adb5bd"; 
-              })(), color: "#fff", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold" }}>
+              <span style={{
+                fontSize: "10px", background: (() => {
+                  const money = state.money;
+                  if (money >= 500_000_000) return "#fcc419";
+                  if (money >= 10_000_000) return "#4dabf7";
+                  return "#adb5bd";
+                })(), color: "#fff", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold"
+              }}>
                 {(() => {
                   const money = state.money;
                   if (money >= 500_000_000) return "EKONOMI: KAYA";
@@ -1331,7 +1456,7 @@ function IdentityTab({ state, onBack }) {
   const getDisplayEdu = (level) => {
     if (!level || level === "none") return null;
     const edu = educationCatalog.find(e => e.id === level);
-    
+
     // Check for University IDs (including fallbacks)
     if (level.startsWith("university_") || level.startsWith("college_") || level === "university") {
       return "S1";
@@ -1346,7 +1471,7 @@ function IdentityTab({ state, onBack }) {
       if (level === "junior_high") return "SMP";
       return edu.name;
     }
-    
+
     // Fallback for legacy IDs
     if (level === "high_school") return "SMA";
     return null;
@@ -1354,8 +1479,8 @@ function IdentityTab({ state, onBack }) {
 
   const currentLevel = state.education.level;
   const completedLevels = state.education.completed || [];
-  const latestLevel = (currentLevel !== "none") 
-    ? currentLevel 
+  const latestLevel = (currentLevel !== "none")
+    ? currentLevel
     : (completedLevels.length > 0 ? completedLevels[completedLevels.length - 1] : null);
 
   const college_cs = getDisplayEdu(latestLevel) || "-";

@@ -24,6 +24,41 @@ export function takeEducationAction(state, educationId) {
     return next;
   }
 
+  // Check Requirements from Catalog
+  if (program.requirement && !program.requirement(next)) {
+    const hasSD = next.education.completed.includes("elementary") || next.education.completed.includes("paket_a");
+    const hasSMP = next.education.completed.includes("junior_high") || next.education.completed.includes("paket_b");
+    const hasSMA = next.education.completed.includes("sma") || next.education.completed.includes("smk") || next.education.completed.includes("paket_c");
+
+    let missingMsg = "";
+    let suggestOptions = [];
+
+    if (!hasSD) {
+      suggestOptions.push({ id: "paket_a", label: "Ambil Paket A (SD)" });
+    }
+    if (!hasSMP) {
+      suggestOptions.push({ id: "paket_b", label: "Ambil Paket B (SMP)" });
+    }
+    if (!hasSMA && (program.level === "university" || program.id.startsWith("university_"))) {
+      suggestOptions.push({ id: "paket_c", label: "Ambil Paket C (SMA)" });
+    }
+
+    if (suggestOptions.length > 0) {
+      pushNotification(next, {
+        title: "Prasyarat Pendidikan",
+        message: `Kamu belum memiliki ijazah yang diperlukan untuk masuk ${program.name}. Silakan ambil program kesetaraan berikut:`,
+        icon: "warning",
+        type: "confirm",
+        eventId: "education_suggest_paket",
+        options: suggestOptions
+      });
+      pushLog(next, `Gagal mendaftar ke ${program.name}: Ijazah belum lengkap.`);
+    } else {
+      pushLog(next, `Kamu tidak memenuhi persyaratan untuk mendaftar di ${program.name}.`);
+    }
+    return next;
+  }
+
   const isAnyParentAlive = next.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
   const isUni = program.level === "university" || program.id.startsWith("university_");
 
@@ -77,9 +112,16 @@ export function takeEducationAction(state, educationId) {
 
     // Self-funded enrollment (deduct full cost including admission fee)
     next.money -= totalNeeded;
+    // Check for re-enrollment in the same university level to preserve progress
+    const isReEnrollment = next.education.level === "none" && next.education.lastLevel === program.id;
+    
+    if (!isReEnrollment) {
+      next.education.yearsStudied = 0;
+    }
+    
     next.education.level = program.id;
     next.education.schoolName = program.name;
-    next.education.yearsStudied = 0;
+    next.education.lastLevel = program.id;
     next.education.fundingSource = "self";
     next.profile.isIndependent = true;
     next.education.isFocusingOnWork = false;
@@ -94,16 +136,45 @@ export function takeEducationAction(state, educationId) {
     return next;
   }
 
+  // Check for re-enrollment in the same level to preserve progress
+  const isReEnrollment = next.education.level === "none" && next.education.lastLevel === program.id;
+  
+  if (isReEnrollment) {
+    next.education.level = program.id;
+    next.education.lastLevel = program.id;
+    
+    // Assessment / Placement Test Logic
+    const currentYears = next.education.yearsStudied || 0;
+    const ageAppropriateClass = Math.min(program.yearsToComplete, next.age - program.minAge + 1);
+    
+    let jump = 0;
+    if (next.stats.smarts > 85) jump = 3;
+    else if (next.stats.smarts > 70) jump = 2;
+    else if (next.stats.smarts > 50) jump = 1;
+
+    const newClass = Math.min(ageAppropriateClass, currentYears + jump);
+    
+    if (newClass > currentYears) {
+      next.education.yearsStudied = newClass;
+      pushLog(next, `Kamu mengikuti tes penempatan di ${program.name}. Karena kecerdasanmu, kamu diizinkan melompat ke Kelas ${newClass}!`);
+    } else {
+      pushLog(next, `Kamu mendaftar kembali di ${program.name} dan melanjutkan dari Kelas ${currentYears + 1}.`);
+    }
+  } else if (next.education.level !== program.id) {
+    next.education.yearsStudied = 0;
+    next.education.level = program.id;
+    next.education.lastLevel = program.id;
+    pushLog(next, `Kamu mendaftar di ${program.name}.`);
+  }
+
   next.money -= program.costPerYear;
-  next.education.level = program.id;
   next.education.major = program.major ?? next.education.major;
-  next.education.yearsStudied = 0;
   next.education.fundingSource = "self";
   next.education.isFocusingOnWork = false;
   const smartsGain = program.smartsPerYear || program.delta?.smarts || 0;
   next.stats.smarts = clamp(next.stats.smarts + smartsGain);
   next.stats.happy = clamp(next.stats.happy + 2);
-  pushLog(next, `Kamu mendaftar di ${program.name}.`);
+
 
   return next;
 }

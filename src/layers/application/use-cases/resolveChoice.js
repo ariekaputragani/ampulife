@@ -1,6 +1,7 @@
 import { cloneState, pushLog, clamp, clampStatus, pushNotification } from "@/layers/domain/entities/stateUtils";
 import { jobsCatalog } from "@/layers/infrastructure/catalogs/jobsCatalog";
 import { educationCatalog } from "@/layers/infrastructure/catalogs/educationCatalog";
+import { takeEducationAction } from "@/layers/application/use-cases/takeEducationAction";
 
 export function resolveChoice(state, eventId, choiceId, payload = {}) {
   const next = cloneState(state);
@@ -494,6 +495,20 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     }
   }
 
+  if (eventId === "retirement_choice") {
+    const { pesangon, pensionYearly, jobName } = payload;
+    if (choiceId === "retire") {
+      next.money += pesangon;
+      next.career.isRetired = true;
+      next.career.pensionAmount = pensionYearly;
+      next.career.jobId = null;
+      pushLog(next, `Kamu resmi pensiun dari pekerjaan sebagai ${jobName}. Kamu menerima pesangon Rp${pesangon.toLocaleString("id-ID")} dan akan menerima uang pensiun Rp${pensionYearly.toLocaleString("id-ID")} setiap tahunnya.`);
+    } else {
+      pushLog(next, `Kamu memutuskan untuk tetap bekerja sebagai ${jobName} meskipun sudah memasuki masa pensiun.`);
+    }
+    return next;
+  }
+
   if (eventId === "housing_decision_18") {
     if (choiceId === "stay_home") {
       next.profile.livingWithParents = true;
@@ -681,6 +696,45 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       next.stats.happy = clamp(next.stats.happy - 5);
       pushLog(next, "Kamu memilih untuk tidak ikut campur. Ada rasa bersalah yang menghantuimu.");
     }
+  }
+
+  if (eventId === "graduation_sd_selection" || eventId === "graduation_paket_a_selection") {
+    if (choiceId === "smp") {
+      const num = next.profile.city === "Jakarta" ? Math.floor(Math.random() * 295) + 1 : Math.floor(Math.random() * 9) + 1;
+      next.education.level = "junior_high";
+      next.education.yearsStudied = 0;
+      next.education.schoolName = `SMPN ${num} ${next.profile.city}`;
+      pushLog(next, `Kamu memutuskan untuk melanjutkan ke ${next.education.schoolName}.`);
+    } else if (choiceId === "paket_b") {
+      return takeEducationAction(next, "paket_b");
+    } else {
+      pushLog(next, "Kamu memutuskan untuk tidak melanjutkan sekolah reguler dan memilih mencari pekerjaan atau kegiatan lain.");
+    }
+    return next;
+  }
+
+  if (eventId === "education_suggest_paket") {
+    // Recursively call takeEducationAction for the chosen paket
+    return takeEducationAction(next, choiceId);
+  }
+
+  if (eventId === "graduation_smp_selection" || eventId === "graduation_paket_b_selection") {
+    if (choiceId === "sma" || choiceId === "smk") {
+      const sman = choiceId === "sma" ? "SMAN" : "SMKN";
+      const num = next.profile.city === "Jakarta" ? Math.floor(Math.random() * (choiceId === "sma" ? 117 : 74)) + 1 : Math.floor(Math.random() * (choiceId === "sma" ? 5 : 3)) + 1;
+      next.education.level = choiceId;
+      next.education.yearsStudied = 0;
+      next.education.schoolName = `${sman} ${num} ${next.profile.city}`;
+      pushLog(next, `Kamu memutuskan untuk melanjutkan ke ${next.education.schoolName}.`);
+    } else if (choiceId === "paket_c") {
+      next.education.level = "paket_c";
+      next.education.yearsStudied = 0;
+      next.education.schoolName = "Program Paket C";
+      pushLog(next, "Kamu memutuskan untuk mengambil Program Kejar Paket C.");
+    } else {
+      pushLog(next, "Kamu memutuskan untuk berhenti sekolah dan mulai mencari pekerjaan.");
+    }
+    return next;
   }
 
   return next;
