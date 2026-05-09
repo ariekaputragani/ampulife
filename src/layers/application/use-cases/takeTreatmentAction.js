@@ -92,6 +92,22 @@ export function takeTreatmentAction(state, treatmentId) {
   next.stats.health = clamp(next.stats.health + treatment.effect.health);
   next.stats.happy = clamp(next.stats.happy + treatment.effect.happy);
 
+  // Special Logic: Plastic Surgery (RNG Risk)
+  if (treatmentId === "operasi_plastik") {
+    const isSuccess = Math.random() < 0.9;
+    if (isSuccess) {
+      next.stats.looks = 100;
+      next.stats.happy = clamp(next.stats.happy + 20);
+      pushLog(next, "OPERASI BERHASIL! Wajahmu kini terlihat sempurna seperti selebriti.");
+    } else {
+      next.stats.looks = 0;
+      next.stats.health = clamp(next.stats.health - 50);
+      next.stats.happy = clamp(next.stats.happy - 50);
+      pushLog(next, "MALPRAKTIK! Operasi gagal total dan merusak wajahmu. Kamu merasa hancur secara fisik dan mental.");
+    }
+    return next;
+  }
+
   if (treatment.canCure && next.healthStatus.condition !== "healthy") {
     next.healthStatus.condition = "healthy";
     next.healthStatus.illnessId = null;

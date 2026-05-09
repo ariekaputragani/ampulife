@@ -24,6 +24,30 @@ export function ageUpYear(state, rng = Math.random) {
   }
 
   next.age += 1;
+
+  // --- STAT DECAY (ANNUAL REDUCTION) ---
+  const currentAge = next.age;
+  let healthDecay = 2;
+  let looksDecay = 1;
+  const happyDecay = 2;
+  const smartsDecay = 1;
+
+  if (currentAge > 50) {
+    healthDecay = 6;
+    looksDecay = 4;
+  } else if (currentAge > 40) {
+    healthDecay = 4;
+    looksDecay = 2;
+  }
+
+  next.stats.health = clamp(next.stats.health - healthDecay);
+  next.stats.looks = clamp(next.stats.looks - looksDecay);
+  next.stats.happy = clamp(next.stats.happy - happyDecay);
+  next.stats.smarts = clamp(next.stats.smarts - smartsDecay);
+
+  if (currentAge > 40) {
+    pushLog(next, "Kamu mulai merasakan efek penuaan pada tubuhmu.");
+  }
   const isStudentAtHome = next.profile.livingWithParents && next.education.level !== "none";
 
   // --- 1. AGE-UP RESETS & FLAGS ---

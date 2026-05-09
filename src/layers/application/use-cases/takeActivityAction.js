@@ -228,6 +228,17 @@ export function takeActivityAction(state, activityId) {
       message = "Kamu berkelahi dengan napi lain untuk mempertahankan harga dirimu. Kamu menang, tapi babak belur.";
       break;
 
+    case "skincare":
+      if (newState.money >= 1_500_000) {
+        newState.money -= 1_500_000;
+        newState.stats.looks = Math.min(100, newState.stats.looks + 5);
+        newState.stats.happy = Math.min(100, newState.stats.happy + 2);
+        message = "Kamu melakukan perawatan wajah rutin. Kulitmu terasa lebih bersih dan cerah.";
+      } else {
+        message = "Uangmu tidak cukup untuk membeli paket skincare atau pergi ke salon.";
+      }
+      break;
+
     default:
       message = "Aktivitas tidak dikenal.";
   }

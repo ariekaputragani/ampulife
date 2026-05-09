@@ -130,6 +130,14 @@ export function getAvailableActivities(state) {
       description: "Jalan-jalan ke luar negeri (Jepang/Eropa).",
       effects: "😊 +50 Happy, ❤️ Kedekatan Keluarga++"
     },
+    {
+      id: "skincare",
+      name: "Perawatan Wajah / Skincare",
+      minAge: 15,
+      cost: 1_500_000,
+      description: "Melakukan perawatan rutin untuk menjaga kesehatan kulit wajah.",
+      effects: "✨ +5 Looks, 😊 +2 Happy"
+    },
   ];
 
   const hasSIM = state.profile.licenses && state.profile.licenses.includes("SIM A/C");

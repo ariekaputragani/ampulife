@@ -258,69 +258,66 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
   if (eventId === "job_interview") {
     const { jobId, jobName } = payload;
     const job = jobsCatalog.find(j => j.id === jobId);
-
-    // Base chance from stats
-    let baseChance = 0.35 + (next.stats.smarts / 300) + (next.stats.looks / 600);
-
-    // Education Boost
-    let eduBoost = 0;
-    if (next.education.completed.includes("university")) eduBoost = 0.15;
-    else if (next.education.completed.includes("sma") || next.education.completed.includes("smk") || next.education.completed.includes("paket_c")) eduBoost = 0.05;
-
-    baseChance += eduBoost;
-
     const track = job?.track || "informal";
     const tier = job?.tier || 1;
-    if (tier === 2) baseChance -= 0.10;
-    else if (tier === 3) baseChance -= 0.25;
-    else if (tier >= 4) baseChance -= 0.40;
 
-    // Experience Boost
-    const totalYearsWorked = next.career.yearsWorked || 0;
-    const generalExpBoost = Math.min(0.20, totalYearsWorked * 0.01); // Max +20%
+    // 1. Lower Base Chance (Harder than before)
+    let baseChance = 0.15; 
+
+    // 2. Intelligence Factor (Smarts)
+    // bonus based on how much you exceed the requirement
+    const smartsDiff = next.stats.smarts - (job?.minSmarts || 0);
+    baseChance += (smartsDiff / 200); 
+
+    // 3. Health Factor (Physical Fitness)
+    const isPhysicalJob = ["medical", "law", "tech", "informal"].includes(track);
+    if (next.stats.health < 50) {
+      const penalty = isPhysicalJob ? 0.30 : 0.15;
+      baseChance -= penalty;
+      if (isPhysicalJob) pushLog(next, "HRD memperhatikan kondisi fisikmu yang tampak sangat tidak bugar untuk pekerjaan ini.");
+    } else if (next.stats.health > 85) {
+      baseChance += 0.05;
+    }
+
+    // 4. Looks Factor (Appearance)
+    const isPublicJob = ["service", "media", "corporate"].includes(track);
+    if (isPublicJob) {
+      if (next.stats.looks < 50) {
+        baseChance -= 0.25;
+        pushLog(next, "Penampilanmu dinilai kurang representatif untuk posisi publik ini.");
+      } else if (next.stats.looks > 80) {
+        baseChance += 0.15;
+        pushLog(next, "Penampilanmu yang menarik memberikan kesan positif pertama yang kuat.");
+      }
+    }
+
+    // 5. Education & Experience
+    if (next.education.completed.includes("university")) baseChance += 0.15;
+    const generalExpBoost = Math.min(0.20, (next.career.yearsWorked || 0) * 0.01);
     baseChance += generalExpBoost;
 
-    // Industry Relevance Boost (Same track as last job)
-    if (next.career.lastJobId) {
-      const lastJob = jobsCatalog.find(j => j.id === next.career.lastJobId);
-      if (lastJob && lastJob.track === track && track !== "informal") {
-        baseChance += 0.15;
-      }
-    }
+    // 6. Tier Penalty (Executive positions are VERY hard)
+    if (tier === 2) baseChance -= 0.15;
+    else if (tier === 3) baseChance -= 0.40;
+    else if (tier >= 4) baseChance -= 0.60;
 
-    const isHighLevel = (job?.tier || 1) >= 3;
-
-    // Track Preferences
-    // A. Corporate/Tech/Finance/Media prefer Confidence
-    const prefersConfidence = ["corporate", "tech", "finance", "media", "law"].includes(track);
-    // B. Service/Education/Medical prefer Politeness
-    const prefersPoliteness = ["service", "education", "medical"].includes(track);
-
+    // 7. Choice Impact
+    const isHighLevel = tier >= 3;
     if (choiceId === "confident") {
-      if (next.stats.smarts < 40) {
-        // Arrogant without brains
-        baseChance -= 0.25;
-        pushLog(next, "HRD merasa kamu terlalu sombong padahal kualifikasimu meragukan.");
-      } else if (prefersConfidence || isHighLevel) {
-        baseChance += 0.30;
-      } else if (prefersPoliteness) {
-        baseChance -= 0.10; // Arrogant for a service job
+      if (next.stats.smarts < 45) {
+        baseChance -= 0.30;
+        pushLog(next, "Kepercayaan dirimu dianggap sebagai kesombongan karena tidak dibarengi kualifikasi yang kuat.");
       } else {
-        baseChance += 0.10;
+        baseChance += (isHighLevel || ["corporate", "tech", "law"].includes(track)) ? 0.25 : 0.10;
       }
     } else if (choiceId === "polite") {
-      if (prefersPoliteness) {
-        baseChance += 0.30;
-      } else if (prefersConfidence) {
-        baseChance += 0.10; // Safe but not exciting
-      } else {
-        baseChance += 0.15;
-      }
+      baseChance += (["service", "education", "medical"].includes(track)) ? 0.25 : 0.10;
     } else if (choiceId === "nervous") {
-      baseChance -= 0.25;
-      pushLog(next, "Kamu terlihat sangat gugup saat wawancara, membuat HRD ragu.");
+      baseChance -= 0.35;
+      pushLog(next, "Kamu terlalu gugup, membuat pewawancara meragukan kapabilitasmu.");
     }
 
+    // Final RNG Check
     if (Math.random() < baseChance) {
       next.career.jobId = jobId;
       next.career.yearsInRole = 0;

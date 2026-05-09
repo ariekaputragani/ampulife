@@ -26,4 +26,13 @@ export const treatmentCatalog = [
     effect: { health: 25, happy: 5 },
     canCure: true, // Mengobati penyakit berat
   },
+  {
+    id: "operasi_plastik",
+    name: "Operasi Plastik (Estetik)",
+    minAge: 18,
+    cost: 50_000_000,
+    bpjsCovered: false,
+    effect: { health: -5, happy: 5 },
+    canCure: false,
+  },
 ];
