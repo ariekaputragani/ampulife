@@ -47,9 +47,16 @@ export default function LayeredGameView() {
             document.querySelectorAll(".swal-custom-btn").forEach((btn) => {
               btn.addEventListener("click", () => {
                 const choiceId = btn.getAttribute("data-choice");
+                const label = btn.innerText.toLowerCase();
                 Swal.close();
                 actions.resolveChoice(notif.eventId, choiceId, notif.payload);
                 actions.popNotification();
+                
+                // Redirection logic for "Cari Kerja" (Checking ID or Label)
+                const isWorkChoice = choiceId === "job" || choiceId === "work" || label.includes("kerja") || label.includes("job");
+                if (isWorkChoice) {
+                  setActiveTab("jobs");
+                }
               });
             });
           },
@@ -247,7 +254,7 @@ export default function LayeredGameView() {
                     className={styles.navButton1}
                     onClick={() => setActiveTab("health")}
                   >
-                    <i className="fa-solid fa-stethoscope"></i> Medis
+                    <i className="fa-solid fa-stethoscope"></i> Dokter
                   </button>
 
                   <button
@@ -332,8 +339,16 @@ export default function LayeredGameView() {
                     key={opt.id}
                     className={`${styles.modalOptionButton} ${idx === 0 ? styles.modalOptionButtonPrimary : ""}`}
                     onClick={() => {
+                      const label = opt.label.toLowerCase();
+                      const isWorkChoice = opt.id === "job" || opt.id === "work" || label.includes("kerja") || label.includes("job");
+                      
                       actions.handleEventChoice(opt.id);
-                      setActiveTab("journal");
+                      
+                      if (isWorkChoice) {
+                        setActiveTab("jobs");
+                      } else {
+                        setActiveTab("journal");
+                      }
                     }}
                   >
                     {opt.label}
@@ -968,17 +983,13 @@ function EducationTab({ state, options, actions, onBack }) {
       <h4>Daftar Sekolah / Kursus Tersedia</h4>
       <div className={styles.optionsList}>
         {(() => {
-          const regularSchools = options.education.filter(edu => 
+          const isDroppedOut = state.education.isDroppedOut;
+
+          const regularSchools = isDroppedOut ? [] : options.education.filter(edu =>
             (edu.id === "elementary" || edu.id === "junior_high" || edu.id === "sma" || edu.id === "smk") &&
             state.age >= edu.minAge && state.age <= (edu.maxAge || 999)
           );
-          
-          const kejarPaket = options.education.filter(edu => 
-            (edu.id === "paket_a" || edu.id === "paket_b" || edu.id === "paket_c") &&
-            !state.education.completed.includes(edu.id.replace("paket_", "")) // simplified check
-          );
 
-          // Fix check for Paket
           const filteredPaket = options.education.filter(edu => {
             if (edu.id === "paket_a") return !state.education.completed.includes("elementary") && !state.education.completed.includes("paket_a");
             if (edu.id === "paket_b") return !state.education.completed.includes("junior_high") && !state.education.completed.includes("paket_b");
@@ -986,9 +997,18 @@ function EducationTab({ state, options, actions, onBack }) {
             return false;
           });
 
-          const universities = options.education.filter(edu => 
-            (edu.level === "university" || edu.id.startsWith("university_")) && state.age >= 18
-          );
+          const universities = options.education.filter(edu => {
+            const isUni = edu.level === "university" || edu.id.startsWith("university_");
+            if (!isUni) return false;
+            if (state.age < 18) return false;
+            
+            // Allow if NOT dropped out OR has graduated from high school equivalent
+            const hasHighSchoolCert = state.education.completed.includes("sma") || 
+                                     state.education.completed.includes("smk") || 
+                                     state.education.completed.includes("paket_c");
+                                     
+            return !isDroppedOut || hasHighSchoolCert;
+          });
 
           const allVisible = [...regularSchools, ...filteredPaket, ...universities];
 

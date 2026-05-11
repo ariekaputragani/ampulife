@@ -100,6 +100,7 @@ export function createInitialGameState() {
       completed: [],
       schoolName: "", // Nama sekolah acak
       fundingSource: "parents", // parents or self
+      isDroppedOut: false, // Menandakan apakah pemain pernah putus sekolah reguler
     },
     socialMedia: {
       isJoined: false,
@@ -118,6 +119,7 @@ export function createInitialGameState() {
       severity: "none",
       untreatedYears: 0,
       treatmentCount: 0,
+      healingPoints: 0,
     },
     life: {
       isAlive: true,

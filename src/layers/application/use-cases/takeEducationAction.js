@@ -114,18 +114,17 @@ export function takeEducationAction(state, educationId) {
     next.money -= totalNeeded;
     // Check for re-enrollment in the same university level to preserve progress
     const isReEnrollment = next.education.level === "none" && next.education.lastLevel === program.id;
-    
+
     if (!isReEnrollment) {
       next.education.yearsStudied = 0;
     }
-    
+
     next.education.level = program.id;
     next.education.schoolName = program.name;
     next.education.lastLevel = program.id;
     next.education.fundingSource = "self";
     next.profile.isIndependent = true;
     next.education.isFocusingOnWork = false;
-    next.stats.smarts = clamp(next.stats.smarts + (program.smartsPerYear || 3));
     pushLog(next, `Kamu mendaftar di ${program.name} secara mandiri. Total biaya dibayarkan: Rp${totalNeeded.toLocaleString("id-ID")}.`);
     return next;
   }
@@ -138,22 +137,22 @@ export function takeEducationAction(state, educationId) {
 
   // Check for re-enrollment in the same level to preserve progress
   const isReEnrollment = next.education.level === "none" && next.education.lastLevel === program.id;
-  
+
   if (isReEnrollment) {
     next.education.level = program.id;
     next.education.lastLevel = program.id;
-    
+
     // Assessment / Placement Test Logic
     const currentYears = next.education.yearsStudied || 0;
     const ageAppropriateClass = Math.min(program.yearsToComplete, next.age - program.minAge + 1);
-    
+
     let jump = 0;
     if (next.stats.smarts > 85) jump = 3;
     else if (next.stats.smarts > 70) jump = 2;
     else if (next.stats.smarts > 50) jump = 1;
 
     const newClass = Math.min(ageAppropriateClass, currentYears + jump);
-    
+
     if (newClass > currentYears) {
       next.education.yearsStudied = newClass;
       pushLog(next, `Kamu mengikuti tes penempatan di ${program.name}. Karena kecerdasanmu, kamu diizinkan melompat ke Kelas ${newClass}!`);
@@ -171,8 +170,6 @@ export function takeEducationAction(state, educationId) {
   next.education.major = program.major ?? next.education.major;
   next.education.fundingSource = "self";
   next.education.isFocusingOnWork = false;
-  const smartsGain = program.smartsPerYear || program.delta?.smarts || 0;
-  next.stats.smarts = clamp(next.stats.smarts + smartsGain);
   next.stats.happy = clamp(next.stats.happy + 2);
 
 

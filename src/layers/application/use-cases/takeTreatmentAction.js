@@ -105,26 +105,34 @@ export function takeTreatmentAction(state, treatmentId) {
       next.stats.happy = clamp(next.stats.happy - 50);
       pushLog(next, "MALPRAKTIK! Operasi gagal total dan merusak wajahmu. Kamu merasa hancur secara fisik dan mental.");
     }
+    // Plastic surgery does NOT heal anything
     return next;
   }
 
-  if (treatment.canCure && next.healthStatus.condition !== "healthy") {
-    next.healthStatus.condition = "healthy";
-    next.healthStatus.illnessId = null;
-    next.healthStatus.severity = "none";
-    next.healthStatus.untreatedYears = 0;
-    pushLog(next, `${treatment.name} berhasil menyembuhkan kondisi kesehatanmu.`);
-    return next;
-  }
+  if (next.healthStatus.condition !== "healthy") {
+    const isCancer = next.healthStatus.illnessId === "cancer";
+    const isBasicClinic = ["puskesmas", "basic_checkup"].includes(treatmentId);
 
-  if (!treatment.canCure && next.healthStatus.condition !== "healthy") {
-    next.healthStatus.untreatedYears = Math.max(0, next.healthStatus.untreatedYears - 1);
-    next.healthStatus.severity = downgradeSeverity(next.healthStatus.severity);
-    if (next.healthStatus.severity === "none") {
-      next.healthStatus.condition = "healthy";
-      next.healthStatus.illnessId = null;
+    if (isCancer && isBasicClinic) {
+      pushLog(next, `Dokter di ${treatment.name} mendesah pelan. Penyakit Kankermu terlalu berat untuk ditangani di sini. Kamu butuh spesialis Rumah Sakit.`);
+    } else {
+      // Numerical healing progress based on script.js
+      // In script.js, doctor visit reduces penh (healingPoints) by 100
+      const reduction = 100;
+      next.healthStatus.healingPoints -= reduction;
+
+      if (next.healthStatus.healingPoints <= 0) {
+        next.healthStatus.condition = "healthy";
+        next.healthStatus.illnessId = null;
+        next.healthStatus.severity = "none";
+        next.healthStatus.untreatedYears = 0;
+        next.healthStatus.healingPoints = 0;
+        pushLog(next, `${treatment.name} berhasil menyembuhkan kondisi kesehatanmu!`);
+      } else {
+        next.healthStatus.severity = downgradeSeverity(next.healthStatus.severity);
+        pushLog(next, `${treatment.name} meredakan gejala kesehatanmu.`);
+      }
     }
-    pushLog(next, `${treatment.name} meredakan gejala kesehatanmu.`);
     return next;
   }
 

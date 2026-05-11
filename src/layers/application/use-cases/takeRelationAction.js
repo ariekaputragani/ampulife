@@ -170,7 +170,13 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
       next.money -= weddingCost;
       relation.status = "spouse";
       relation.relationship = 100;
+      
+      // Automatic independence upon marriage
+      next.profile.isIndependent = true;
+      next.profile.livingWithParents = false;
+      
       pushLog(next, `Selamat! Lamaranmu diterima. Kamu dan ${displayName} kini resmi menikah dalam sebuah upacara yang indah.`);
+      pushLog(next, "Sebagai pasangan baru, kamu memutuskan untuk hidup mandiri dan membangun rumah tanggamu sendiri.");
     }
   }
 

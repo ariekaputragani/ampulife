@@ -25,29 +25,6 @@ export function ageUpYear(state, rng = Math.random) {
 
   next.age += 1;
 
-  // --- STAT DECAY (ANNUAL REDUCTION) ---
-  const currentAge = next.age;
-  let healthDecay = 2;
-  let looksDecay = 1;
-  const happyDecay = 2;
-  const smartsDecay = 1;
-
-  if (currentAge > 50) {
-    healthDecay = 6;
-    looksDecay = 4;
-  } else if (currentAge > 40) {
-    healthDecay = 4;
-    looksDecay = 2;
-  }
-
-  next.stats.health = clamp(next.stats.health - healthDecay);
-  next.stats.looks = clamp(next.stats.looks - looksDecay);
-  next.stats.happy = clamp(next.stats.happy - happyDecay);
-  next.stats.smarts = clamp(next.stats.smarts - smartsDecay);
-
-  if (currentAge > 40) {
-    pushLog(next, "Kamu mulai merasakan efek penuaan pada tubuhmu.");
-  }
   const isStudentAtHome = next.profile.livingWithParents && next.education.level !== "none";
 
   // --- 1. AGE-UP RESETS & FLAGS ---
@@ -349,7 +326,7 @@ export function ageUpYear(state, rng = Math.random) {
   }
 
   // --- 3. LOGGING PHASE ---
-  const isMilestoneAge = [6, 12, 15, 17, 18].includes(next.age);
+  const isMilestoneAge = [6, 12, 15, 17, 18, 65].includes(next.age);
   let otherEvents = isMilestoneAge;
 
   let eventCost = 0;
@@ -369,7 +346,6 @@ export function ageUpYear(state, rng = Math.random) {
     pushLog(next, `Orang tua ku membelikan semua kebutuhan pokok dan keperluan pribadi ku tahun ini.`);
     const report = `[Laporan Keuangan Keluarga] Pajak: Rp${taxes.toLocaleString("id-ID")}, Hidup: Rp${basicExpenses.toLocaleString("id-ID")}, Anak: Rp${childcareCost.toLocaleString("id-ID")}, Transport: Rp${transportCost.toLocaleString("id-ID")}${eventCost > 0 ? `, Lain-lain: Rp${eventCost.toLocaleString("id-ID")}` : ""}`;
     pushLog(next, report);
-    otherEvents = true; // Family support counts as an event
 
     // --- POCKET MONEY (Uang Jajan) ---
     if (next.age >= 6 && !next.legal.isCaughtThisYear && !next.legal.inJail) {
@@ -463,43 +439,43 @@ export function ageUpYear(state, rng = Math.random) {
     next.socialMedia.followers = Math.floor((next.socialMedia.followers + 10) * growth);
   }
 
-  // --- STATS BRACKETED DELTA (Legacy script.js lines 703-713) ---
-  const randRange = (min, max) => Math.floor(rng() * (max - min + 1)) + min;
+
+  const randRange = (min, max) => Math.floor(rng() * max) + min;
 
   if (next.age <= 18) {
     next.stats = applyStatDelta(next.stats, {
-      happy: randRange(-2, 3),
-      health: randRange(-1, 3),
-      smarts: randRange(-1, 3),
-      looks: randRange(-1, 2),
+      happy: randRange(-2, 5),
+      health: randRange(-2, 5),
+      smarts: randRange(-2, 5),
+      looks: randRange(-2, 5),
     });
-  } else if (next.age <= 35) {
+  } else if (next.age <= 40) {
     next.stats = applyStatDelta(next.stats, {
-      happy: randRange(-2, 3),
-      health: randRange(-2, 2),
-      smarts: randRange(-1, 3),
-      looks: randRange(-2, 1),
+      happy: randRange(-2, 5),
+      health: randRange(-2, 4),
+      smarts: randRange(-2, 5),
+      looks: randRange(-1, 5),
     });
-  } else if (next.age <= 55) {
+  } else if (next.age <= 60) {
     next.stats = applyStatDelta(next.stats, {
-      happy: randRange(-3, 2),
-      health: randRange(-3, 1),
-      smarts: randRange(-2, 2),
-      looks: randRange(-3, -1),
+      happy: randRange(-3, 6),
+      health: randRange(-3, 5),
+      smarts: randRange(-2, 5),
+      looks: randRange(-3, 4),
     });
-  } else if (next.age <= 70) {
+  } else if (next.age <= 80) {
     next.stats = applyStatDelta(next.stats, {
-      happy: randRange(-4, 2),
-      health: randRange(-4, 0),
-      smarts: randRange(-3, 1),
-      looks: randRange(-4, -2),
+      happy: randRange(-4, 6),
+      health: randRange(-4, 5),
+      smarts: randRange(-2, 5),
+      looks: randRange(-4, 4),
     });
   } else {
     next.stats = applyStatDelta(next.stats, {
-      happy: randRange(-5, 2),
-      health: randRange(-6, -1),
-      smarts: randRange(-4, 1),
-      looks: randRange(-5, -3),
+      happy: randRange(-4, 6),
+      health: randRange(-5, 5),
+      smarts: randRange(-2, 4),
+      looks: randRange(-6, 6),
     });
   }
 
@@ -546,16 +522,21 @@ export function ageUpYear(state, rng = Math.random) {
       } else {
         // Adult choice
         otherEvents = true; // Trigger choice
+        const releaseOptions = [];
+        if (!next.profile.isIndependent) {
+          releaseOptions.push({ id: "parents", label: isAnyParentAlive ? "Kembali ke Rumah Orang Tua" : "Kembali ke Rumah Keluarga", color: "green" });
+        }
+        releaseOptions.push({ id: "independent", label: "Hidup Mandiri (Cari Kos)", color: "blue" });
+
         pushNotification(next, {
-          title: "Bebas dari Penjara",
-          message: "Kamu telah menyelesaikan masa hukumanmu. Ke mana kamu akan pergi sekarang?",
+          title: "Penjara",
+          message: next.profile.isIndependent
+            ? "Kamu telah menyelesaikan masa hukumanmu. Kamu harus kembali melanjutkan hidup mandirimu."
+            : "Kamu telah menyelesaikan masa hukumanmu. Ke mana kamu akan pergi sekarang?",
           icon: "success",
           type: "confirm",
           eventId: "prison_release_choice",
-          options: [
-            { id: "parents", label: isAnyParentAlive ? "Kembali ke Rumah Orang Tua" : "Kembali ke Rumah Keluarga" },
-            { id: "independent", label: "Hidup Mandiri (Cari Kos)" }
-          ]
+          options: releaseOptions
         });
       }
     } else {
@@ -567,7 +548,7 @@ export function ageUpYear(state, rng = Math.random) {
     const job = jobsCatalog.find((item) => item.id === next.career.jobId);
     if (job) {
       // --- RETIREMENT LOGIC (Interactive at 65) ---
-      if (next.age >= 65 && !next.career.isRetired && next.career.jobId) {
+      if (next.age == 65 && !next.career.isRetired && next.career.jobId) {
         const salaryWithBoost = computeYearlySalary(next, job);
         const pesangon = Math.floor(salaryWithBoost * next.career.yearsWorked * 0.5);
         const pensionYearly = Math.floor(salaryWithBoost * 0.6); // Increased to 60%
@@ -585,7 +566,7 @@ export function ageUpYear(state, rng = Math.random) {
             { id: "continue", label: "Tetap Bekerja (Jika Mampu)", color: "blue" }
           ]
         });
-        
+
         // While waiting for choice, we still pay salary for this year
         grossIncome += salaryWithBoost;
         next.career.yearsWorked += 1;
@@ -704,30 +685,30 @@ export function ageUpYear(state, rng = Math.random) {
       }
 
       // --- NEW: Child Milestone Logs ---
-      if (child.age === 12) pushLog(next, `🎉 Kabar Gembira! ${child.name} baru saja lulus dari Sekolah Dasar (SD).`);
-      if (child.age === 15) pushLog(next, `🎉 Kebanggaan! ${child.name} resmi lulus dari SMP dan siap masuk SMA.`);
-      if (child.age === 18) pushLog(next, `🎉 Selamat! ${child.name} telah menyelesaikan masa SMA-nya.`);
+      if (child.age === 12) pushLog(next, `Kabar Gembira! ${child.name} baru saja lulus dari Sekolah Dasar (SD).`);
+      if (child.age === 15) pushLog(next, `Kebanggaan! ${child.name} resmi lulus dari SMP dan siap masuk SMA.`);
+      if (child.age === 18) pushLog(next, `Selamat! ${child.name} telah menyelesaikan masa SMA-nya.`);
       if (child.age === 22) {
-        pushLog(next, `🎓 Momen Haru! Kamu menghadiri wisuda ${child.name}. Dia kini telah menyandang gelar sarjana.`);
+        pushLog(next, `Momen Haru! Kamu menghadiri wisuda ${child.name}. Dia kini telah menyandang gelar sarjana.`);
         child.education = "Sarjana"; // Custom field for info
       }
 
       // --- NEW: Child Independence (University Age) ---
       if (child.age === 19 && child.livingStatus !== "moved_out" && rng() < 0.4) {
         child.livingStatus = "moved_out";
-        pushLog(next, `🏠 ${child.name} memutuskan untuk pindah ke kos-kosan dekat kampusnya agar bisa belajar hidup mandiri.`);
+        pushLog(next, `Kamu memutuskan pindah ke kos-kosan dekat kampusnya agar bisa belajar hidup mandiri.`);
       }
 
       // --- NEW: Child Career Start (Post-University) ---
       if (child.age === 23) {
-        pushLog(next, `💼 ${child.name} memberikan kabar bahwa dia sudah mendapatkan pekerjaan pertamanya. Dia sangat bersyukur atas dukunganmu selama ini.`);
+        pushLog(next, `Pekerjaan! ${child.name} memberikan kabar bahwa dia sudah mendapatkan pekerjaan pertamanya.`);
       }
 
       // --- NEW: Child Giving Back (Random Gift from working child) ---
       if (child.age > 23 && rng() < 0.05) {
         const gift = 2_000_000 + Math.floor(rng() * 5_000_000);
         next.money += gift;
-        pushLog(next, `🎁 ${child.name} mengirimkan uang sebesar Rp${gift.toLocaleString("id-ID")} sebagai tanda bakti dan terima kasih kepada orang tuanya.`);
+        pushLog(next, `Hadiah! ${child.name} mengirimkan uang sebesar Rp${gift.toLocaleString("id-ID")} sebagai tanda bakti.`);
       }
     });
 
@@ -798,7 +779,7 @@ export function ageUpYear(state, rng = Math.random) {
   // Health progression
   if (next.healthStatus.condition !== "healthy") {
     // Spontaneous recovery for specific illnesses after 1 year (as per user request)
-    const autoHeal = ["flu", "diarrhea", "cold", "coronavirus"];
+    const autoHeal = ["flu", "diarrhea", "coronavirus"];
     if (autoHeal.includes(next.healthStatus.illnessId) && next.healthStatus.untreatedYears >= 0) {
       const illness = getIllnessById(next.healthStatus.illnessId);
       const illnessName = illness ? illness.name : "penyakit";
@@ -827,16 +808,18 @@ export function ageUpYear(state, rng = Math.random) {
 
     // 1. Base Chance based on Age (Minimum risk at 100% health)
     let baseChance = 0.01; // 60-70
-    if (next.age > 90) baseChance = 0.25;
-    else if (next.age > 80) baseChance = 0.10;
-    else if (next.age > 70) baseChance = 0.03;
+    if (next.age >= 90) baseChance = 0.2;
+    if (next.age >= 85) baseChance = 0.1;
+    else if (next.age >= 75) baseChance = 0.04;
+    else if (next.age >= 65) baseChance = 0.02;
 
     // 2. Health Modifier (Penalty for low health)
-    // Formula: multiplier = 1 + (100 - health) / 25
+    // Formula: multiplier = 1 + (100 - health) / 80
     // If health 100 -> 1.0x
-    // If health 50  -> 3.0x
-    // If health 0   -> 5.0x
-    const healthMod = 1 + ((100 - next.stats.health) / 25);
+    // If health 50  -> 1.625x
+    // if helath 20 ->  2.0x
+    // If health 0   -> 2.25x
+    const healthMod = 1 + ((100 - next.stats.health) / 80);
 
     // 3. Happiness Penalty (Sudden death if depressed)
     let happyPenalty = 0;
@@ -877,102 +860,16 @@ export function ageUpYear(state, rng = Math.random) {
     // 4a. Milestones (Starting / Graduating) — RUN BEFORE PROGRESSION
     // 1. Age 6: Start SD
     if (next.age === 6 && next.education.level === "none" && !next.education.completed.includes("elementary")) {
-      const num = Math.floor(rng() * 300) + 1;
+      const sdNum = Math.floor(rng() * 300) + 1;
       next.education.level = "elementary";
-      next.education.yearsStudied = 0; // Set to 0 so Progression adds +1
-      next.education.schoolName = `SDN ${num} ${next.profile.city}`;
-      const msg = `Selamat! Saya mulai bersekolah di ${next.education.schoolName}.`;
-      pushLog(next, msg);
-      pushNotification(next, { title: "Masuk Sekolah", message: msg, icon: "success" });
-    }
-    // 2. Age 12: Graduate SD or if has Elementary Cert but not in school -> Choice for SMP
-    else if (next.age === 12 && !next.legal.inJail) {
-      const hasElementaryCert = next.education.completed.includes("elementary") || next.education.completed.includes("paket_a");
-      const isGraduatingSD = next.education.level === "elementary" && next.education.yearsStudied >= 6;
-      
-      if (isGraduatingSD || (next.education.level === "none" && hasElementaryCert && !next.education.completed.includes("junior_high"))) {
-        if (isGraduatingSD) next.education.completed.push("elementary");
-        
-        next.education.level = "none";
-        next.education.yearsStudied = 0;
-        next.education.schoolName = "";
-
-        const msg = `Kamu sudah berumur 12 tahun dan memiliki ijazah pendidikan dasar. Apakah kamu ingin melanjutkan ke SMP?`;
-        pushLog(next, msg);
-        pushNotification(next, {
-          title: "🎓 Pendidikan Dasar Selesai",
-          message: msg,
-          icon: "success",
-          type: "confirm",
-          eventId: "graduation_sd_selection",
-          options: [
-            { id: "smp", label: "Masuk SMP (Reguler)", color: "blue" },
-            { id: "job", label: "Mulai Cari Kerja", color: "gray" }
-          ]
-        });
-      }
-    }
-    // 3. Age 15: Graduate SMP -> Choice for SMA/SMK/Job
-    else if (next.age === 15 && next.education.level === "junior_high" && next.education.yearsStudied >= 3) {
-      next.education.completed.push("junior_high");
-      const oldSchool = next.education.schoolName;
-      next.education.level = "none";
       next.education.yearsStudied = 0;
-      next.education.schoolName = "";
-
-      const msg = `Lulus SMP! Selamat, kamu telah menyelesaikan pendidikan di ${oldSchool}. Apa rencana pendidikan jenjang menengahmu?`;
-      pushLog(next, msg);
-      pushNotification(next, {
-        title: "🎓 Lulus SMP!",
-        message: msg,
-        icon: "success",
-        type: "confirm",
-        eventId: "graduation_smp_selection",
-        options: [
-          { id: "sma", label: "Masuk SMA (Akademik)", color: "blue" },
-          { id: "smk", label: "Masuk SMK (Kejuruan)", color: "orange" },
-          { id: "job", label: "Mulai Cari Kerja", color: "gray" }
-        ]
-      });
+      next.education.schoolName = `SDN ${sdNum} ${next.profile.city}`;
+      const msg = `Kamu bersekolah di ${next.education.schoolName}.`;
+      pushLog(next, `Saya bersekolah di ${next.education.schoolName}.`);
+      pushNotification(next, { title: "Sekolah", message: msg, icon: "info" });
     }
-    // 4. Age 18: Graduate SMA/SMK -> University Decision
-    else if (next.age === 18 && (next.education.level === "sma" || next.education.level === "smk") && next.education.yearsStudied >= 3) {
-      const eduName = next.education.level === "sma" ? "SMA" : "SMK";
-      next.education.completed.push(next.education.level);
-      next.education.graduationYear = Number(next.profile.birthDate.year) + next.age;
-      const oldSchool = next.education.schoolName;
-      next.education.level = "none";
-      next.education.yearsStudied = 0;
 
-      const gradMsg = `Selamat! Kamu telah lulus dari ${oldSchool}. Apa langkahmu selanjutnya?`;
-      pushLog(next, gradMsg);
-
-      const hasJob = !!next.career?.jobId;
-      const smaOptions = [
-        { id: "snbp", label: "Daftar Jalur SNBP (Prestasi)", color: "green" },
-        { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue" },
-        { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
-        { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
-        { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" }
-      ];
-
-      if (hasJob) {
-        smaOptions.push({ id: "job", label: "Fokus Karir Saat Ini", color: "gray" });
-      } else {
-        smaOptions.push({ id: "job", label: "Langsung Cari Kerja", color: "gray" });
-      }
-      
-      smaOptions.push({ id: "gap_year", label: "Ambil Gap Year", color: "yellow" });
-
-      pushNotification(next, {
-        title: `Kelulusan ${eduName}`,
-        message: gradMsg,
-        icon: "success",
-        type: "confirm",
-        eventId: "graduation_path_selection",
-        options: smaOptions
-      });
-    }
+    // Graduation Milestones moved to after progression
     // Age 19–22: Nudge for SMA grads
     else if (next.age >= 19 && next.age <= 22 && next.education.level === "none") {
       const hasSecondaryEdu = next.education.completed.includes("sma") || next.education.completed.includes("smk") || next.education.completed.includes("paket_c");
@@ -1007,16 +904,75 @@ export function ageUpYear(state, rng = Math.random) {
     // Age 17: SIM Test
     else if (next.age === 17) {
       pushNotification(next, {
-        title: "Ujian SIM",
-        message: "Kamu sudah berumur 17 tahun. Ingin mencoba membuat SIM?",
+        title: "SIM",
+        message: "Dapet SIM?",
         icon: "question",
         type: "confirm",
         eventId: "driving_test",
         options: [
-          { id: "yes", label: "Ikut Ujian (Rp250rb)" },
-          { id: "no", label: "Tidak Sekarang" }
+          { id: "yes", label: "Ya" },
+          { id: "no", label: "Tidak" }
         ]
       });
+    }
+
+    // --- TRANSITION LOGIC (Moved from 4c to 4a to allow class progression in the same year) ---
+    // 1. Age 12: Graduate SD -> Auto Start SMP
+    if (next.age === 12 && next.education.level === "elementary" && next.education.yearsStudied >= 6) {
+      next.education.completed.push("elementary");
+      pushLog(next, `Saya lulus dari ${next.education.schoolName}.`);
+
+      // Stat boost from legacy script.js line 1023: updatea(0, 0, 2, 0)
+      next.stats.smarts = clamp(next.stats.smarts + 2);
+
+      let smpNum;
+      if (next.profile.city === "Jakarta") {
+        smpNum = Math.floor(rng() * 295) + 1;
+      } else {
+        smpNum = Math.floor(rng() * 9) + 1;
+      }
+
+      next.education.level = "junior_high";
+      next.education.yearsStudied = 0;
+      next.education.schoolName = `SMPN ${smpNum} ${next.profile.city}`;
+
+      const msg = `Kamu bersekolah di ${next.education.schoolName}.`;
+      pushNotification(next, { title: "Sekolah", message: msg, icon: "info" });
+      pushLog(next, `Kamu bersekolah di ${next.education.schoolName}.`);
+    }
+
+    // 2. Age 15: Graduate SMP -> Auto Start SMA/SMK
+    if (next.age === 15 && next.education.level === "junior_high" && next.education.yearsStudied >= 3) {
+      next.education.completed.push("junior_high");
+      const oldSchool = next.education.schoolName;
+
+      // Stat boost from legacy script.js line 1036: updatea(0, 0, 3, 0)
+      next.stats.smarts = clamp(next.stats.smarts + 3);
+
+      let sman;
+      const rVal = rng();
+      if (rVal < 0.7 || next.stats.smarts < 25) {
+        sman = "SMAN";
+      } else {
+        sman = "SMKN";
+      }
+
+      let smaNum;
+      if (next.profile.city === "Jakarta") {
+        if (sman === "SMAN") smaNum = Math.floor(rng() * 117) + 1;
+        else smaNum = Math.floor(rng() * 74) + 1;
+      } else {
+        if (sman === "SMAN") smaNum = Math.floor(rng() * 5) + 1;
+        else smaNum = Math.floor(rng() * 3) + 1;
+      }
+
+      next.education.level = sman === "SMAN" ? "sma" : "smk";
+      next.education.yearsStudied = 0;
+      next.education.schoolName = `${sman} ${smaNum} ${next.profile.city}`;
+
+      const msg = `Kamu bersekolah di ${next.education.schoolName}.`;
+      pushNotification(next, { title: "Sekolah", message: msg, icon: "info" });
+      pushLog(next, `Saya bersekolah di ${next.education.schoolName}.`);
     }
 
     // 4b. Yearly Progression (Growth) — RUN AFTER MILESTONES
@@ -1024,7 +980,7 @@ export function ageUpYear(state, rng = Math.random) {
       const isUni = next.education.level.startsWith("university_") || next.education.level === "university";
       const isPaket = next.education.level?.startsWith("paket_");
       const edu = educationCatalog.find(e => e.id === next.education.level) ||
-        (isUni ? { id: next.education.level, smartsPerYear: 5, yearsToComplete: 4, name: "Universitas" } : null);
+        (isUni ? { id: next.education.level, yearsToComplete: 4, name: "Universitas" } : null);
 
       if (edu) {
         const isBasicSchool = ["elementary", "junior_high"].includes(next.education.level);
@@ -1038,7 +994,6 @@ export function ageUpYear(state, rng = Math.random) {
 
         if (next.education.yearsStudied < maxYears) {
           next.education.yearsStudied += 1;
-          next.stats.smarts = clamp(next.stats.smarts + (edu.smartsPerYear || 3));
 
           if (isUni) {
             pushLog(next, `Saya sedang menjalani tahun ke-${next.education.yearsStudied} kuliah (S1) di ${next.education.schoolName}.`);
@@ -1048,7 +1003,7 @@ export function ageUpYear(state, rng = Math.random) {
             let classNum = next.education.yearsStudied;
             if (next.education.level === "junior_high") classNum += 6;
             if (next.education.level === "sma" || next.education.level === "smk") classNum += 9;
-            pushLog(next, `Saya sekarang naik ke Kelas ${classNum} di ${next.education.schoolName}.`);
+            pushLog(next, `Saya sekarang naik ke Kelas ${classNum}${next.education.classGroup} di ${next.education.schoolName}.`);
           }
         }
 
@@ -1057,6 +1012,11 @@ export function ageUpYear(state, rng = Math.random) {
           const eduName = edu.name;
           next.education.completed.push(next.education.level);
           next.education.graduationYear = Number(next.profile.birthDate.year) + next.age;
+
+          // Stat boost from legacy script.js line 1089: updatea(0, 0, 10, 0)
+          if (isUni) {
+            next.stats.smarts = clamp(next.stats.smarts + 10);
+          }
 
           if (isUni) {
             const hasJob = !!next.career?.jobId;
@@ -1067,16 +1027,18 @@ export function ageUpYear(state, rng = Math.random) {
               gradOptions.push({ id: "independent", label: "Hidup Mandiri & Cari Kerja", color: "blue" });
             }
 
-            if (isAnyParentAlive) {
-              gradOptions.push({ id: "with_parents", label: "Tetap di Rumah Orang Tua Dulu", color: "green" });
-            } else {
-              gradOptions.push({ id: "with_parents", label: "Tetap Tinggal di Rumah Keluarga", color: "green" });
+            if (!next.profile.isIndependent) {
+              if (isAnyParentAlive) {
+                gradOptions.push({ id: "with_parents", label: "Tetap di Rumah Orang Tua Dulu", color: "green" });
+              } else {
+                gradOptions.push({ id: "with_parents", label: "Tetap Tinggal di Rumah Keluarga", color: "green" });
+              }
             }
 
             const gradMsg = `Selamat! Kamu berhasil menyelesaikan S1 di ${next.education.schoolName || "Universitas"}! Ini adalah pencapaian luar biasa. Apa rencanamu selanjutnya?`;
             pushLog(next, gradMsg);
             pushNotification(next, {
-              title: "🎓 Lulus S1!",
+              title: "Lulus S1!",
               message: gradMsg,
               icon: "success",
               type: "confirm",
@@ -1094,11 +1056,12 @@ export function ageUpYear(state, rng = Math.random) {
                 { id: "paket_b", label: "Lanjut Kejar Paket B (Setara SMP)", color: "cyan" },
                 { id: "job", label: "Mulai Cari Kerja", color: "gray" }
               ];
-              if (next.age <= 15) {
+              // Only allow regular school if NEVER dropped out (e.g. somehow skipped SD)
+              if (next.age <= 15 && !next.education.isDroppedOut) {
                 options.unshift({ id: "smp", label: "Daftar SMP Reguler", color: "blue" });
               }
               pushNotification(next, {
-                title: "🎓 Lulus Paket A",
+                title: "Lulus Paket A",
                 message: `${gradMsg} Apa langkahmu selanjutnya?`,
                 icon: "success",
                 type: "confirm",
@@ -1110,14 +1073,14 @@ export function ageUpYear(state, rng = Math.random) {
                 { id: "paket_c", label: "Lanjut Kejar Paket C (Setara SMA)", color: "cyan" },
                 { id: "job", label: "Mulai Cari Kerja", color: "gray" }
               ];
-              // If still young enough for regular SMA
-              if (next.age <= 18) {
+              // Only allow regular school if NEVER dropped out
+              if (next.age <= 18 && !next.education.isDroppedOut) {
                 options.unshift({ id: "sma", label: "Daftar SMA Reguler", color: "blue" });
                 options.unshift({ id: "smk", label: "Daftar SMK Reguler", color: "orange" });
               }
 
               pushNotification(next, {
-                title: "🎓 Lulus Paket B",
+                title: "Lulus Paket B",
                 message: `${gradMsg} Apa langkahmu selanjutnya?`,
                 icon: "success",
                 type: "confirm",
@@ -1134,7 +1097,7 @@ export function ageUpYear(state, rng = Math.random) {
               }
 
               pushNotification(next, {
-                title: "🎓 Lulus Paket C",
+                title: "Lulus Paket C",
                 message: `${gradMsg}${waitMsg}`,
                 icon: "success"
               });
@@ -1161,6 +1124,39 @@ export function ageUpYear(state, rng = Math.random) {
           }
         }
       }
+    }
+
+    // 4c. Graduation Milestones (SMA and Higher)
+
+    // 3. Age 18+: Graduate SMA/SMK -> Choice
+    if (next.age >= 18 && (next.education.level === "sma" || next.education.level === "smk") && next.education.yearsStudied >= 3) {
+      const oldSchool = next.education.schoolName;
+      next.education.completed.push(next.education.level);
+      next.education.graduationYear = Number(next.profile.birthDate.year) + next.age;
+
+      // Stat boost from legacy script.js line 1063: updatea(0, 0, 3, 0)
+      next.stats.smarts = clamp(next.stats.smarts + 3);
+
+      const gradMsg = `Kamu lulus dari ${oldSchool}.`;
+
+      next.education.level = "none";
+      next.education.yearsStudied = 0;
+      next.education.schoolName = "";
+
+      // Show Legacy Graduation Popup First
+      pushNotification(next, {
+        title: "Sekolah",
+        message: gradMsg,
+        icon: "success",
+        type: "confirm",
+        eventId: "graduation_sma_legacy",
+        payload: { oldSchool }, // Pass the school name for the log
+        options: [
+          { id: "univ", label: "Pergi ke universitas", color: "blue" },
+          { id: "job", label: "Cari kerja", color: "gray" },
+          { id: "leave", label: "Ambil cuti", color: "yellow" }
+        ]
+      });
     }
   }
 
@@ -1293,7 +1289,7 @@ export function ageUpYear(state, rng = Math.random) {
       // Underage: Trigger Adoption/Relative Choice
       otherEvents = true; // Block other random events
       pushNotification(next, {
-        title: "Tragedi Keluarga",
+        title: "Keluarga",
         message: "Kedua orang tuamu telah tiada. Sebagai anak di bawah umur, apa yang akan kamu lakukan?",
         icon: "error",
         type: "confirm",
@@ -1385,7 +1381,7 @@ export function ageUpYear(state, rng = Math.random) {
   // --- 11. FAMILY EVENTS (Independent of otherEvents) ---
   if (!next.profile.isIndependent && next.life.isAlive && isAnyParentAlive) {
     // A. Masalah Rumah Tangga (Household Crisis)
-    if (next.age >= 5 && next.age <= 25) {
+    if (next.age <= 25) {
       if (rng() < 0.08) {
         const repairs = [];
         if (isFatherAlive) {

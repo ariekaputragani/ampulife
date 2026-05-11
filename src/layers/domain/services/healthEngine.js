@@ -34,28 +34,56 @@ export function applyIllnessProgression(state, rng = Math.random) {
     state.healthStatus.untreatedYears = 0;
   }
 
-  // --- SPONTANEOUS RECOVERY LOGIC ---
-  const nonHealing = ["cancer", "heart_disease", "diabetes", "alzheimer"];
+  // Numerical healing progress logic
+  if (state.healthStatus.healingPoints === undefined || state.healthStatus.healingPoints === 0) {
+    const range = illness.initialHealingRange || { min: 1, max: 100 };
+    state.healthStatus.healingPoints = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+  }
+
+  // Annual progression based on script.js
+  const illnessId = state.healthStatus.illnessId;
   
-  if (!nonHealing.includes(state.healthStatus.illnessId)) {
-    // High chance for mild illnesses to heal naturally within 1-2 years
-    let recoveryChance = state.healthStatus.severity === "mild" ? 0.50 : 0.15;
-    const timeBonus = (state.healthStatus.untreatedYears || 0) * 0.25;
-    const finalChance = recoveryChance + timeBonus;
+  if (illnessId === "cancer") {
+    // Cancer gets worse (+50 penh)
+    state.healthStatus.healingPoints += 50;
+  } else {
+    // Natural recovery over time for some illnesses
+    // 0: Batuk rejan (20), 1: Campak (20), 2: DBD (20), 4: Coronavirus (100), 
+    // 5: Alzheimer (50), 6: Epilepsi (100), 7: Flu (100), 8: Diare (100), 
+    // 10: Tubercolosis (30), 11: Penyakit jantung (3)
+    
+    const naturalRecoveryMap = {
+      pertussis: 20,
+      measles: 20,
+      dengue: 20,
+      coronavirus: 100,
+      alzheimer: 50,
+      epilepsy: 100,
+      flu: 100,
+      diarrhea: 100,
+      tuberculosis: 30,
+      heart_disease: 3,
+      diabetes: 0, // Diabetes doesn't heal naturally in legacy script?
+    };
 
-    if (rng() < finalChance) {
-      const recoveredName = illness.name;
-      state.healthStatus.condition = "healthy";
-      state.healthStatus.illnessId = null;
-      state.healthStatus.severity = "mild";
-      state.healthStatus.untreatedYears = 0;
-      
-      state.stats.happy = clamp(state.stats.happy + 10);
-      state.stats.health = clamp(state.stats.health + 5);
+    const recoveryAmount = naturalRecoveryMap[illnessId] || 0;
+    state.healthStatus.healingPoints -= recoveryAmount;
+  }
 
-      pushLog(state, `Kabar baik! Tubuh ku berhasil melawan penyakit dan Saya sembuh dari ${recoveredName} secara alami.`);
-      return;
-    }
+  // Check if cured naturally
+  if (state.healthStatus.healingPoints <= 0) {
+    const recoveredName = illness.name;
+    state.healthStatus.condition = "healthy";
+    state.healthStatus.illnessId = null;
+    state.healthStatus.severity = "none";
+    state.healthStatus.untreatedYears = 0;
+    state.healthStatus.healingPoints = 0;
+    
+    state.stats.happy = clamp(state.stats.happy + 10);
+    state.stats.health = clamp(state.stats.health + 5);
+
+    pushLog(state, `Kabar baik! Tubuh ku berhasil melawan penyakit dan Saya sembuh dari ${recoveredName} secara alami.`);
+    return;
   }
 
   state.healthStatus.untreatedYears += 1;
@@ -65,8 +93,16 @@ export function applyIllnessProgression(state, rng = Math.random) {
   }
 
   const factor = getSeverityFactor(state.healthStatus.severity);
-  const healthPenalty = Math.ceil(illness.yearlyPenalty.health * factor);
-  const happyPenalty = Math.ceil(illness.yearlyPenalty.happy * factor);
+  
+  // Support for age-dependent penalty (e.g. for Cancer)
+  let baseHealthPenalty = illness.yearlyPenalty.health || 0;
+  if (Array.isArray(baseHealthPenalty)) {
+    const matchingRange = baseHealthPenalty.find(range => state.age <= (range.maxAge || 999));
+    baseHealthPenalty = matchingRange ? matchingRange.value : 0;
+  }
+  
+  const healthPenalty = Math.ceil(baseHealthPenalty * factor);
+  const happyPenalty = Math.ceil((illness.yearlyPenalty.happy || 0) * factor);
 
   state.stats.health = clamp(state.stats.health - healthPenalty);
   state.stats.happy = clamp(state.stats.happy - happyPenalty);

@@ -48,6 +48,7 @@ export function triggerRandomEvent(state, rng = Math.random) {
     state.currentEvent = {
       id: picked.event.id,
       summary: eventData.summary,
+      payload: eventData.payload || {},
       options: eventData.options.map((o) => ({ id: o.id, label: o.label })),
     };
   } else {

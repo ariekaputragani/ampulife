@@ -199,17 +199,23 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       pushLog(next, `Kamu masuk PTN melalui jalur Mandiri dengan membayar uang pangkal Rp${upInitial.toLocaleString("id-ID")}.`);
 
       // Mandiri skips funding (already paid), go straight to housing
-      pushNotification(next, {
-        title: "Berhasil Masuk PTN (Mandiri)",
-        message: "Uang pangkal sudah dibayar. Di mana kamu akan tinggal selama kuliah?",
-        icon: "question",
-        type: "confirm",
-        eventId: "housing_decision_18",
-        options: [
-          { id: "stay_home", label: "Tetap di Rumah Orang Tua" },
-          { id: "move_out", label: "Pindah Keluar / Kos" }
-        ]
-      });
+      // If already independent, skip housing choice
+      if (next.profile.isIndependent) {
+        next.profile.livingWithParents = false;
+        pushLog(next, "Karena kamu sudah hidup mandiri, kamu memutuskan untuk tinggal di kos-kosan dekat kampus selama masa kuliah.");
+      } else {
+        pushNotification(next, {
+          title: "Berhasil Masuk PTN (Mandiri)",
+          message: "Uang pangkal sudah dibayar. Di mana kamu akan tinggal selama kuliah?",
+          icon: "question",
+          type: "confirm",
+          eventId: "housing_decision_18",
+          options: [
+            { id: "stay_home", label: "Tetap di Rumah Orang Tua" },
+            { id: "move_out", label: "Pindah Keluar / Kos" }
+          ]
+        });
+      }
       return next;
     }
   }
@@ -225,13 +231,19 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       next.stats.happy = clamp(next.stats.happy + 15);
       pushLog(next, "Kamu memutuskan untuk pindah keluar dan hidup mandiri sepenuhnya. Selamat berjuang di dunia nyata!");
     } else if (choiceId === "with_parents") {
-      const isAnyParentAlive = next.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
-      next.profile.livingWithParents = true;
-      next.stats.happy = clamp(next.stats.happy + 5);
-      if (isAnyParentAlive) {
-        pushLog(next, "Kamu memutuskan untuk tetap tinggal bersama orang tua sambil menabung untuk masa depanmu.");
+      // Safety check: even if the popup appeared, don't allow moving back if already independent
+      if (next.profile.isIndependent && next.profile.livingWithParents === false) {
+        next.profile.livingWithParents = false;
+        pushLog(next, "Meskipun sempat terpikir untuk kembali ke rumah, kamu menyadari bahwa kamu sudah hidup mandiri.");
       } else {
-        pushLog(next, "Kamu memutuskan untuk tetap tinggal di rumah keluarga dan menabung untuk masa depanmu.");
+        const isAnyParentAlive = next.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
+        next.profile.livingWithParents = true;
+        next.stats.happy = clamp(next.stats.happy + 5);
+        if (isAnyParentAlive) {
+          pushLog(next, "Kamu memutuskan untuk tetap tinggal bersama orang tua sambil menabung untuk masa depanmu.");
+        } else {
+          pushLog(next, "Kamu memutuskan untuk tetap tinggal di rumah keluarga dan menabung untuk masa depanmu.");
+        }
       }
     }
   }
@@ -262,12 +274,12 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
     const tier = job?.tier || 1;
 
     // 1. Lower Base Chance (Harder than before)
-    let baseChance = 0.15; 
+    let baseChance = 0.15;
 
     // 2. Intelligence Factor (Smarts)
     // bonus based on how much you exceed the requirement
     const smartsDiff = next.stats.smarts - (job?.minSmarts || 0);
-    baseChance += (smartsDiff / 200); 
+    baseChance += (smartsDiff / 200);
 
     // 3. Health Factor (Physical Fitness)
     const isPhysicalJob = ["medical", "law", "tech", "informal"].includes(track);
@@ -335,7 +347,7 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
   if (eventId === "prison_release_choice") {
     if (choiceId === "parents") {
       next.profile.livingWithParents = true;
-      next.profile.isIndependent = false;
+      // next.profile.isIndependent = false; // Removed: once independent, always independent
       pushLog(next, "Kamu memutuskan untuk kembali ke rumah keluarga untuk menata kembali hidupmu setelah bebas.");
     } else if (choiceId === "independent") {
       next.profile.isIndependent = true;
@@ -375,22 +387,28 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
           next.education.isPTNPass = false;
         }
         next.family.savings -= totalNeeded;
-        
+
         const successMsg = `Orang tuamu membayar total Rp${totalNeeded.toLocaleString("id-ID")} (UKT + Uang Pangkal) untuk kuliahmu di ${next.education.schoolName}.`;
         pushLog(next, successMsg);
         pushNotification(next, { title: "Pembayaran Berhasil", message: successMsg, icon: "success" });
 
-        pushNotification(next, {
-          title: "Tempat Tinggal",
-          message: "Kamu sudah resmi menjadi mahasiswa. Di mana kamu akan tinggal selama kuliah?",
-          icon: "info",
-          type: "confirm",
-          eventId: "housing_decision_18",
-          options: [
-            { id: "stay_home", label: "Tetap di Rumah Ortu (Gratis)" },
-            { id: "move_out", label: "Pindah Keluar / Kos (Butuh Biaya)" }
-          ]
-        });
+        // If already independent, skip housing choice
+        if (next.profile.isIndependent) {
+          next.profile.livingWithParents = false;
+          pushLog(next, "Karena kamu sudah hidup mandiri, kamu memutuskan untuk tinggal di kos-kosan dekat kampus selama masa kuliah.");
+        } else {
+          pushNotification(next, {
+            title: "Tempat Tinggal",
+            message: "Kamu sudah resmi menjadi mahasiswa. Di mana kamu akan tinggal selama kuliah?",
+            icon: "info",
+            type: "confirm",
+            eventId: "housing_decision_18",
+            options: [
+              { id: "stay_home", label: "Tetap di Rumah Ortu (Gratis)" },
+              { id: "move_out", label: "Pindah Keluar / Kos (Butuh Biaya)" }
+            ]
+          });
+        }
       } else {
         // FAILURE: Reset level — offer alternative schools (NOT re-exam options)
         next.education.level = "none";
@@ -437,22 +455,28 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
           next.education.isPTNPass = false;
         }
         next.money -= totalNeeded;
-        
+
         const successMsg = `Kamu membayar total Rp${totalNeeded.toLocaleString("id-ID")} (UKT + Uang Pangkal) secara mandiri untuk kuliah di ${next.education.schoolName}.`;
         pushLog(next, successMsg);
         pushNotification(next, { title: "Pembayaran Berhasil", message: successMsg, icon: "success" });
 
-        pushNotification(next, {
-          title: "Tempat Tinggal",
-          message: "Kamu sudah resmi menjadi mahasiswa. Di mana kamu akan tinggal selama kuliah?",
-          icon: "info",
-          type: "confirm",
-          eventId: "housing_decision_18",
-          options: [
-            { id: "stay_home", label: "Tetap di Rumah Ortu" },
-            { id: "move_out", label: "Pindah Keluar / Kos" }
-          ]
-        });
+        // If already independent, skip housing choice
+        if (next.profile.isIndependent) {
+          next.profile.livingWithParents = false;
+          pushLog(next, "Karena kamu sudah hidup mandiri, kamu memutuskan untuk tinggal di kos-kosan dekat kampus selama masa kuliah.");
+        } else {
+          pushNotification(next, {
+            title: "Tempat Tinggal",
+            message: "Kamu sudah resmi menjadi mahasiswa. Di mana kamu akan tinggal selama kuliah?",
+            icon: "info",
+            type: "confirm",
+            eventId: "housing_decision_18",
+            options: [
+              { id: "stay_home", label: "Tetap di Rumah Ortu" },
+              { id: "move_out", label: "Pindah Keluar / Kos" }
+            ]
+          });
+        }
       } else {
         // FAILURE: Reset level, show re-selection popup (NO re-exam — already accepted!)
         next.education.level = "none";
@@ -577,23 +601,9 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
 
   if (eventId === "funeral_decision") {
     if (choiceId === "ignore") {
-      next.stats.happy = clamp(next.stats.happy - 15);
-      next.relations = next.relations.map(r => {
-        if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
-          r.relationship = clamp((r.relationship || 0) - 12);
-        }
-        return r;
-      });
-      pushLog(next, "Saya tidak bisa menghadiri pemakamannya. Keluarga besar merasa sedikit kecewa.");
+      pushLog(next, "Saya tidak bisa menghadiri pemakamannya.");
     } else {
-      next.stats.happy = clamp(next.stats.happy + 10);
-      next.relations = next.relations.map(r => {
-        if (!r.isDead && (["father", "mother", "sister", "brother"].includes(r.id) || r.status === "family")) {
-          r.relationship = clamp((r.relationship || 0) + 8);
-        }
-        return r;
-      });
-      pushLog(next, "Saya menghadiri pemakaman tersebut untuk memberikan penghormatan terakhir.");
+      pushLog(next, "Saya menghadiri pemakaman tersebut.");
     }
   }
 
@@ -730,6 +740,45 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       pushLog(next, "Kamu memutuskan untuk mengambil Program Kejar Paket C.");
     } else {
       pushLog(next, "Kamu memutuskan untuk berhenti sekolah dan mulai mencari pekerjaan.");
+    }
+    return next;
+  }
+
+  if (eventId === "graduation_sma_legacy") {
+    const { oldSchool } = payload;
+    pushLog(next, `Saya lulus dari ${oldSchool}.`);
+
+    if (choiceId === "univ") {
+      pushLog(next, "Saya kuliah di universitas.");
+      const hasJob = !!next.career?.jobId;
+      const smaOptions = [
+        { id: "snbp", label: "Daftar Jalur SNBP (Prestasi)", color: "green" },
+        { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue" },
+        { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
+        { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
+        { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" }
+      ];
+
+      if (hasJob) {
+        smaOptions.push({ id: "job", label: "Fokus Karir Saat Ini", color: "gray" });
+      } else {
+        smaOptions.push({ id: "job", label: "Langsung Cari Kerja", color: "gray" });
+      }
+
+      smaOptions.push({ id: "gap_year", label: "Ambil Gap Year", color: "yellow" });
+
+      pushNotification(next, {
+        title: "Pilihan Universitas",
+        message: "Apa langkahmu selanjutnya untuk pendidikan tinggi?",
+        icon: "question",
+        type: "confirm",
+        eventId: "graduation_path_selection",
+        options: smaOptions
+      });
+    } else if (choiceId === "job") {
+      pushLog(next, "Saya memutuskan untuk melihat-lihat beberapa lowongan pekerjaan.");
+    } else {
+      pushLog(next, "Saya memutuskan untuk mengambil cuti beberapa waktu.");
     }
     return next;
   }

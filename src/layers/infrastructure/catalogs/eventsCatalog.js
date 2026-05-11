@@ -1,4 +1,5 @@
 import { pushLog, pushNotification } from "@/layers/domain/entities/stateUtils";
+import { pickIllnessByAge } from "./illnessCatalog";
 
 export const eventsCatalog = [
   {
@@ -6,7 +7,7 @@ export const eventsCatalog = [
     label: "Perkembangan",
     minAge: 1,
     maxAge: 3,
-    weight: (state) => 0.8,
+    weight: (state) => 0.15,
     isInteractive: false,
     apply: (state) => {
       const milestones = [
@@ -84,21 +85,29 @@ export const eventsCatalog = [
     },
   },
   {
-    id: "illness_infant",
+    id: "illness_infant_legacy",
     label: "Penyakit",
     minAge: 1,
     maxAge: 5,
     weight: (state) => (state.healthStatus.condition === "healthy" ? 0.05 : 0),
     isInteractive: false,
     apply: (state) => {
-      const illness = pickIllnessByAge(state.age) || { name: "Penyakit", id: "flu" };
+      const illnesses = [
+        { id: "pertussis", name: "Batuk Rejan", msg: "Saya didiagnosis menderita Batuk Rejan.", sev: "mild" },
+        { id: "measles", name: "Campak", msg: "Saya didiagnosis menderita Campak.", sev: "mild" },
+        { id: "dengue", name: "Demam Berdarah", msg: "Saya didiagnosis menderita Demam Berdarah.", sev: "moderate" },
+        { id: "cancer", name: "Kanker", msg: "Saya didiagnosis menderita Kanker.", sev: "severe" },
+        { id: "epilepsy", name: "Epilepsi", msg: "Saya didiagnosis menderita Epilepsi.", sev: "moderate" }
+      ];
+      const picked = illnesses[Math.floor(Math.random() * illnesses.length)];
+
       state.healthStatus.condition = "ill";
-      state.healthStatus.illnessId = illness.id;
-      state.healthStatus.severity = "mild";
+      state.healthStatus.illnessId = picked.id;
+      state.healthStatus.severity = picked.sev;
       state.healthStatus.untreatedYears = 0;
-      const msg = `Saya didiagnosis menderita ${illness.name}.`;
-      pushNotification(state, { title: "Penyakit", message: msg, icon: "warning" });
-      return { summary: msg };
+
+      pushNotification(state, { title: "Penyakit", message: picked.msg, icon: "warning" });
+      return { summary: picked.msg };
     },
   },
   {
@@ -106,7 +115,7 @@ export const eventsCatalog = [
     label: "Korban",
     minAge: 19,
     maxAge: 999,
-    weight: (state) => 0.0001,
+    weight: (state) => (!state.legal.inJail ? 0.0001 : 0),
     isInteractive: false,
     apply: (state) => {
       const isMiracle = Math.random() < 0.5;
@@ -146,32 +155,32 @@ export const eventsCatalog = [
     label: "Pertemuan",
     minAge: 19,
     maxAge: 999,
-    weight: (state) => 0.05,
+    weight: (state) => (!state.legal.inJail ? 0.05 : 0),
     isInteractive: true,
     apply: (state) => {
       const animals = ["anjing", "babi hutan", "badak", "buaya", "gajah", "harimau", "ular", "tawon", "kalajengking", "kuda nil", "tokek"];
-      
+
       // Pick animal once and store it in payload
       const animal = animals[Math.floor(Math.random() * animals.length)];
 
       return {
         summary: `Kamu menemui seekor ${animal}. Apa yang akan kamu lakukan?`,
-        payload: { animal }, 
+        payload: { animal },
         options: [
-          { 
-            id: "retreat", 
-            label: "Mundur Perlahan", 
-            resolve: (s) => `Saya bertemu seekor ${s.currentEvent.payload.animal}. Saya mundur perlahan.` 
+          {
+            id: "retreat",
+            label: "Mundur Perlahan",
+            resolve: (s) => `Saya bertemu dengan seekor ${s.currentEvent.payload.animal}. Saya mundur perlahan.`
           },
-          { 
-            id: "pet", 
-            label: "Peliharalah", 
-            resolve: (s) => `Saya bertemu seekor ${s.currentEvent.payload.animal}. Saya mencoba membelainya, namun dia malah menjauh.` 
+          {
+            id: "pet",
+            label: "Peliharalah",
+            resolve: (s) => `Saya bertemu dengan seekor ${s.currentEvent.payload.animal}. Saya memeliharanya.`
           },
-          { 
-            id: "run", 
-            label: "Lari!", 
-            resolve: (s) => `Saya bertemu seekor ${s.currentEvent.payload.animal}. Saya lari sekencang mungkin untuk menghindarinya.` 
+          {
+            id: "run",
+            label: "Lari menyelamatkan diri!",
+            resolve: (s) => `Saya bertemu dengan seekor ${s.currentEvent.payload.animal}. Saya menghindarinya.`
           }
         ],
       };
@@ -233,7 +242,7 @@ export const eventsCatalog = [
       const isAnyParentAlive = state.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
       if (state.familyWealth !== "poor" || !isAnyParentAlive) return 0;
       if (state.education.level === "none" || state.legal.inJail) return 0;
-      return 0.8;
+      return 0.7;
     },
     isInteractive: true,
     apply: (state) => ({
@@ -314,7 +323,6 @@ export const eventsCatalog = [
           id: "refuse",
           label: "Tolak",
           resolve: (s) => {
-            s.stats.smarts = Math.min(100, s.stats.smarts + 5);
             return "Kamu menolak dengan tegas.";
           },
         },
@@ -324,8 +332,7 @@ export const eventsCatalog = [
           resolve: (s) => {
             if (!s.flags) s.flags = {};
             s.flags.isDrugAttempted = true;
-            s.stats.health = Math.max(0, s.stats.health - 40);
-            s.stats.happy = Math.min(100, s.stats.happy + 20);
+            s.stats.health = Math.max(0, s.stats.health - 50);
             return "Kamu mencobanya dan merasa melayang, tapi tubuhmu hancur.";
           },
         },
@@ -336,8 +343,8 @@ export const eventsCatalog = [
     id: "side_income",
     label: "Proyek sampingan",
     minAge: 16,
-    maxAge: 70,
-    weight: (state) => (state.stats.smarts > 50 && !state.legal.inJail ? 1.1 : 0.4),
+    maxAge: 64,
+    weight: (state) => (state.stats.smarts > 80 && !state.legal.inJail ? 0.4 : 0.1),
     apply: (state) => {
       state.money += 12_000_000;
       return { summary: "Kamu mendapat proyek sampingan dan bonus uang." };
@@ -355,7 +362,7 @@ export const eventsCatalog = [
       const avgSupport =
         state.relations.reduce((acc, item) => acc + item.support, 0) /
         Math.max(1, state.relations.length);
-      return avgSupport > 65 ? 1.1 : 0.4;
+      return avgSupport > 65 ? 0.4 : 0.1;
     },
     apply: (state) => {
       state.stats.happy = Math.min(100, state.stats.happy + 5);
@@ -370,7 +377,7 @@ export const eventsCatalog = [
     maxAge: 22,
     weight: (state) => {
       if (state.education.level === "none" || state.family.isScholarshipActive || state.legal.inJail) return 0;
-      return state.stats.smarts > 75 ? 0.8 : 0.2;
+      return state.stats.smarts > 75 ? 0.4 : 0.05;
     },
     isInteractive: false,
     apply: (state) => {
@@ -396,7 +403,7 @@ export const eventsCatalog = [
     weight: (state) => {
       const isAnyParentAlive = state.relations.some(r => (r.id === "father" || r.id === "mother") && !r.isDead);
       if (state.family.savings > 0 || state.education.level === "none" || state.family.isScholarshipActive || !isAnyParentAlive) return 0;
-      return 2.0; // High weight if savings are negative
+      return 1.0; // High weight if savings are negative
     },
     isInteractive: true,
     apply: (state) => ({
@@ -430,7 +437,7 @@ export const eventsCatalog = [
     label: "Juara Lomba Akademik",
     minAge: 10,
     maxAge: 22,
-    weight: (state) => (state.stats.smarts > 80 ? 0.9 : 0.1),
+    weight: (state) => (state.stats.smarts > 95 && !state.legal.inJail ? 0.5 : 0.05),
     apply: (state) => {
       const prize = 5_000_000 + Math.floor(Math.random() * 10_000_000);
       state.family.savings += prize;
@@ -443,8 +450,8 @@ export const eventsCatalog = [
     id: "osis_election",
     label: "Organisasi",
     minAge: 13,
-    maxAge: 17,
-    weight: (state) => (state.education.level !== "none" && !state.legal.inJail ? 0.3 : 0),
+    maxAge: 16,
+    weight: (state) => (state.education.level !== "none" && !state.legal.inJail ? 0.25 : 0),
     isInteractive: true,
     apply: (state) => ({
       summary: "Pendaftaran pengurus OSIS baru telah dibuka. Teman-temanmu menyarankanmu untuk ikut. Apa posisimu?",
@@ -459,7 +466,7 @@ export const eventsCatalog = [
     id: "national_competition_invite",
     label: "Prestasi",
     minAge: 10,
-    maxAge: 18,
+    maxAge: 16,
     weight: (state) => (state.stats.smarts > 70 && state.education.level !== "none" && !state.legal.inJail ? 0.4 : 0),
     isInteractive: true,
     apply: (state) => ({
@@ -473,7 +480,7 @@ export const eventsCatalog = [
   {
     id: "first_crush",
     label: "Dinamika Sosial",
-    minAge: 12,
+    minAge: 13,
     maxAge: 16,
     weight: (state) => {
       const hasPartner = state.relations.some(r => !r.isDead && (r.status === "partner" || r.status === "spouse"));
@@ -498,8 +505,8 @@ export const eventsCatalog = [
   {
     id: "truancy_invitation",
     label: "Pergaulan",
-    minAge: 14,
-    maxAge: 17,
+    minAge: 13,
+    maxAge: 16,
     weight: (state) => (state.education.level !== "none" && !state.legal.inJail ? 0.2 : 0),
     isInteractive: true,
     apply: (state) => ({
@@ -525,30 +532,5 @@ export const eventsCatalog = [
         { id: "ignore", label: "Pura-pura Tidak Lihat" }
       ],
     }),
-  },
-  {
-    id: "driving_test",
-    label: "Lisensi",
-    minAge: 17,
-    maxAge: 18,
-    weight: (state) => {
-      const hasSIM = state.profile.licenses && state.profile.licenses.includes("SIM A/C");
-      return !hasSIM && !state.legal.inJail ? 0.8 : 0;
-    },
-    isInteractive: false,
-    apply: (state) => {
-      pushNotification(state, {
-        title: "Ujian SIM",
-        message: "Kamu sudah cukup umur untuk mendapatkan SIM. Apakah kamu ingin mengambil ujian resmi sekarang? (Biaya: Rp250.000)",
-        icon: "question",
-        type: "confirm",
-        eventId: "driving_test",
-        options: [
-          { id: "yes", label: "Ya, saya siap ujian!" },
-          { id: "no", label: "Nanti saja" }
-        ]
-      });
-      return { summary: "Tawaran untuk mengambil ujian SIM resmi." };
-    },
   },
 ];

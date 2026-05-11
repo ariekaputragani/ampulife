@@ -48,12 +48,11 @@ export function setupCharacter(state, { name, city, gender, birthDate }) {
 
   // Generate Initial Stats
   const baseHealth = familyWealth === "rich" ? 90 : familyWealth === "poor" ? 70 : 80;
-  const baseSmarts = familyWealth === "rich" ? 30 : familyWealth === "poor" ? 0 : 0;
 
   next.stats = {
     happy: Math.floor(Math.random() * 51) + 50,
     health: Math.floor(Math.random() * (101 - baseHealth)) + baseHealth,
-    smarts: Math.floor(Math.random() * (101 - baseSmarts)) + baseSmarts,
+    smarts: Math.floor(Math.random() * 101),
     looks: Math.floor(Math.random() * 101),
   };
 
