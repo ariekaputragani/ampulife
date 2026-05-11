@@ -1,12 +1,16 @@
-import { applyStatDelta, cloneState, clamp, pushLog } from "@/layers/domain/entities/stateUtils";
+import { applyStatDelta, cloneState, clamp, pushLog, pushNotification } from "@/layers/domain/entities/stateUtils";
 import { crimeCatalog } from "@/layers/infrastructure/catalogs/crimeCatalog";
 
 function randInt(min, max, rng = Math.random) {
   return Math.floor(rng() * (max - min + 1)) + min;
 }
 
-export function takeCrimeAction(state, crimeId, rng = Math.random) {
+export function takeCrimeAction(state, crimeId, payload = {}, rng = Math.random) {
   const next = cloneState(state);
+  if (state.legal.inJail && (crimeId === "escape" || crimeId === "riot")) {
+    return handlePrisonAction(next, crimeId, rng, payload);
+  }
+
   const crime = crimeCatalog.find((item) => item.id === crimeId);
 
   if (!crime) {
@@ -99,14 +103,21 @@ export function takeCrimeAction(state, crimeId, rng = Math.random) {
     next.legal.inJail = true;
     next.legal.isCaughtThisYear = true;
     next.legal.jailYearsLeft = randInt(crime.jailYears[0], crime.jailYears[1], rng);
+
+    let isLifeSentence = false;
+    if (next.legal.jailYearsLeft > 20) {
+      next.legal.jailYearsLeft = 999;
+      isLifeSentence = true;
+    }
+
     next.legal.records.push({
       type: crime.name,
       age: next.age,
-      years: next.legal.jailYearsLeft,
+      years: isLifeSentence ? "Seumur Hidup" : next.legal.jailYearsLeft,
     });
 
     // Money Confiscation (Punishment from parents/police)
-    const confiscated = Math.floor(next.money * 0.5);
+    const confiscated = next.money > 0 ? Math.floor(next.money * 0.5) : 0;
     next.money -= confiscated;
 
     // Consequences: Fired and Expelled
@@ -127,14 +138,13 @@ export function takeCrimeAction(state, crimeId, rng = Math.random) {
     next.family.savings = Math.max(0, next.family.savings - fine);
 
     // Scaled Stat Penalties
-    const penalty = crime.caughtPenalty || { happy: -40, health: -20, smarts: -5 };
+    const penalty = crime.caughtPenalty || { happy: -40 };
     next.stats.happy = clamp(next.stats.happy + (penalty.happy || -40));
-    next.stats.health = clamp(next.stats.health + (penalty.health || -20));
-    next.stats.smarts = clamp(next.stats.smarts + (penalty.smarts || -5));
 
     let punishmentText = `Orang tuamu harus membayar denda Rp${fine.toLocaleString("id-ID")}${confiscated > 0 ? ` dan menyita Rp${confiscated.toLocaleString("id-ID")} uangmu` : ""}.`;
     if (next.legal.jailYearsLeft > 0) {
-      punishmentText += ` Kamu dijebloskan ke penjara anak/lapas selama ${next.legal.jailYearsLeft} tahun!`;
+      const yearsText = next.legal.jailYearsLeft >= 999 ? "seumur hidup" : `${next.legal.jailYearsLeft} tahun`;
+      punishmentText += ` Kamu dijebloskan ke penjara anak/lapas selama ${yearsText}!`;
     } else {
       next.legal.inJail = false; // Not actually jailed if 0 years
       punishmentText += ` Kamu mendapat teguran keras dari pihak berwajib dan masuk catatan kepolisian.`;
@@ -156,4 +166,165 @@ export function takeCrimeAction(state, crimeId, rng = Math.random) {
   }
 
   return next;
+}
+
+function handlePrisonAction(next, actionId, rng, payload = {}) {
+  if (actionId === "escape") {
+    if (next.jailActions?.hasAttemptedEscape) {
+      pushNotification(next, { title: "Penjara", message: "Kamu tidak bisa mencari cara untuk kabur.", icon: "warning" });
+      return next;
+    }
+
+    if (!payload.confirmed) {
+      pushNotification(next, {
+        title: "Penjara",
+        message: "Mau kabur dari penjara?",
+        icon: "warning",
+        type: "confirm",
+        eventId: "prison_escape_confirm",
+        options: [
+          { id: "yes", label: "Ya", color: "red" },
+          { id: "no", label: "Tidak", color: "gray" }
+        ]
+      });
+      return next;
+    }
+
+    const r = rng();
+    const smarts = next.stats.smarts;
+    let success = false;
+
+    if (r < 0.7 && smarts >= 90) success = true;
+    else if (r < 0.5 && smarts >= 70) success = true;
+    else if (r < 0.3 && smarts >= 50) success = true;
+    else if (r < 0.2 && smarts >= 30) success = true;
+    else if (r < 0.1 && smarts >= 10) success = true;
+
+    if (success) {
+      next.legal.inJail = false;
+      next.legal.jailYearsLeft = 0;
+      next.stats.happy = clamp(next.stats.happy + 20);
+      const msg = "Kamu bebas dari penjara.";
+      pushLog(next, "Saya bebas dari penjara.");
+      pushNotification(next, { title: "Penjara", message: msg, icon: "success" });
+    } else {
+      const extraYears = randInt(2, 5, rng);
+      next.legal.jailYearsLeft += extraYears;
+
+      let msg = "";
+      if (next.legal.jailYearsLeft > 20) {
+        next.legal.jailYearsLeft = 999;
+        msg = `Kamu ketangkap dan dijatuhi hukuman seumur hidup!`;
+      } else {
+        msg = `Kamu ketangkap dan hukuman ditambah menjadi ${next.legal.jailYearsLeft} tahun.`;
+      }
+
+      next.stats.happy = clamp(next.stats.happy - 10);
+      pushLog(next, msg);
+      pushNotification(next, { title: "Penjara", message: msg, icon: "error" });
+    }
+
+    if (!next.jailActions) next.jailActions = {};
+    next.jailActions.hasAttemptedEscape = true;
+  }
+  else if (actionId === "riot") {
+    if (next.jailActions?.hasRioted) {
+      pushNotification(next, { title: "Penjara", message: "Suasana masih tegang, kamu tidak bisa memulai kerusuhan lagi sekarang.", icon: "warning" });
+      return next;
+    }
+
+    if (!payload.confirmed) {
+      pushNotification(next, {
+        title: "Penjara",
+        message: "Memulai kerusuhan?",
+        icon: "warning",
+        type: "confirm",
+        eventId: "prison_riot_confirm",
+        options: [
+          { id: "yes", label: "Ya", color: "red" },
+          { id: "no", label: "Tidak", color: "gray" }
+        ]
+      });
+      return next;
+    }
+
+    const r = rng();
+    let msg = "";
+    const injured = randInt(10, 50, rng);
+    const dead = randInt(1, 5, rng);
+
+    if (r < 0.25) {
+      msg = `Kamu memulai kerusuhan. ${injured} orang terluka.`;
+    } else if (r < 0.5) {
+      msg = `Kamu memulai kerusuhan. ${injured} orang terluka dan ${dead} orang meninggal dunia.`;
+    } else if (r < 0.75) {
+      msg = `Kamu memulai kerusuhan. ${injured} orang terluka. Kamu diserang!`;
+      applySerangan(next, rng);
+    } else {
+      msg = `Kamu memulai kerusuhan. ${injured} orang terluka dan ${dead} orang meninggal dunia. Kamu diserang!`;
+      applySerangan(next, rng);
+    }
+
+    pushLog(next, msg.replace("Kamu", "Saya"));
+    pushNotification(next, { title: "Kerusuhan", message: msg, icon: "info" });
+
+    if (rng() < 0.3) {
+      const extraYears = randInt(1, 2, rng);
+      next.legal.jailYearsLeft += extraYears;
+      next.stats.happy = clamp(next.stats.happy - 10);
+
+      let penaltyMsg = "";
+      if (next.legal.jailYearsLeft > 20) {
+        next.legal.jailYearsLeft = 999;
+        penaltyMsg = `Kamu memicu kerusuhan parah dan dijatuhi hukuman seumur hidup!`;
+      } else {
+        penaltyMsg = `Hukuman ditambah menjadi ${next.legal.jailYearsLeft} tahun.`;
+      }
+
+      pushLog(next, penaltyMsg.replace("Kamu", "Saya"));
+      pushNotification(next, { title: "Penjara", message: penaltyMsg, icon: "error" });
+    }
+
+    if (!next.jailActions) next.jailActions = {};
+    next.jailActions.hasRioted = true;
+  }
+
+  return next;
+}
+
+function applySerangan(next, rng) {
+  const r = rng();
+  let penalty = { happy: -10, health: -4 };
+
+  if (r < 0.4) {
+    penalty = { happy: -10, health: -4 };
+  } else if (r < 0.7) {
+    penalty = { happy: -10, health: -8 };
+  } else if (r < 0.9) {
+    penalty = { happy: -10, health: -15 };
+  } else if (r < 0.99) {
+    penalty = { happy: -10, health: -30 };
+  } else {
+    if (rng() < 0.5) {
+      // Evaded
+      pushLog(next, "Seseorang mencoba menyerang saya, tapi saya berhasil menghindar.");
+      pushNotification(next, { title: "Konflik", message: "Kamu berhasil menghindar dari serangan.", icon: "success" });
+      return;
+    } else if (rng() < 0.8) {
+      penalty = { happy: -50, health: -50 };
+    } else {
+      penalty = { happy: -50, health: -100 };
+    }
+  }
+
+  next.stats.happy = clamp(next.stats.happy + penalty.happy);
+  next.stats.health = clamp(next.stats.health + penalty.health);
+
+  if (penalty.health < -10) {
+    pushNotification(next, { title: "Konflik", message: "Awwww! Kamu terluka parah akibat serangan.", icon: "error" });
+    pushLog(next, "Saya diserang dan terluka parah!");
+  } else {
+    pushNotification(next, { title: "Konflik", message: "Awwww! Kamu terkena serangan.", icon: "warning" });
+    pushLog(next, "Saya terkena serangan narapidana lain.");
+  }
 }

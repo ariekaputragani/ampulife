@@ -10,7 +10,7 @@ export function getEffectiveSmarts(state) {
 }
 
 export function canTakeJob(state, job) {
-  if (!job || !state.life.isAlive || state.legal.inJail) {
+  if (!job || !state.life.isAlive || state.legal.inJail || state.age >= 65) {
     return false;
   }
 
@@ -60,14 +60,14 @@ export function getPromotionRequirements(state) {
   if (!nextJob) return null;
 
   const reqs = [];
-  
+
   // 1. Years in Role
   const minYears = current.promotionAfterYears ?? 3;
   if (state.career.yearsInRole < minYears) {
-    reqs.push({ 
-      id: "years", 
+    reqs.push({
+      id: "years",
       label: `Masa Kerja: ${state.career.yearsInRole}/${minYears} tahun`,
-      met: false 
+      met: false
     });
   } else {
     reqs.push({ id: "years", label: `Masa Kerja: ${minYears}/${minYears} tahun`, met: true });
@@ -76,10 +76,10 @@ export function getPromotionRequirements(state) {
   // 2. Smarts
   const effectiveSmarts = getEffectiveSmarts(state);
   if (effectiveSmarts < nextJob.minSmarts) {
-    reqs.push({ 
-      id: "smarts", 
+    reqs.push({
+      id: "smarts",
       label: `Kecerdasan: ${effectiveSmarts}/${nextJob.minSmarts}`,
-      met: false 
+      met: false
     });
   } else {
     reqs.push({ id: "smarts", label: `Kecerdasan: Cukup`, met: true });
@@ -87,10 +87,10 @@ export function getPromotionRequirements(state) {
 
   // 3. Age
   if (state.age < nextJob.minAge) {
-    reqs.push({ 
-      id: "age", 
+    reqs.push({
+      id: "age",
       label: `Umur Minimal: ${nextJob.minAge} tahun`,
-      met: false 
+      met: false
     });
   }
 

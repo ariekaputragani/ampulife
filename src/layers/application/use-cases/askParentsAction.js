@@ -22,7 +22,7 @@ export function askParentsAction(state, assetId) {
 
   // Calculate Success Chance
   let chance = 0.4; // Base 40%
-  
+
   if (asset.isProductive) {
     chance += 0.3; // More likely to get productive items
   } else {
@@ -39,7 +39,7 @@ export function askParentsAction(state, assetId) {
     smartsBonus = 0.2 * ((next.stats.smarts - 80) / 20);
   } else {
     // Linear transition between 40 and 80: scales from -0.1 to +0.1 roughly
-    smartsBonus = (next.stats.smarts - 60) / 200; 
+    smartsBonus = (next.stats.smarts - 60) / 200;
   }
   chance += smartsBonus;
 
@@ -47,9 +47,9 @@ export function askParentsAction(state, assetId) {
   const father = next.relations.find(r => r.id === "father");
   const mother = next.relations.find(r => r.id === "mother");
   const avgBond = ((father?.relationship ?? 50) + (mother?.relationship ?? 50)) / 2;
-  
+
   // Relationship bonus: -0.4 to +0.4
-  const bondBonus = (avgBond - 50) / 125; 
+  const bondBonus = (avgBond - 50) / 125;
   chance += bondBonus;
 
   // Clamp chance between 5% and 95%

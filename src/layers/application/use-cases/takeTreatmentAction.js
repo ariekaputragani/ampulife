@@ -85,8 +85,11 @@ export function takeTreatmentAction(state, treatmentId) {
   } else if (next.healthStatus.treatmentCount === 3) {
     next.stats.happy = clamp(next.stats.happy - 15);
     const adminFee = 150_000;
-    if (next.age > 18) next.money = Math.max(0, next.money - adminFee);
-    pushLog(next, "Antrian yang sangat panjang membuatmu stres (Kebahagiaan -15). Ada biaya admin tambahan Rp150.000.");
+    const isFree = next.legal?.inJail || isCoveredByBPJS;
+    if (next.age > 18 && !isFree) {
+      next.money -= adminFee;
+    }
+    pushLog(next, `Antrian yang sangat panjang membuatmu stres (Kebahagiaan -15).${next.age > 18 && !isFree ? ` Ada biaya admin tambahan Rp${adminFee.toLocaleString("id-ID")}.` : ""}`);
   }
 
   next.stats.health = clamp(next.stats.health + treatment.effect.health);
@@ -111,7 +114,7 @@ export function takeTreatmentAction(state, treatmentId) {
 
   if (next.healthStatus.condition !== "healthy") {
     const isCancer = next.healthStatus.illnessId === "cancer";
-    const isBasicClinic = ["puskesmas", "basic_checkup"].includes(treatmentId);
+    const isBasicClinic = ["puskesmas", "basic_checkup", "prison_clinic"].includes(treatmentId);
 
     if (isCancer && isBasicClinic) {
       pushLog(next, `Dokter di ${treatment.name} mendesah pelan. Penyakit Kankermu terlalu berat untuk ditangani di sini. Kamu butuh spesialis Rumah Sakit.`);

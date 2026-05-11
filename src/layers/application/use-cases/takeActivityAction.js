@@ -208,7 +208,7 @@ export function takeActivityAction(state, activityId) {
 
     case "prison_good_behavior":
       newState.stats.smarts = Math.min(100, newState.stats.smarts + 2);
-      if (Math.random() < 0.2 && newState.legal.jailYearsLeft > 1) {
+      if (Math.random() < 0.2 && newState.legal.jailYearsLeft > 1 && newState.legal.jailYearsLeft < 999) {
         newState.legal.jailYearsLeft -= 1;
         message = "Petugas terkesan dengan kelakuan baikmu. Masa tahananmu dikurangi 1 tahun!";
       } else {
@@ -222,11 +222,7 @@ export function takeActivityAction(state, activityId) {
       message = "Kamu menghabiskan waktu dengan berdoa dan merenungi kesalahanmu. Hatimu terasa lebih damai.";
       break;
 
-    case "prison_fight":
-      newState.stats.health = Math.max(0, newState.stats.health - 15);
-      newState.stats.happy = Math.min(100, newState.stats.happy + 10);
-      message = "Kamu berkelahi dengan napi lain untuk mempertahankan harga dirimu. Kamu menang, tapi babak belur.";
-      break;
+
 
     case "skincare":
       if (newState.money >= 1_500_000) {

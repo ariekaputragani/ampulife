@@ -56,7 +56,7 @@ export const educationCatalog = [
     yearsToComplete: 1,
     smartsPerYear: 2,
     jobBoost: 2,
-    requirement: (state) => !state.education.completed.includes("junior_high") && !state.education.completed.includes("paket_b") && state.education.completed.includes("elementary"),
+    requirement: (state) => !state.education.completed.includes("junior_high") && !state.education.completed.includes("paket_b") && (state.education.completed.includes("elementary") || state.education.completed.includes("paket_a")),
   },
   {
     id: "paket_c",

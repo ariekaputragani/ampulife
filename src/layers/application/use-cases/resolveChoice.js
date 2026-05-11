@@ -2,6 +2,7 @@ import { cloneState, pushLog, clamp, clampStatus, pushNotification } from "@/lay
 import { jobsCatalog } from "@/layers/infrastructure/catalogs/jobsCatalog";
 import { educationCatalog } from "@/layers/infrastructure/catalogs/educationCatalog";
 import { takeEducationAction } from "@/layers/application/use-cases/takeEducationAction";
+import { takeCrimeAction } from "@/layers/application/use-cases/takeCrimeAction";
 
 export function resolveChoice(state, eventId, choiceId, payload = {}) {
   const next = cloneState(state);
@@ -779,6 +780,55 @@ export function resolveChoice(state, eventId, choiceId, payload = {}) {
       pushLog(next, "Saya memutuskan untuk melihat-lihat beberapa lowongan pekerjaan.");
     } else {
       pushLog(next, "Saya memutuskan untuk mengambil cuti beberapa waktu.");
+    }
+    return next;
+  }
+
+  if (eventId === "manual_breakup_confirm") {
+    if (choiceId === "yes") {
+      const { relationId } = payload;
+      const relation = next.relations.find(r => r.id === relationId);
+      const name = relation ? relation.name : "Pasanganmu";
+
+      next.relations = next.relations.filter(r => r.id !== relationId);
+      const breakupMsg = `Saya sudah putus dengan ${name}.`;
+      pushLog(next, breakupMsg);
+      pushNotification(next, { title: "Hubungan", message: breakupMsg, icon: "error" });
+    }
+    return next;
+  }
+
+  if (eventId === "manual_divorce_confirm") {
+    if (choiceId === "yes") {
+      const { relationId } = payload;
+      const relation = next.relations.find(r => r.id === relationId);
+      const name = relation ? relation.name : "Pasanganmu";
+
+      // Split money: 45.5% - 55.5%
+      const splitPercent = 0.455 + (Math.random() * (0.555 - 0.455));
+      const lostAmount = Math.floor(next.money * splitPercent);
+      next.money -= lostAmount;
+
+      next.relations = next.relations.filter(r => r.id !== relationId);
+      if (next.family) next.family.isKB = false;
+
+      const divorceMsg = `Saya bercerai dengan ${name}. Harta dibagi rata sebesar Rp${lostAmount.toLocaleString("id-ID")} kepada mantan pasanganmu.`;
+      pushLog(next, divorceMsg);
+      pushNotification(next, { title: "Hubungan", message: divorceMsg, icon: "error" });
+    }
+    return next;
+  }
+
+  if (eventId === "prison_escape_confirm") {
+    if (choiceId === "yes") {
+      return takeCrimeAction(state, "escape", { confirmed: true });
+    }
+    return next;
+  }
+
+  if (eventId === "prison_riot_confirm") {
+    if (choiceId === "yes") {
+      return takeCrimeAction(state, "riot", { confirmed: true });
     }
     return next;
   }

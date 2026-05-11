@@ -41,6 +41,11 @@ export function ageUpYear(state, rng = Math.random) {
   next.flags.isSocialMediaPosted = false;
   next.flags.isDrugAttempted = false;
 
+  if (next.jailActions) {
+    next.jailActions.hasRioted = false;
+    next.jailActions.hasAttemptedEscape = false;
+  }
+
   // --- 1.1 GLOBAL RELATION AGING ---
   next.relations = next.relations.map((relation) => {
     if (relation.isDead) return relation;
@@ -57,6 +62,11 @@ export function ageUpYear(state, rng = Math.random) {
       passiveDecay = -1;
     }
 
+    // Hubungan berkurang 8% tiap tahun jika di penjara (khusus pacar/suami/istri)
+    if (next.legal.inJail && (relation.status === "partner" || relation.status === "spouse")) {
+      passiveDecay -= 8;
+    }
+
     return {
       ...relation,
       age: relation.age + 1,
@@ -64,6 +74,34 @@ export function ageUpYear(state, rng = Math.random) {
       support: clamp(relation.support + (rng() > 0.5 ? 1 : -1)),
       relationship: clamp((relation.relationship || 50) + passiveDecay),
     };
+  });
+
+  // --- 1.2 AUTOMATIC BREAKUP / DIVORCE (Bond 0%) ---
+  const toRemove = [];
+  next.relations.forEach(rel => {
+    if (rel.relationship <= 0 && (rel.status === "partner" || rel.status === "spouse")) {
+      toRemove.push(rel);
+    }
+  });
+
+  toRemove.forEach(rel => {
+    if (rel.status === "spouse") {
+      const splitPercent = 0.455 + (rng() * (0.555 - 0.455));
+      const lostAmount = Math.floor(next.money * splitPercent);
+      next.money -= lostAmount;
+      if (next.family) next.family.isKB = false;
+
+      const divorceMsg = `Saya bercerai dengan ${rel.name}. Harta dibagi rata sebesar Rp${lostAmount.toLocaleString("id-ID")} diberikan kepada mantan pasanganmu.`;
+      pushLog(next, divorceMsg);
+      pushNotification(next, { title: "Hubungan", message: divorceMsg, icon: "error" });
+      otherEvents = true;
+    } else {
+      const breakupMsg = `Saya sudah putus dengan ${rel.name}.`;
+      pushLog(next, breakupMsg);
+      pushNotification(next, { title: "Hubungan", message: breakupMsg, icon: "error" });
+      otherEvents = true;
+    }
+    next.relations = next.relations.filter(r => r.id !== rel.id);
   });
 
   let grossIncome = 0;
@@ -178,6 +216,7 @@ export function ageUpYear(state, rng = Math.random) {
       message: `Selamat! Kamu memiliki seorang anak baru bernama ${childName}. (Biaya RS: Rp${birthCost.toLocaleString("id-ID")})`,
       icon: "success"
     });
+    otherEvents = true;
   }
 
   // --- 3.5 CHILD SCHOOLING MILESTONES ---
@@ -225,11 +264,6 @@ export function ageUpYear(state, rng = Math.random) {
         : "memutuskan untuk pindah rumah dan hidup mandiri sepenuhnya.";
 
       pushLog(next, `${rel.name} sudah dewasa dan ${statusMsg}`);
-      pushNotification(next, {
-        title: "Anak Mandiri",
-        message: `${rel.name} sekarang sudah dewasa dan ${staysAtHome ? "tetap tinggal bersamamu" : "pindah rumah"}.`,
-        icon: "info"
-      });
     }
     return rel;
   });
@@ -267,11 +301,6 @@ export function ageUpYear(state, rng = Math.random) {
 
       next.stats.happy = clamp(next.stats.happy + 20);
       pushLog(next, `Kabar Bahagia! ${child.name} baru saja dikaruniai seorang anak bernama ${grandchildName}. Kamu sekarang resmi menjadi Kakek/Nenek!`);
-      pushNotification(next, {
-        title: "Cucu Baru!",
-        message: `Selamat! Kamu memiliki cucu baru bernama ${grandchildName}.`,
-        icon: "success"
-      });
     }
   });
 
@@ -485,6 +514,7 @@ export function ageUpYear(state, rng = Math.random) {
       const msgExpel = `Kamu dikeluarkan dari ${next.education.schoolName} karena harus menjalani masa hukuman di penjara.`;
       pushLog(next, msgExpel);
       pushNotification(next, { title: "Sekolah", message: msgExpel, icon: "error" });
+      otherEvents = true;
       next.education.level = "none";
       next.education.yearsStudied = 0;
 
@@ -494,10 +524,13 @@ export function ageUpYear(state, rng = Math.random) {
         const msg = "Semua beasiswa aktifmu telah dicabut karena pelanggaran perilaku.";
         pushLog(next, msg);
         pushNotification(next, { title: "Beasiswa", message: msg, icon: "warning" });
+        otherEvents = true;
       }
     }
 
-    next.legal.jailYearsLeft -= 1;
+    if (next.legal.jailYearsLeft < 999) {
+      next.legal.jailYearsLeft -= 1;
+    }
     next.stats = applyStatDelta(next.stats, {
       happy: -3,
       health: -2,
@@ -538,41 +571,40 @@ export function ageUpYear(state, rng = Math.random) {
           eventId: "prison_release_choice",
           options: releaseOptions
         });
+        otherEvents = true;
       }
-    } else {
-      pushLog(next, `Kamu menjalani hukuman. Sisa masa tahanan: ${next.legal.jailYearsLeft} tahun.`);
+      const yearsLeftText = next.legal.jailYearsLeft >= 999 ? "seumur hidup" : `${next.legal.jailYearsLeft} tahun`;
+      pushLog(next, `Kamu menjalani hukuman. Sisa masa tahanan: ${yearsLeftText}.`);
     }
   }
 
   if (!next.legal.inJail && next.career.jobId) {
     const job = jobsCatalog.find((item) => item.id === next.career.jobId);
     if (job) {
-      // --- RETIREMENT LOGIC (Interactive at 65) ---
+      // --- RETIREMENT LOGIC (Mandatory at 65) ---
       if (next.age == 65 && !next.career.isRetired && next.career.jobId) {
         const salaryWithBoost = computeYearlySalary(next, job);
         const pesangon = Math.floor(salaryWithBoost * next.career.yearsWorked * 0.5);
-        const pensionYearly = Math.floor(salaryWithBoost * 0.6); // Increased to 60%
+        const pensionYearly = Math.floor(salaryWithBoost * 0.6); // 60% of last salary
+        const pensionMonthly = Math.floor(pensionYearly / 12);
 
-        // Instead of automatic, we push a notification with choices
+        // Immediate retirement
+        next.career.isRetired = true;
+        next.career.pensionAmount = pensionYearly;
+        next.career.jobId = null;
+        next.money += pesangon;
+
+        const retirementMsg = `Kamu harus pensiun. Gaji per bulan Rp${pensionMonthly.toLocaleString("id-ID")}.`;
+        const logMsg = `Saya harus pensiun. Gaji per bulan Rp${pensionMonthly.toLocaleString("id-ID")}.`;
+
         pushNotification(next, {
-          title: "Masa Pensiun",
-          message: `Kamu telah mencapai usia 65 tahun. Apakah kamu ingin pensiun dari pekerjaan sebagai ${job.name} sekarang? Kamu akan menerima pesangon Rp${pesangon.toLocaleString("id-ID")} dan uang pensiun tahunan Rp${pensionYearly.toLocaleString("id-ID")}.`,
-          icon: "question",
-          type: "confirm",
-          eventId: "retirement_choice",
-          payload: { pesangon, pensionYearly, jobName: job.name },
-          options: [
-            { id: "retire", label: "Pensiun & Nikmati Masa Tua", color: "green" },
-            { id: "continue", label: "Tetap Bekerja (Jika Mampu)", color: "blue" }
-          ]
+          title: "Pekerjaan",
+          message: retirementMsg,
+          icon: "success"
         });
 
-        // While waiting for choice, we still pay salary for this year
-        grossIncome += salaryWithBoost;
-        next.career.yearsWorked += 1;
-        next.career.yearsInRole += 1;
-        next.stats = applyStatDelta(next.stats, job.delta);
-        pushLog(next, `Kamu mencapai usia 65 tahun. Kamu sedang mempertimbangkan untuk pensiun.`);
+        next.stats.happy = clamp(next.stats.happy + 20); // From updatea(20, 0, 0, 0)
+        pushLog(next, logMsg);
       } else {
         // --- SALARY INCREASE (Legacy script.js line 2114) ---
         next.career.yearsWorked += 1;
@@ -618,7 +650,6 @@ export function ageUpYear(state, rng = Math.random) {
             next.career.yearsInRole = 0;
             next.career.promotions += 1;
             pushLog(next, msg);
-            pushNotification(next, { title: "Pekerjaan", message: msg, icon: "success" });
           }
         }
       }
@@ -808,8 +839,8 @@ export function ageUpYear(state, rng = Math.random) {
 
     // 1. Base Chance based on Age (Minimum risk at 100% health)
     let baseChance = 0.01; // 60-70
-    if (next.age >= 90) baseChance = 0.2;
-    if (next.age >= 85) baseChance = 0.1;
+    if (next.age >= 90) baseChance = 0.15;
+    else if (next.age >= 85) baseChance = 0.1;
     else if (next.age >= 75) baseChance = 0.04;
     else if (next.age >= 65) baseChance = 0.02;
 
@@ -870,37 +901,6 @@ export function ageUpYear(state, rng = Math.random) {
     }
 
     // Graduation Milestones moved to after progression
-    // Age 19–22: Nudge for SMA grads
-    else if (next.age >= 19 && next.age <= 22 && next.education.level === "none") {
-      const hasSecondaryEdu = next.education.completed.includes("sma") || next.education.completed.includes("smk") || next.education.completed.includes("paket_c");
-      const hasUniDegree = next.education.completed.some(id => id.startsWith("university_"));
-      const isFocusingOnWork = next.education.isFocusingOnWork;
-
-      if (hasSecondaryEdu && !hasUniDegree && !isFocusingOnWork) {
-        const hasJob = !!next.career?.jobId;
-        const nudgeOptions = [
-          { id: "snbt", label: "Ikut SNBT (UTBK)", color: "blue" },
-          { id: "mandiri", label: "Daftar Jalur Mandiri (PTN)", color: "orange" },
-          { id: "swasta", label: "Daftar Kampus Swasta", color: "purple" },
-          { id: "terbuka", label: "Universitas Terbuka (UT)", color: "cyan" }
-        ];
-
-        if (hasJob) {
-          nudgeOptions.push({ id: "job", label: "Tetap Fokus Berkarir", color: "gray" });
-        } else {
-          nudgeOptions.push({ id: "job", label: "Tetap Cari Kerja", color: "gray" });
-        }
-
-        pushNotification(next, {
-          title: "Rencana Kuliah?",
-          message: `Kamu sudah ${next.age} tahun. Masih mau mencoba masuk universitas atau tetap fokus dengan jalanmu saat ini?`,
-          icon: "question",
-          type: "confirm",
-          eventId: "graduation_path_selection",
-          options: nudgeOptions
-        });
-      }
-    }
     // Age 17: SIM Test
     else if (next.age === 17) {
       pushNotification(next, {
@@ -1045,6 +1045,7 @@ export function ageUpYear(state, rng = Math.random) {
               eventId: "graduation_university",
               options: gradOptions
             });
+            otherEvents = true;
             next.profile.isIndependent = true;
           } else {
             const setaraName = next.education.level === "paket_a" ? "SD" : (next.education.level === "paket_b" ? "SMP" : "SMA");
@@ -1068,6 +1069,7 @@ export function ageUpYear(state, rng = Math.random) {
                 eventId: "graduation_paket_a_selection",
                 options: options
               });
+              otherEvents = true;
             } else if (next.education.level === "paket_b") {
               const options = [
                 { id: "paket_c", label: "Lanjut Kejar Paket C (Setara SMA)", color: "cyan" },
@@ -1087,6 +1089,7 @@ export function ageUpYear(state, rng = Math.random) {
                 eventId: "graduation_paket_b_selection",
                 options: options
               });
+              otherEvents = true;
             } else {
               // Paket C graduation
               let waitMsg = "";
@@ -1101,6 +1104,7 @@ export function ageUpYear(state, rng = Math.random) {
                 message: `${gradMsg}${waitMsg}`,
                 icon: "success"
               });
+              otherEvents = true;
             }
           }
 
@@ -1173,6 +1177,7 @@ export function ageUpYear(state, rng = Math.random) {
         const msg = `Orang tua ku membeli motor bekas agar bisa menghemat ongkos harian (Rp8.000.000).`;
         pushLog(next, msg);
         pushNotification(next, { title: "Kabar Baik", message: msg, icon: "success" });
+        otherEvents = true;
       }
     } else {
       if (!famAssets.motor && !famAssets.car && savings > 40_000_000 && rngVal < 0.15 && next.age > 4) {
@@ -1183,6 +1188,7 @@ export function ageUpYear(state, rng = Math.random) {
         const msg = `Orang tua ku baru saja membeli motor baru untuk transportasi keluarga (Rp${cost.toLocaleString("id-ID")}).`;
         pushLog(next, msg);
         pushNotification(next, { title: "Kabar Baik", message: msg, icon: "success" });
+        otherEvents = true;
       }
       const carThreshold = next.family.wealthStatus === "rich" ? 800_000_000 : 250_000_000;
       if (!famAssets.car && savings > carThreshold && rngVal < 0.10 && next.age > 6) {
@@ -1194,6 +1200,7 @@ export function ageUpYear(state, rng = Math.random) {
         const msg = `Keluargaku baru saja membeli mobil baru! ${dreamMsg} (Rp${cost.toLocaleString("id-ID")}).`;
         pushLog(next, msg);
         pushNotification(next, { title: "Kabar Baik", message: msg, icon: "success" });
+        otherEvents = true;
       }
     }
   }
@@ -1285,6 +1292,7 @@ export function ageUpYear(state, rng = Math.random) {
         message: "Kedua orang tuamu telah meninggal. Kamu kini resmi hidup mandiri.",
         icon: "info"
       });
+      otherEvents = true;
     } else {
       // Underage: Trigger Adoption/Relative Choice
       otherEvents = true; // Block other random events
@@ -1299,6 +1307,7 @@ export function ageUpYear(state, rng = Math.random) {
           { id: "street", label: "Hidup di Jalanan (Mandiri)" }
         ]
       });
+      otherEvents = true;
     }
   }
 
@@ -1367,16 +1376,12 @@ export function ageUpYear(state, rng = Math.random) {
         message: "Kamu terkena Coronavirus.",
         icon: "warning"
       });
+      otherEvents = true;
       pushLog(next, "Saya didiagnosis menderita Coronavirus.");
     }
   }
 
-  if (!otherEvents && next.life.isAlive) {
-    triggerRandomEvent(next, rng);
-    if (next.currentEvent && !next.currentEvent.payload) {
-      next.currentEvent.payload = {};
-    }
-  }
+
 
   // --- 11. FAMILY EVENTS (Independent of otherEvents) ---
   if (!next.profile.isIndependent && next.life.isAlive && isAnyParentAlive) {
@@ -1407,6 +1412,7 @@ export function ageUpYear(state, rng = Math.random) {
             message: `${picked.msg} (Tabungan berkurang Rp${picked.cost.toLocaleString("id-ID")})`,
             icon: "warning"
           });
+          otherEvents = true;
         }
       }
     }
@@ -1429,6 +1435,7 @@ export function ageUpYear(state, rng = Math.random) {
           message: sickMsg,
           icon: "warning"
         });
+        otherEvents = true;
       }
     });
 
@@ -1454,6 +1461,7 @@ export function ageUpYear(state, rng = Math.random) {
             message: phkMsg,
             icon: "error"
           });
+          otherEvents = true;
         }
       }
     }
@@ -1479,13 +1487,15 @@ export function ageUpYear(state, rng = Math.random) {
             recoveryMsg = `Kabar gembira! ${person} mu diterima bekerja di perusahaan besar dengan gaji yang mapan. Masa krisis telah berlalu.`;
           }
           pushLog(next, recoveryMsg);
-          pushNotification(next, {
-            title: "Kabar Baik dari Keluarga",
-            message: recoveryMsg,
-            icon: "success"
-          });
         }
       }
+    }
+  }
+
+  if (!otherEvents && next.life.isAlive) {
+    triggerRandomEvent(next, rng);
+    if (next.currentEvent && !next.currentEvent.payload) {
+      next.currentEvent.payload = {};
     }
   }
 

@@ -83,7 +83,7 @@ export function useLayeredGame() {
       setState((current) => takeRelationAction(current, relationId, actionKey, payload)),
     study: (educationId) =>
       setState((current) => takeEducationAction(current, educationId)),
-    doCrime: (crimeId) => setState((current) => takeCrimeAction(current, crimeId)),
+    doCrime: (crimeId, payload) => setState((current) => takeCrimeAction(current, crimeId, payload)),
     treatment: (treatmentId) =>
       setState((current) => takeTreatmentAction(current, treatmentId)),
     promote: () => setState((current) => takePromotionAction(current)),

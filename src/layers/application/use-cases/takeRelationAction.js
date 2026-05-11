@@ -1,4 +1,4 @@
-import { cloneState, clamp, pushLog } from "@/layers/domain/entities/stateUtils";
+import { cloneState, clamp, pushLog, pushNotification } from "@/layers/domain/entities/stateUtils";
 
 export function takeRelationAction(state, relationId, actionKey, payload) {
   const next = cloneState(state);
@@ -14,8 +14,9 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
   // Bypass interaction check for "give_money"
   const isGiveMoney = actionKey === "give_money";
 
-  // Prevent multiple interactions in the same year (except for giving money)
-  if (!isGiveMoney && relation.lastInteractionAge === next.age && actionKey !== "ask_out" && actionKey !== "propose") {
+  // Prevent multiple interactions in the same year (except for giving money, and major life changes)
+  const isBypassAction = ["ask_out", "propose", "breakup", "divorce"].includes(actionKey);
+  if (!isGiveMoney && relation.lastInteractionAge === next.age && !isBypassAction) {
     return next;
   }
 
@@ -42,12 +43,12 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
   }
 
   else if (actionKey === "ask_money") {
-    if (relation.status !== "family") {
+    if (relation.status !== "family" && relation.status !== "spouse") {
       pushLog(next, `Kamu tidak enak hati meminta uang kepada ${relation.name} karena dia bukan keluargamu.`);
       return next;
     }
 
-    // --- CALCULATE SUCCESS CHANCE (Same logic as Asset Request) ---
+    // --- CALCULATE SUCCESS CHANCE ---
     let chance = 0.5; // Base 50% for money
 
     // Smarts Impact
@@ -67,17 +68,30 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
 
     if (Math.random() < chance) {
       // SUCCESS
-      const amount = next.family.wealthStatus === "rich" ? 200_000 : 50_000;
+      let amount = 0;
+      if (relation.status === "spouse") {
+        const base = next.family.wealthStatus === "rich" ? 2_500_000 : next.family.wealthStatus === "middle" ? 750_000 : 150_000;
+        amount = Math.floor(base * (0.8 + Math.random() * 0.4)); // Randomization 80% - 120%
+      } else {
+        // Parent logic
+        const base = next.family.wealthStatus === "rich" ? 200_000 : 50_000;
+        amount = Math.floor(base * (0.9 + Math.random() * 0.2)); // Slight randomization
+      }
+
       next.money += amount;
       relation.relationship = clamp(relation.relationship - 3);
       relation.lastInteractionAge = next.age;
-      pushLog(next, `Berhasil! ${displayName} memberikanmu uang jajan tambahan sebesar Rp${amount.toLocaleString("id-ID")}.`);
+
+      const label = relation.status === "spouse" ? (relation.gender === "male" ? "Suami" : "Istri") : displayName;
+      pushLog(next, `Berhasil! ${label} memberikanmu uang jajan tambahan sebesar Rp${amount.toLocaleString("id-ID")}.`);
     } else {
       // FAILURE
       relation.relationship = clamp(relation.relationship - 10);
       next.stats.happy = clamp(next.stats.happy - 10);
       relation.lastInteractionAge = next.age;
-      pushLog(next, `${displayName} menolak memberimu uang. "Cari uang itu susah, jangan cuma bisa minta!" katanya.`);
+
+      const label = relation.status === "spouse" ? (relation.gender === "male" ? "Suami" : "Istri") : displayName;
+      pushLog(next, `${label} menolak memberimu uang. "Cari uang itu susah, jangan cuma bisa minta!" katanya.`);
     }
   }
 
@@ -170,11 +184,11 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
       next.money -= weddingCost;
       relation.status = "spouse";
       relation.relationship = 100;
-      
+
       // Automatic independence upon marriage
       next.profile.isIndependent = true;
       next.profile.livingWithParents = false;
-      
+
       pushLog(next, `Selamat! Lamaranmu diterima. Kamu dan ${displayName} kini resmi menikah dalam sebuah upacara yang indah.`);
       pushLog(next, "Sebagai pasangan baru, kamu memutuskan untuk hidup mandiri dan membangun rumah tanggamu sendiri.");
     }
@@ -186,6 +200,38 @@ export function takeRelationAction(state, relationId, actionKey, payload) {
     next.family.isKB = !next.family.isKB;
     const status = next.family.isKB ? "AKTIF (Tunda Anak)" : "MATI (Program Anak)";
     pushLog(next, `Kamu berdiskusi dengan ${displayName} tentang rencana keluarga. Program KB sekarang: ${status}.`);
+  }
+
+  else if (actionKey === "breakup") {
+    if (relation.status !== "partner") return next;
+    pushNotification(next, {
+      title: "Hubungan",
+      message: `Apakah Anda yakin ingin putus dengan pacar?`,
+      icon: "warning",
+      type: "confirm",
+      eventId: "manual_breakup_confirm",
+      payload: { relationId },
+      options: [
+        { id: "yes", label: "Ya", color: "red" },
+        { id: "no", label: "Tidak", color: "gray" }
+      ]
+    });
+  }
+
+  else if (actionKey === "divorce") {
+    if (relation.status !== "spouse") return next;
+    pushNotification(next, {
+      title: "Hubungan",
+      message: `Apakah Anda yakin ingin bercerai? Sebagian harta mandiri Anda akan dibagi rata.`,
+      icon: "warning",
+      type: "confirm",
+      eventId: "manual_divorce_confirm",
+      payload: { relationId },
+      options: [
+        { id: "yes", label: "Ya", color: "red" },
+        { id: "no", label: "Tidak", color: "gray" }
+      ]
+    });
   }
 
   return next;

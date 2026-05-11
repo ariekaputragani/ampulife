@@ -12,6 +12,7 @@ export default function LayeredGameView() {
   const { state, options, actions, promotionInfo, ready } = useLayeredGame();
   const [activeTab, setActiveTab] = useState("journal");
   const [selectedJobDetail, setSelectedJobDetail] = useState(null);
+  const [deathModalDismissed, setDeathModalDismissed] = useState(false);
   const logEndRef = useRef(null);
   const router = useRouter();
 
@@ -51,9 +52,9 @@ export default function LayeredGameView() {
                 Swal.close();
                 actions.resolveChoice(notif.eventId, choiceId, notif.payload);
                 actions.popNotification();
-                
-                // Redirection logic for "Cari Kerja" (Checking ID or Label)
-                const isWorkChoice = choiceId === "job" || choiceId === "work" || label.includes("kerja") || label.includes("job");
+
+                // Redirection logic for "Cari Kerja" (Checking ID or Label + Age >= 15)
+                const isWorkChoice = (choiceId === "job" || choiceId === "work" || label.includes("kerja") || label.includes("job")) && state.age >= 15;
                 if (isWorkChoice) {
                   setActiveTab("jobs");
                 }
@@ -183,7 +184,14 @@ export default function LayeredGameView() {
 
         {/* Age Up Button */}
         <div className={styles.ageUpSection}>
-          <button onClick={actions.ageUp} className={styles.ageUpButton}><i className="fa fa-plus"></i> Umur</button>
+          <button
+            onClick={actions.ageUp}
+            className={styles.ageUpButton}
+            disabled={!state.life.isAlive}
+            style={!state.life.isAlive ? { opacity: 1, cursor: 'not-allowed', filter: 'none' } : {}}
+          >
+            <i className="fa fa-plus"></i> Umur
+          </button>
         </div>
 
         {/* Navigation Grid (Buttons) */}
@@ -212,7 +220,7 @@ export default function LayeredGameView() {
                   <button
                     className={styles.navButton2}
                     onClick={() => setActiveTab("education")}
-                    disabled={state.age < 6 || state.legal?.inJail}
+                    disabled={!state.life.isAlive || state.age < 6 || state.legal?.inJail}
                   >
                     <i className="fa-solid fa-school"></i> Sekolah
                   </button>
@@ -220,7 +228,7 @@ export default function LayeredGameView() {
                   <button
                     className={styles.navButton2}
                     onClick={() => setActiveTab("jobs")}
-                    disabled={state.age < 15 || state.legal?.inJail}
+                    disabled={!state.life.isAlive || state.age < 15 || state.legal?.inJail}
                   >
                     <i className="fa-solid fa-briefcase"></i> Karir
                   </button>
@@ -228,7 +236,7 @@ export default function LayeredGameView() {
                   <button
                     className={styles.navButton1}
                     onClick={() => setActiveTab("assets")}
-                    disabled={state.age < 10 || state.legal?.inJail}
+                    disabled={!state.life.isAlive || state.age < 10 || state.legal?.inJail}
                   >
                     <i className="fa-solid fa-house-chimney-user"></i> Aset
                   </button>
@@ -236,7 +244,7 @@ export default function LayeredGameView() {
                   <button
                     className={styles.navButton1}
                     onClick={() => setActiveTab("relations")}
-                    disabled={state.age < 6}
+                    disabled={!state.life.isAlive || state.age < 6}
                   >
                     <i className="fa-solid fa-user-group"></i> Hubungan
                   </button>
@@ -244,7 +252,7 @@ export default function LayeredGameView() {
                   <button
                     className={styles.navButton1}
                     onClick={() => setActiveTab("activities")}
-                    disabled={state.age < 6}
+                    disabled={!state.life.isAlive || state.age < 6}
                   >
                     <i className="fa-solid fa-book-open"></i> Aktivitas
                   </button>
@@ -253,6 +261,7 @@ export default function LayeredGameView() {
                   <button
                     className={styles.navButton1}
                     onClick={() => setActiveTab("health")}
+                    disabled={!state.life.isAlive}
                   >
                     <i className="fa-solid fa-stethoscope"></i> Dokter
                   </button>
@@ -260,6 +269,7 @@ export default function LayeredGameView() {
                   <button
                     className={styles.navButton1}
                     onClick={() => setActiveTab("finance")}
+                    disabled={!state.life.isAlive}
                   >
                     <i className="fa-solid fa-wallet"></i> Keuangan
                   </button>
@@ -267,7 +277,8 @@ export default function LayeredGameView() {
                   <button
                     className={styles.navButton1}
                     onClick={() => setActiveTab("identity")}
-                    style={{ backgroundColor: "#f8f9fa", color: "#495057", border: "1px solid #ced4da" }}
+                    disabled={!state.life.isAlive}
+                    style={{ backgroundColor: "#f8f9fa", color: "#495057", border: "1px solid #ced4da", opacity: 1, cursor: !state.life.isAlive ? "not-allowed" : "pointer", filter: 'none' }}
                   >
                     <i className="fa-solid fa-id-card"></i> Identitas
                   </button>
@@ -279,9 +290,13 @@ export default function LayeredGameView() {
                 className={styles.tombol2Button}
                 style={{ margin: "0 0 12px 0" }} // Removing top margin because it's now in a section
                 onClick={() => {
+                  const title = state.life.isAlive ? 'Akhiri Hidup?' : 'Ulangi Hidup?';
+                  const text = state.life.isAlive
+                    ? "Semua progres akan hilang dan kamu akan mulai dari awal."
+                    : "Mulai kembali kehidupan baru dari awal.";
                   Swal.fire({
-                    title: 'Akhiri Hidup?',
-                    text: "Semua progres akan hilang dan kamu akan mulai dari awal.",
+                    title: title,
+                    text: text,
                     icon: 'warning',
                     showCancelButton: true,
                     customClass: {
@@ -340,10 +355,10 @@ export default function LayeredGameView() {
                     className={`${styles.modalOptionButton} ${idx === 0 ? styles.modalOptionButtonPrimary : ""}`}
                     onClick={() => {
                       const label = opt.label.toLowerCase();
-                      const isWorkChoice = opt.id === "job" || opt.id === "work" || label.includes("kerja") || label.includes("job");
-                      
+                      const isWorkChoice = (opt.id === "job" || opt.id === "work" || label.includes("kerja") || label.includes("job")) && state.age >= 15;
+
                       actions.handleEventChoice(opt.id);
-                      
+
                       if (isWorkChoice) {
                         setActiveTab("jobs");
                       } else {
@@ -361,16 +376,13 @@ export default function LayeredGameView() {
       })()}
 
       {/* Death Modal */}
-      {!state.life.isAlive && (
+      {!state.life.isAlive && !deathModalDismissed && (
         <div className={styles.modalBackdrop}>
           <div className={styles.modalContent}>
             <h1>Kematian</h1>
             <p>Penyebab: {state.life.causeOfDeath}</p>
             <p>Umur: {state.age} tahun.</p>
-            <button onClick={() => {
-              actions.reset();
-              router.push("/");
-            }} className={styles.primaryButton}>Mulai Lagi</button>
+            <button onClick={() => setDeathModalDismissed(true)} className={styles.primaryButton}>Jurnal</button>
           </div>
         </div>
       )}
@@ -502,12 +514,14 @@ function RelationsTab({ state, actions, onBack }) {
   const relActions = [
     { id: "chat", name: "💬 Ngobrol", desc: "Berbagi cerita santai.", effect: "📈 +5%" },
     { id: "rant", name: "🗣️ Curhat", desc: "Menceritakan keluh kesah.", effect: "📈 +8%, 😊 +5" },
-    { id: "ask_money", name: "💰 Minta Uang", desc: "Minta uang saku.", effect: "💸 +Uang, 📉 -5%", familyOnly: true },
+    { id: "ask_money", name: "💰 Minta Uang", desc: "Minta uang saku.", effect: "💸 +Uang, 📉 -5%", familyOrSpouseOnly: true },
     { id: "give_money", name: "💸 Memberi Uang", desc: "Beri uang saku.", effect: "📈 +Kedekatan, 💸 -Uang" },
     { id: "gift", name: "🎁 Hadiah", desc: "Memberi kado (Rp1jt).", effect: "📈 +15%" },
     { id: "ask_out", name: "❤️ Pacaran", desc: "Ajak pacaran.", effect: "Status: Pacar", oppositeOnly: true, hideIfPartner: true, nonFamilyOnly: true },
     { id: "propose", name: "💍 Lamar", desc: "Ajak menikah (Rp50jt).", effect: "Status: Pasangan", partnerOnly: true, nonFamilyOnly: true },
-    { id: "toggle_kb", name: "🍼 Program KB", desc: "Tunda/Atur anak.", effect: "Peluang Anak: 0%", spouseOnly: true }
+    { id: "toggle_kb", name: "🍼 Program KB", desc: "Tunda/Atur anak.", effect: "Peluang Anak: 0%", spouseOnly: true },
+    { id: "breakup", name: "💔 Putus", desc: "Akhiri hubungan.", effect: "Kehilangan Kontak", partnerOnly: true },
+    { id: "divorce", name: "⚖️ Bercerai", desc: "Ceraikan pasanganmu.", effect: "Bagi Rata: ~50% Duit", spouseOnly: true }
   ];
 
   const handleAction = (rel, action) => {
@@ -661,6 +675,7 @@ function RelationsTab({ state, actions, onBack }) {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "12px" }}>
                       {relActions.map(action => {
                         if (action.familyOnly && rel.status !== "family") return null;
+                        if (action.familyOrSpouseOnly && (rel.status !== "family" && rel.status !== "spouse")) return null;
                         if (action.nonFamilyOnly && rel.status === "family") return null;
                         if (action.oppositeOnly && !isOppositeGender) return null;
                         if (action.minAge && state.age < action.minAge) return null;
@@ -668,7 +683,15 @@ function RelationsTab({ state, actions, onBack }) {
                         if (action.spouseOnly && rel.status !== "spouse") return null;
                         if (action.hideIfPartner && (rel.status === "partner" || rel.status === "spouse")) return null;
 
-                        const isDisabled = isInteracted && action.id !== "ask_out" && action.id !== "propose" && action.id !== "give_money" && action.id !== "toggle_kb";
+                        // Restriction when in jail
+                        const inJail = state.legal?.inJail;
+                        if (inJail) {
+                          const isBreakupAction = (rel.status === "partner" && action.id === "breakup");
+                          const isDivorceAction = (rel.status === "spouse" && action.id === "divorce");
+                          if (!isBreakupAction && !isDivorceAction) return null;
+                        }
+
+                        const isDisabled = isInteracted && !["ask_out", "propose", "give_money", "toggle_kb", "breakup", "divorce"].includes(action.id);
 
                         let actionName = action.name;
                         let actionEffect = action.effect;
@@ -734,13 +757,23 @@ function ActivitiesTab({ state, options, actions, onBack }) {
   const prisonActivities = [
     { id: "prison_workout", name: "Olahraga di Sel", description: "Lakukan push-up dan sit-up untuk menjaga kebugaran di dalam jeruji besi.", effects: "+Kesehatan", icon: "💪" },
     { id: "prison_good_behavior", name: "Berkelakuan Baik", description: "Membantu petugas dan tidak membuat onar untuk mempercepat masa tahanan.", effects: "+Reputasi Baik", icon: "🙏" },
-    { id: "prison_pray", name: "Berdoa & Renungan", description: "Mendekatkan diri pada Tuhan dan menyesali perbuatan masa lalu.", effects: "+Kebahagiaan & Kecerdasan", icon: "📖" },
-    { id: "prison_fight", name: "Berkelahi dengan Napi", description: "Tunjukkan siapa bosnya di blok ini agar tidak ada yang berani macam-macam.", effects: "-Kesehatan & +Kebahagiaan", icon: "👊" }
+    { id: "prison_pray", name: "Berdoa & Renungan", description: "Mendekatkan diri pada Tuhan dan menyesali perbuatan masa lalu.", effects: "+Kebahagiaan & Kecerdasan", icon: "📖" }
+
   ];
 
   return (
     <div className={styles.tabPane}>
-      <h3>{inJail ? "Aktivitas Penjara" : "Aktivitas Umum"}</h3>
+      <h3>Aktivitas</h3>
+
+      {inJail && (
+        <div style={{ background: "#fff5f5", border: "1px solid #ffa8a8", padding: "10px", borderRadius: "8px", marginBottom: "15px", textAlign: "center" }}>
+          <div style={{ fontSize: "12px", color: "#e03131", fontWeight: "bold" }}>STATUS HUKUMAN</div>
+          <div style={{ fontSize: "18px", fontWeight: "bold", color: "#c92a2a" }}>
+            {state.legal.jailYearsLeft >= 999 ? "SEUMUR HIDUP" : `${state.legal.jailYearsLeft} TAHUN LAGI`}
+          </div>
+        </div>
+      )}
+
       <div className={styles.optionsList}>
         {inJail ? (
           prisonActivities.map((act) => {
@@ -855,7 +888,7 @@ function ActivitiesTab({ state, options, actions, onBack }) {
 function HealthTab({ state, options, actions, onBack }) {
   return (
     <div className={styles.tabPane}>
-      <h3>Medis & Kesehatan</h3>
+      <h3>Dokter</h3>
       <div className={styles.optionsList}>
         <div style={{ marginBottom: "10px", fontSize: "14px" }}>
           Kondisi saat ini: <strong>{state.healthStatus.condition === "healthy" ? "Sehat" : "Sakit"}</strong>
@@ -985,11 +1018,6 @@ function EducationTab({ state, options, actions, onBack }) {
         {(() => {
           const isDroppedOut = state.education.isDroppedOut;
 
-          const regularSchools = isDroppedOut ? [] : options.education.filter(edu =>
-            (edu.id === "elementary" || edu.id === "junior_high" || edu.id === "sma" || edu.id === "smk") &&
-            state.age >= edu.minAge && state.age <= (edu.maxAge || 999)
-          );
-
           const filteredPaket = options.education.filter(edu => {
             if (edu.id === "paket_a") return !state.education.completed.includes("elementary") && !state.education.completed.includes("paket_a");
             if (edu.id === "paket_b") return !state.education.completed.includes("junior_high") && !state.education.completed.includes("paket_b");
@@ -1001,16 +1029,16 @@ function EducationTab({ state, options, actions, onBack }) {
             const isUni = edu.level === "university" || edu.id.startsWith("university_");
             if (!isUni) return false;
             if (state.age < 18) return false;
-            
+
             // Allow if NOT dropped out OR has graduated from high school equivalent
-            const hasHighSchoolCert = state.education.completed.includes("sma") || 
-                                     state.education.completed.includes("smk") || 
-                                     state.education.completed.includes("paket_c");
-                                     
+            const hasHighSchoolCert = state.education.completed.includes("sma") ||
+              state.education.completed.includes("smk") ||
+              state.education.completed.includes("paket_c");
+
             return !isDroppedOut || hasHighSchoolCert;
           });
 
-          const allVisible = [...regularSchools, ...filteredPaket, ...universities];
+          const allVisible = [...filteredPaket, ...universities];
 
           if (allVisible.length === 0) {
             return <p style={{ fontSize: "12px", color: "#adb5bd", fontStyle: "italic" }}>Tidak ada program pendidikan yang tersedia untuk umurmu saat ini.</p>;
@@ -1018,21 +1046,6 @@ function EducationTab({ state, options, actions, onBack }) {
 
           return (
             <>
-              {regularSchools.length > 0 && (
-                <div style={{ width: "100%" }}>
-                  <div style={{ fontSize: "11px", fontWeight: "bold", color: "#868e96", marginBottom: "8px", textTransform: "uppercase" }}>Sekolah Reguler</div>
-                  {regularSchools.map(edu => (
-                    <button key={edu.id} onClick={() => actions.study(edu.id)} disabled={state.money < edu.costPerYear} style={{ textAlign: "left", padding: "12px", marginBottom: "10px", width: "100%" }}>
-                      <div style={{ fontWeight: "bold" }}>{edu.name}</div>
-                      <div style={{ fontSize: "11px", color: "#666" }}>Target: {edu.yearsToComplete} Tahun</div>
-                      <div style={{ fontSize: "12px", color: state.money < edu.costPerYear ? "#e03131" : "#2f9e44", fontWeight: "bold", marginTop: "4px" }}>
-                        Biaya: {edu.costPerYear === 0 ? "GRATIS" : `Rp${edu.costPerYear.toLocaleString("id-ID")}/thn`}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
               {filteredPaket.length > 0 && (
                 <div style={{ width: "100%", marginTop: "10px" }}>
                   <div style={{ fontSize: "11px", fontWeight: "bold", color: "#868e96", marginBottom: "8px", textTransform: "uppercase" }}>Program Kesetaraan (Kejar Paket)</div>
